@@ -195,22 +195,6 @@
       display: inline-flex;
       align-items: center;
     }
-    .trend-up { background: rgba(0, 217, 163, 0.15); color: var(--accent-profit); }
-    .trend-down { background: rgba(255, 90, 95, 0.15); color: var(--accent-expense); }
-
-    .ring-container { position: relative; width: 220px; height: 220px; margin: 1rem auto; }
-    .ring-center-text {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      width: 80%;
-      pointer-events: none;
-    }
-
-    .gauge-card { display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-    .gauge-container { position: relative; width: 100%; max-width: 160px; height: 90px; margin: 0.5rem auto 0 auto; }
-
     .period-selector { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
     .period-btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; margin: 0; background: #141B2E; border: 1px solid var(--border-subtle); }
     .period-btn.active { background: var(--accent-profit); color: #0B1120; font-weight: bold; }
@@ -279,7 +263,6 @@
     .tab-btn { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; white-space: nowrap; width: auto; margin: 0; }
     .tab-btn.active { background: var(--accent-profit); color: #0B1120; font-weight: bold; border-color: var(--accent-profit); }
     .tab-content.hidden { display: none; }
-    .low-stock-option { background-color: rgba(255, 90, 95, 0.25) !important; color: var(--accent-expense) !important; }
 
     /* AGENDA Y SERVICIOS */
     .checklist-box { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem; margin-top: 0.35rem; max-height: 180px; overflow-y: auto; background: #070B14; }
@@ -391,40 +374,11 @@
           <ul id="dash-today-appointments-list" style="margin-top: 0.75rem; list-style: none;"></ul>
         </div>
 
-        <!-- Hero Ring -->
+        <!-- Ingresos por Servicios -->
         <div class="card hero-metric card-stagger">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="color: var(--text-muted); font-size: 0.9rem;">Ganancia Neta vs Ventas</span>
-            <span id="trend-profit" class="badge-trend trend-up">↑ 0%</span>
-          </div>
-          <div class="ring-container">
-            <canvas id="chartHeroRing"></canvas>
-            <div class="ring-center-text">
-              <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">GANANCIA NETA</span>
-              <div id="dash-net-profit" class="val-large font-numeric" style="color: var(--accent-profit); font-size: 1.8rem; margin: 0;">$0.00</div>
-              <span id="dash-profit-ratio" style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">0% de ventas</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ventas -->
-        <div class="card gauge-card card-stagger">
-          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <span style="color: var(--text-muted); font-size: 0.85rem;">Ventas (Ingresos)</span>
-            <span id="trend-sales" class="badge-trend trend-up">↑ 0%</span>
-          </div>
-          <div class="gauge-container"><canvas id="chartMiniSales"></canvas></div>
-          <div id="dash-gross-sales" class="val-large font-numeric" style="font-size: 1.6rem; margin-top: 0;">$0.00</div>
-        </div>
-
-        <!-- Gastos -->
-        <div class="card gauge-card card-stagger">
-          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <span style="color: var(--text-muted); font-size: 0.85rem;">Costo de Ventas</span>
-            <span id="trend-expenses" class="badge-trend trend-down">↓ 0%</span>
-          </div>
-          <div class="gauge-container"><canvas id="chartMiniExpenses"></canvas></div>
-          <div id="dash-expenses" class="val-large font-numeric" style="font-size: 1.6rem; color: var(--accent-expense); margin-top: 0;">$0.00</div>
+          <span style="color: var(--text-muted); font-size: 0.9rem;">Ingresos por Servicios Completados</span>
+          <div id="dash-net-profit" class="val-large font-numeric" style="color: var(--accent-profit); font-size: 2.2rem; margin: 0.4rem 0;">$0.00</div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Suma de citas marcadas como "completada" en el período seleccionado.</span>
         </div>
 
         <!-- Métrica Cuentas por Cobrar -->
@@ -454,12 +408,6 @@
             <div class="recommend-item"><span style="color: var(--accent-recommend);">■ Fondo Emerg. (<span id="lbl-pct-sav">15</span>%)</span><strong id="rec-val-sav">$0.00</strong></div>
             <div class="recommend-item"><span style="color: #A855F7;">■ Uso Personal (<span id="lbl-pct-per">15</span>%)</span><strong id="rec-val-per">$0.00</strong></div>
           </div>
-        </div>
-
-        <!-- Alertas Stock -->
-        <div class="card hero-metric card-stagger" style="border-left-color: var(--accent-expense);">
-          <h3>Alertas de Stock Bajo</h3>
-          <ul id="dash-low-stock-list" style="margin-top: 0.5rem; padding-left: 1.2rem; color: var(--accent-expense); font-size: 0.9rem;"></ul>
         </div>
       </div>
     </section>
@@ -568,79 +516,6 @@
       </div>
     </section>
 
-    <!-- MÓDULO: INVENTARIO (PRODUCTOS DE VENTA AL PÚBLICO) -->
-    <section id="sec-inventory" class="view-module hidden">
-      <h2>Inventario de Productos</h2>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem;">Productos de venta al público: shampoo, tintes, cera, esmaltes, etc.</p>
-      <button id="btn-show-add-product" class="btn-primary" style="margin-top: 0.5rem;">+ Nuevo Producto</button>
-
-      <form id="product-form" class="card hidden">
-        <h3 id="product-form-title">Guardar Producto</h3>
-        <input type="hidden" id="prod-id">
-        <label>Nombre del Producto</label>
-        <input type="text" id="prod-name" required>
-        <label>Precio Compra ($)</label>
-        <input type="number" step="0.01" id="prod-cost" placeholder="0.00">
-        <label>Precio Venta ($)</label>
-        <input type="number" step="0.01" id="prod-price" required>
-        <label>Cantidad en Stock</label>
-        <input type="number" id="prod-stock" required>
-        <label>Alerta Stock Mínimo</label>
-        <input type="number" id="prod-min" value="3" required>
-        <button type="submit" class="btn-primary">Guardar Producto</button>
-        <button type="button" id="btn-cancel-product" class="btn-danger">Cancelar</button>
-      </form>
-
-      <input type="text" id="inventory-search" placeholder="Buscar producto..." style="margin-top: 1rem;">
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr><th>Producto</th><th>Precio</th><th>Stock</th><th>Acción</th></tr>
-          </thead>
-          <tbody id="inventory-table-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- MÓDULO: PUNTO DE VENTA (POS) -->
-    <section id="sec-sales" class="view-module hidden">
-      <h2>Punto de Venta</h2>
-      <div class="card" style="margin-top: 0.5rem;">
-        <label>Seleccionar Producto</label>
-        <select id="sale-product-select"></select>
-        <label>Cantidad</label>
-        <input type="number" id="sale-qty" value="1" min="1">
-        <button id="btn-add-to-cart">Agregar a la Venta</button>
-      </div>
-
-      <div class="card">
-        <h3>Detalle de la Venta</h3>
-        <div class="table-responsive">
-          <table>
-            <thead><tr><th>Producto</th><th>Cant</th><th>Subtotal</th><th></th></tr></thead>
-            <tbody id="cart-table-body"></tbody>
-          </table>
-        </div>
-
-        <h2 style="margin-top: 1rem; text-align: right;" class="font-numeric">Total: $<span id="cart-total">0.00</span></h2>
-
-        <label>Método de Pago</label>
-        <select id="sale-payment-method">
-          <option value="Efectivo">Efectivo</option>
-          <option value="Transferencia">Transferencia</option>
-          <option value="Tarjeta">Tarjeta</option>
-          <option value="Crédito">Crédito (Cuenta x Cobrar)</option>
-        </select>
-
-        <div id="credit-customer-container" class="smooth-collapse">
-          <label style="color: var(--accent-recommend); font-weight: bold;">Cliente a Fiar (Obligatorio)</label>
-          <select id="sale-customer-select"></select>
-        </div>
-
-        <button id="btn-process-sale" class="btn-primary" style="margin-top: 1rem; padding: 1rem; font-size: 1.1rem;">Completar Venta</button>
-      </div>
-    </section>
-
     <!-- MÓDULO: CLIENTES Y CRÉDITOS -->
     <section id="sec-customers" class="view-module hidden">
       <h2>Clientes</h2>
@@ -650,6 +525,10 @@
         <input type="text" id="cust-name" required>
         <label>Teléfono</label>
         <input type="tel" id="cust-phone">
+        <label>Domicilio (opcional)</label>
+        <input type="text" id="cust-address" placeholder="Para la factura">
+        <label>E-mail (opcional)</label>
+        <input type="email" id="cust-email" placeholder="Para la factura">
         <button type="submit" class="btn-primary">Guardar Cliente</button>
       </form>
 
@@ -726,16 +605,23 @@
       <h2>Facturas</h2>
       <div class="card" style="margin-top: 0.5rem;">
         <h3>Emitir Factura</h3>
-        <label>Cliente (Opcional)</label>
-        <select id="invoice-customer-select"><option value="">Cliente General</option></select>
-        <label>Venta a Facturar</label>
-        <select id="invoice-sale-select"></select>
-        <button id="btn-generate-invoice" class="btn-primary">Generar Factura (PDF)</button>
-      </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Se factura un servicio ya marcado como "completada" en la Agenda.</p>
 
-      <div class="card">
-        <h3>Tendencia Histórica de Ventas</h3>
-        <div style="height: 250px; margin-top: 1rem;"><canvas id="salesChart"></canvas></div>
+        <label>Servicio Completado a Facturar</label>
+        <select id="invoice-appointment-select"></select>
+
+        <label>Cliente (obligatorio)</label>
+        <select id="invoice-customer-select" required><option value="">-- Selecciona un cliente --</option></select>
+
+        <label>Método de Pago</label>
+        <select id="invoice-payment-method">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Crédito">Crédito (Cuenta x Cobrar)</option>
+        </select>
+
+        <button id="btn-generate-invoice" class="btn-primary">Generar Factura (PDF)</button>
       </div>
 
       <div class="card table-responsive">
@@ -784,7 +670,6 @@
       <button class="tab-btn active" data-tab="tab-cfg-business">Datos Negocio</button>
       <button class="tab-btn" data-tab="tab-cfg-tax">Moneda e Impuestos</button>
       <button class="tab-btn" data-tab="tab-cfg-payments">Métodos de Pago</button>
-      <button class="tab-btn" data-tab="tab-cfg-alerts">Inventario/Alertas</button>
       <button class="tab-btn" data-tab="tab-cfg-profit">Distribución Ganancias</button>
       <button class="tab-btn" data-tab="tab-cfg-activity">Registro Actividad</button>
     </div>
@@ -802,6 +687,8 @@
         <input type="tel" id="cfg-phone" placeholder="Ej: 809-555-0000">
         <label>Dirección</label>
         <input type="text" id="cfg-address" placeholder="Ej: Av. Principal #12">
+        <label>Sitio Web</label>
+        <input type="text" id="cfg-website" placeholder="Ej: www.salonnathalie.com">
         <label>Logotipo del Salón</label>
         <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
           <img id="cfg-logo-preview" src="logo-header.png" style="width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--border-subtle); object-fit: cover;">
@@ -848,17 +735,6 @@
       </form>
     </div>
 
-    <!-- Inventario y Alertas -->
-    <div id="tab-cfg-alerts" class="tab-content card hidden">
-      <form id="form-cfg-alerts">
-        <label style="display: flex; align-items: center; justify-content: space-between;">
-          Mostrar alerta visual de stock bajo en el Punto de Venta
-          <input type="checkbox" id="cfg-global-low-stock" style="width: auto; margin: 0;" checked>
-        </label>
-        <button type="submit" class="btn-primary">Guardar Ajustes de Inventario</button>
-      </form>
-    </div>
-
     <!-- Distribución de Ganancias -->
     <div id="tab-cfg-profit" class="tab-content card hidden">
       <form id="form-cfg-profit">
@@ -898,9 +774,7 @@
     <button class="nav-item nav-admin-only" data-target="sec-appointments">Agenda</button>
     <button class="nav-item nav-admin-only" data-target="sec-services">Servicios</button>
     <button class="nav-item" data-target="sec-customers">Clientes</button>
-    <button class="nav-item" data-target="sec-sales">Ventas</button>
     <button class="nav-item nav-admin-only" data-target="sec-reports">Facturas</button>
-    <button class="nav-item nav-admin-only" data-target="sec-inventory">Inventario</button>
     <button class="nav-item nav-admin-only" id="nav-btn-employees" data-target="sec-employees">Empleados</button>
   </nav>
 
@@ -919,23 +793,18 @@
     let currentBusinessId = null;
     let currentUserRole = 'admin'; // 'admin' | 'employee'
     let currentBusinessData = null;
-    let inventorySnapshot = [];
-    let salesHistory = [];
     let customersSnapshot = [];
     let creditsSnapshot = [];
-    let cart = [];
     let activePeriod = 'today';
     let userSettings = { pct_inventory: 40, pct_operations: 30, pct_savings: 15, pct_personal: 15 };
     let selectedBusinessType = 'individual';
-    let heroChartAnimated = false;
     let modulesInitialized = false;
 
     let employeesSnapshot = [];
     let servicesSnapshot = [];
     let specialistServicesSnapshot = [];
     let appointmentsSnapshot = [];
-
-    let chartHeroRing = null, chartSalesGauge = null, chartExpensesGauge = null, chartReport = null;
+    let invoicedAppointmentIds = new Set();
 
     // -------------------------------------------------------------
     // 3. NAVEGACIÓN Y EVENTOS GENERALES
@@ -1233,8 +1102,8 @@
 
       if (currentUserRole === 'employee') {
         document.querySelectorAll('.nav-admin-only').forEach(el => el.classList.add('hidden'));
-        document.getElementById('sec-sales').classList.remove('hidden');
-        document.querySelector('[data-target="sec-sales"]').classList.add('active');
+        document.getElementById('sec-customers').classList.remove('hidden');
+        document.querySelector('[data-target="sec-customers"]').classList.add('active');
       } else {
         document.querySelectorAll('.nav-admin-only').forEach(el => el.classList.remove('hidden'));
         if (currentBusinessData?.business_type !== 'group') {
@@ -1247,14 +1116,11 @@
 
     function startSystemModules() {
       if (!modulesInitialized) {
-        initInventory();
-        initSales();
-        initReports();
         initCustomersAndCredits();
         initEmployeeManagement();
-        initInvoices();
         initServices();
         initAppointments();
+        initInvoices();
         applyLogoToHeader();
         modulesInitialized = true;
       }
@@ -1275,8 +1141,8 @@
         const { data } = await supabase.from('customers').select('*').eq('business_id', currentBusinessId);
         if (data) {
           customersSnapshot = data;
-          populateSalesCustomerSelect();
           populateApptCustomerSelect();
+          populateInvoiceCustomerSelect();
           await loadCredits();
         }
       };
@@ -1289,7 +1155,9 @@
         await supabase.from('customers').insert([{
           business_id: currentBusinessId,
           name: document.getElementById('cust-name').value,
-          phone: document.getElementById('cust-phone').value
+          phone: document.getElementById('cust-phone').value,
+          address: document.getElementById('cust-address').value || null,
+          email: document.getElementById('cust-email').value || null
         }]);
         document.getElementById('customer-form').reset();
         await loadCustomers();
@@ -1447,115 +1315,6 @@
     }
 
     document.getElementById('btn-close-account').onclick = () => document.getElementById('modal-customer-account').classList.add('hidden');
-
-    function populateSalesCustomerSelect() {
-      const select = document.getElementById('sale-customer-select');
-      select.innerHTML = '<option value="">-- Seleccionar Cliente --</option>';
-      customersSnapshot.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.name;
-        select.appendChild(opt);
-      });
-    }
-
-    // Toggle visibilidad del cliente en POS
-    document.getElementById('sale-payment-method').addEventListener('change', (e) => {
-      const container = document.getElementById('credit-customer-container');
-      if (e.target.value === 'Crédito') {
-        container.classList.add('expanded');
-        document.getElementById('sale-customer-select').required = true;
-      } else {
-        container.classList.remove('expanded');
-        document.getElementById('sale-customer-select').required = false;
-      }
-    });
-
-    // -------------------------------------------------------------
-    // 6. VENTAS (POS) INTEGRADO CON CRÉDITO
-    // -------------------------------------------------------------
-    function initSales() {
-      document.getElementById('btn-add-to-cart').onclick = () => {
-        const productId = document.getElementById('sale-product-select').value;
-        const qty = parseInt(document.getElementById('sale-qty').value);
-
-        if (!productId || qty <= 0) return;
-        const product = inventorySnapshot.find(p => p.id === productId);
-        if (!product || qty > product.stock) return alert("Stock insuficiente.");
-
-        const idx = cart.findIndex(i => i.id === productId);
-        if (idx > -1) {
-          if (cart[idx].qty + qty > product.stock) return alert("Excede el stock.");
-          cart[idx].qty += qty;
-          cart[idx].subtotal = cart[idx].qty * parseFloat(product.sale_price);
-        } else {
-          cart.push({
-            id: product.id, name: product.name,
-            cost: parseFloat(product.purchase_price), price: parseFloat(product.sale_price),
-            qty: qty, subtotal: qty * parseFloat(product.sale_price)
-          });
-        }
-        renderCart();
-      };
-
-      document.getElementById('btn-process-sale').onclick = async () => {
-        if (cart.length === 0) return alert("Carrito vacío.");
-
-        const paymentMethod = document.getElementById('sale-payment-method').value;
-        const customerId = document.getElementById('sale-customer-select').value;
-
-        if (paymentMethod === 'Crédito' && !customerId) {
-          return alert("Debe seleccionar un cliente obligatoriamente para procesar ventas a crédito.");
-        }
-
-        const totalAmount = cart.reduce((acc, i) => acc + i.subtotal, 0);
-        const totalCost = cart.reduce((acc, i) => acc + (i.cost * i.qty), 0);
-
-        try {
-          const { data: saleData, error: saleErr } = await supabase.from('sales').insert([{
-            business_id: currentBusinessId, items: cart,
-            total: totalAmount, profit: totalAmount - totalCost,
-            payment_method: paymentMethod
-          }]).select().single();
-
-          if (saleErr) throw saleErr;
-
-          // Si es venta a crédito -> Insertar en customer_credits
-          if (paymentMethod === 'Crédito') {
-            await supabase.from('customer_credits').insert([{
-              business_id: currentBusinessId,
-              customer_id: customerId,
-              sale_id: saleData.id,
-              amount: totalAmount,
-              amount_paid: 0,
-              status: 'pendiente'
-            }]);
-          }
-
-          // Descontar Stock
-          for (const item of cart) {
-            const currentProd = inventorySnapshot.find(p => p.id === item.id);
-            if (currentProd) {
-              await supabase.from('products').update({ stock: currentProd.stock - item.qty }).eq('id', item.id);
-              populateSalesSelect(inventorySnapshot);
-            }
-          }
-
-          cart = [];
-          renderCart();
-          await loadCredits();
-          await logActivity(`Registró una venta por $${totalAmount.toFixed(2)} (${paymentMethod})`);
-
-          salesHistory.unshift(saleData);
-          calculateFinancialDashboard();
-          populateInvoiceSelects();
-
-          alert("Venta completada con éxito.");
-        } catch (err) {
-          alert("Error al procesar la venta: " + err.message);
-        }
-      };
-    }
 
     // -------------------------------------------------------------
     // 7. GESTIÓN DE EMPLEADOS (ADMIN)
@@ -1804,6 +1563,7 @@
           start_at: startAt.toISOString(),
           end_at: endAt.toISOString(),
           status: 'pendiente',
+          price: service.price,
           notes: notes
         }]);
 
@@ -1871,6 +1631,14 @@
       appointmentsSnapshot = data || [];
       renderAppointmentsForSelectedDate();
       renderTodayAppointmentsWidget();
+      calculateFinancialDashboard();
+      populateInvoiceAppointmentSelect();
+    }
+
+    function appointmentRevenue(appt) {
+      if (appt.price != null) return parseFloat(appt.price);
+      const svc = servicesSnapshot.find(s => s.id === appt.service_id);
+      return svc ? parseFloat(svc.price) : 0;
     }
 
     function renderAppointmentsForSelectedDate() {
@@ -1923,7 +1691,23 @@
         addBtn('Completar', 'completada', 'btn-primary');
         addBtn('No-show', 'no_show', 'btn-outline');
         addBtn('Cancelar', 'cancelada', 'btn-danger');
+      } else if (appt.status === 'completada' && !invoicedAppointmentIds.has(appt.id)) {
+        const btn = document.createElement('button');
+        btn.textContent = 'Facturar';
+        btn.className = 'btn-small btn-agenda';
+        btn.onclick = () => goToInvoiceForAppointment(appt.id);
+        cell.appendChild(btn);
       }
+    }
+
+    function goToInvoiceForAppointment(appointmentId) {
+      modules.forEach(m => m.classList.add('hidden'));
+      navButtons.forEach(b => b.classList.remove('active'));
+      document.getElementById('sec-reports').classList.remove('hidden');
+      document.querySelector('[data-target="sec-reports"]')?.classList.add('active');
+      const apptSelect = document.getElementById('invoice-appointment-select');
+      apptSelect.value = appointmentId;
+      apptSelect.dispatchEvent(new Event('change'));
     }
 
     async function updateAppointmentStatus(id, newStatus, label) {
@@ -1965,29 +1749,22 @@
     // -------------------------------------------------------------
     function calculateFinancialDashboard() {
       const now = new Date();
-      let filteredSales = [];
-      let prevSales = [];
+      const completed = appointmentsSnapshot.filter(a => a.status === 'completada');
+      let filteredAppointments = [];
 
-      salesHistory.forEach(s => {
-        const d = new Date(s.created_at);
+      completed.forEach(a => {
+        const d = new Date(a.start_at);
         if (activePeriod === 'today') {
-          if (d.toDateString() === now.toDateString()) filteredSales.push(s);
-          const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
-          if (d.toDateString() === yesterday.toDateString()) prevSales.push(s);
+          if (d.toDateString() === now.toDateString()) filteredAppointments.push(a);
         } else if (activePeriod === 'week') {
           const diffDays = Math.ceil(Math.abs(now - d) / (1000 * 60 * 60 * 24));
-          if (diffDays <= 7) filteredSales.push(s);
-          else if (diffDays > 7 && diffDays <= 14) prevSales.push(s);
+          if (diffDays <= 7) filteredAppointments.push(a);
         } else if (activePeriod === 'month') {
-          if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) filteredSales.push(s);
-          const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-          if (d.getMonth() === prevMonthDate.getMonth() && d.getFullYear() === prevMonthDate.getFullYear()) prevSales.push(s);
+          if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) filteredAppointments.push(a);
         }
       });
 
-      const grossSales = filteredSales.reduce((acc, s) => acc + parseFloat(s.total), 0);
-      const netProfit = filteredSales.reduce((acc, s) => acc + parseFloat(s.profit), 0);
-      const expenses = grossSales - netProfit;
+      const netProfit = filteredAppointments.reduce((acc, a) => acc + appointmentRevenue(a), 0);
 
       const totalReceivables = creditsSnapshot.filter(cr => cr.status !== 'pagado')
         .reduce((acc, cr) => acc + (parseFloat(cr.amount) - parseFloat(cr.amount_paid)), 0);
@@ -1995,11 +1772,6 @@
       document.getElementById('dash-receivables').textContent = `$${totalReceivables.toFixed(2)}`;
 
       animateCounter('dash-net-profit', netProfit);
-      document.getElementById('dash-gross-sales').textContent = `$${grossSales.toFixed(2)}`;
-      document.getElementById('dash-expenses').textContent = `$${expenses.toFixed(2)}`;
-
-      const profitRatio = grossSales > 0 ? ((netProfit / grossSales) * 100).toFixed(0) : 0;
-      document.getElementById('dash-profit-ratio').textContent = `${profitRatio}% de ventas`;
 
       const recInv = (netProfit * userSettings.pct_inventory) / 100;
       const recOps = (netProfit * userSettings.pct_operations) / 100;
@@ -2012,9 +1784,7 @@
       document.getElementById('rec-val-per').textContent = `$${recPer.toFixed(2)}`;
 
       document.getElementById('recommend-advice-text').textContent =
-        `Con $${netProfit.toFixed(2)} de ganancia neta en este período, asigna $${recInv.toFixed(2)} a reponer inventario y $${recOps.toFixed(2)} a gastos operativos.`;
-
-      renderCircularDashboard(grossSales, netProfit, expenses);
+        `Con $${netProfit.toFixed(2)} de ingresos en este período, asigna $${recInv.toFixed(2)} a reinversión y $${recOps.toFixed(2)} a gastos operativos.`;
     }
 
     function animateCounter(elementId, targetVal) {
@@ -2032,58 +1802,6 @@
         if (progress < 1) requestAnimationFrame(update);
       }
       requestAnimationFrame(update);
-    }
-
-    function renderCircularDashboard(grossSales, netProfit, expenses) {
-      const shouldAnimate = !heroChartAnimated;
-      const animDuration = shouldAnimate ? 1200 : 0;
-
-      const remainingSales = Math.max(0, grossSales - Math.max(0, netProfit));
-      const heroFill = grossSales > 0 ? [Math.max(0, netProfit), remainingSales] : [0, 100];
-      const heroColors = grossSales > 0 ? ['#00D9A3', '#232B42'] : ['#232B42', '#141B2E'];
-
-      if (chartHeroRing) chartHeroRing.destroy();
-      const ctxRing = document.getElementById('chartHeroRing');
-      if (ctxRing) {
-        chartHeroRing = new Chart(ctxRing, {
-          type: 'doughnut',
-          data: {
-            labels: ['Ganancia Neta', 'Resto de Ventas'],
-            datasets: [{ data: heroFill, backgroundColor: heroColors, borderWidth: 0, borderRadius: 6 }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false, cutout: '82%',
-            plugins: { legend: { display: false } },
-            animation: { duration: animDuration }
-          }
-        });
-      }
-
-      const totalVolume = grossSales + expenses;
-      const salesPct = totalVolume > 0 ? (grossSales / totalVolume) * 100 : 50;
-      const expPct = totalVolume > 0 ? (expenses / totalVolume) * 100 : 50;
-
-      if (chartSalesGauge) chartSalesGauge.destroy();
-      const ctxSales = document.getElementById('chartMiniSales');
-      if (ctxSales) {
-        chartSalesGauge = new Chart(ctxSales, {
-          type: 'doughnut',
-          data: { datasets: [{ data: [salesPct, 100 - salesPct], backgroundColor: ['#3B82F6', '#232B42'], borderWidth: 0, circumference: 180, rotation: 270 }] },
-          options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } }, animation: { duration: animDuration } }
-        });
-      }
-
-      if (chartExpensesGauge) chartExpensesGauge.destroy();
-      const ctxExpenses = document.getElementById('chartMiniExpenses');
-      if (ctxExpenses) {
-        chartExpensesGauge = new Chart(ctxExpenses, {
-          type: 'doughnut',
-          data: { datasets: [{ data: [expPct, 100 - expPct], backgroundColor: ['#FF5A5F', '#232B42'], borderWidth: 0, circumference: 180, rotation: 270 }] },
-          options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } }, animation: { duration: animDuration } }
-        });
-      }
-
-      heroChartAnimated = true;
     }
 
     function applySettingsToUI() {
@@ -2134,6 +1852,7 @@
       document.getElementById('cfg-tax-id').value = b.tax_id || '';
       document.getElementById('cfg-phone').value = b.phone || '';
       document.getElementById('cfg-address').value = b.address || '';
+      document.getElementById('cfg-website').value = b.website || '';
       document.getElementById('cfg-currency-symbol').value = b.currency_symbol || '$';
 
       const taxEnabled = b.tax_enabled || false;
@@ -2150,8 +1869,6 @@
       document.getElementById('cfg-pm-transferencia').checked = pm.transferencia !== false;
       document.getElementById('cfg-pm-tarjeta').checked = pm.tarjeta !== false;
       document.getElementById('cfg-pm-credito').checked = pm.credito !== false;
-
-      document.getElementById('cfg-global-low-stock').checked = b.global_low_stock_alert !== false;
 
       document.getElementById('cfg-pct-inv').value = userSettings.pct_inventory;
       document.getElementById('cfg-pct-ops').value = userSettings.pct_operations;
@@ -2185,6 +1902,7 @@
         tax_id: document.getElementById('cfg-tax-id').value,
         phone: document.getElementById('cfg-phone').value,
         address: document.getElementById('cfg-address').value,
+        website: document.getElementById('cfg-website').value,
         logo_url: logoUrl,
         updated_at: new Date()
       };
@@ -2231,16 +1949,6 @@
       alert("Métodos de pago guardados.");
     });
 
-    document.getElementById('form-cfg-alerts').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const val = document.getElementById('cfg-global-low-stock').checked;
-      const { error } = await supabase.from('businesses').update({ global_low_stock_alert: val, updated_at: new Date() }).eq('id', currentBusinessId);
-      if (error) return alert("Error: " + error.message);
-      currentBusinessData.global_low_stock_alert = val;
-      await logActivity('Actualizó alerta de stock bajo');
-      alert("Ajustes de inventario guardados.");
-    });
-
     document.getElementById('form-cfg-profit').addEventListener('submit', async (e) => {
       e.preventDefault();
       const pInv = parseInt(document.getElementById('cfg-pct-inv').value) || 0;
@@ -2265,25 +1973,36 @@
     // 10d. MÓDULO DE FACTURAS
     // -------------------------------------------------------------
     function initInvoices() {
-      populateInvoiceSelects();
+      populateInvoiceAppointmentSelect();
+      populateInvoiceCustomerSelect();
+
+      document.getElementById('invoice-appointment-select').addEventListener('change', (e) => {
+        const appt = appointmentsSnapshot.find(a => a.id === e.target.value);
+        document.getElementById('invoice-customer-select').value = appt?.customer_id || '';
+      });
 
       document.getElementById('btn-generate-invoice').onclick = async () => {
-        const saleId = document.getElementById('invoice-sale-select').value;
-        const customerId = document.getElementById('invoice-customer-select').value || null;
-        const sale = salesHistory.find(s => s.id === saleId);
-        if (!sale) return alert("Selecciona una venta para facturar.");
+        const appointmentId = document.getElementById('invoice-appointment-select').value;
+        const appt = appointmentsSnapshot.find(a => a.id === appointmentId);
+        if (!appt) return alert("Selecciona un servicio completado para facturar.");
+
+        const customerId = document.getElementById('invoice-customer-select').value;
+        if (!customerId) return alert("Debes seleccionar un cliente: el nombre del cliente es obligatorio en la factura.");
+
+        const paymentMethod = document.getElementById('invoice-payment-method').value;
+        const revenue = appointmentRevenue(appt);
 
         const taxEnabled = currentBusinessData?.tax_enabled;
         const taxRate = taxEnabled ? (currentBusinessData.tax_percentage / 100) : 0;
-        let subtotal = sale.total;
+        let subtotal = revenue;
         let taxAmount = 0;
 
         if (taxEnabled) {
           if (currentBusinessData.tax_included_in_price) {
-            subtotal = sale.total / (1 + taxRate);
-            taxAmount = sale.total - subtotal;
+            subtotal = revenue / (1 + taxRate);
+            taxAmount = revenue - subtotal;
           } else {
-            taxAmount = sale.total * taxRate;
+            taxAmount = revenue * taxRate;
           }
         }
         const total = subtotal + taxAmount;
@@ -2291,7 +2010,7 @@
 
         const { data: invData, error } = await supabase.from('invoices').insert([{
           business_id: currentBusinessId,
-          sale_id: saleId,
+          appointment_id: appointmentId,
           customer_id: customerId,
           invoice_number: invoiceNumber,
           subtotal: subtotal,
@@ -2301,35 +2020,63 @@
 
         if (error) return alert("Error al generar factura: " + error.message);
 
+        if (paymentMethod === 'Crédito') {
+          await supabase.from('customer_credits').insert([{
+            business_id: currentBusinessId,
+            customer_id: customerId,
+            invoice_id: invData.id,
+            amount: total,
+            amount_paid: 0,
+            status: 'pendiente'
+          }]);
+          await loadCredits();
+        }
+
         await logActivity(`Generó la factura ${invoiceNumber}`);
-        generateInvoicePDF(invData, sale);
+        generateInvoicePDF(invData);
+        document.getElementById('invoice-appointment-select').value = '';
+        document.getElementById('invoice-customer-select').value = '';
         await loadInvoicesList();
       };
     }
 
-    function populateInvoiceSelects() {
-      const custSelect = document.getElementById('invoice-customer-select');
-      custSelect.innerHTML = '<option value="">Cliente General</option>';
+    function populateInvoiceAppointmentSelect() {
+      const select = document.getElementById('invoice-appointment-select');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">-- Selecciona un servicio completado --</option>';
+      appointmentsSnapshot
+        .filter(a => a.status === 'completada' && !invoicedAppointmentIds.has(a.id))
+        .forEach(a => {
+          const svc = servicesSnapshot.find(s => s.id === a.service_id);
+          const customer = customersSnapshot.find(c => c.id === a.customer_id);
+          const opt = document.createElement('option');
+          opt.value = a.id;
+          opt.textContent = `${new Date(a.start_at).toLocaleString()} - ${svc ? svc.name : 'Servicio'} (${customer ? customer.name : 'Walk-in'})`;
+          select.appendChild(opt);
+        });
+      select.value = currentVal;
+    }
+
+    function populateInvoiceCustomerSelect() {
+      const select = document.getElementById('invoice-customer-select');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">-- Selecciona un cliente --</option>';
       customersSnapshot.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.id; opt.textContent = c.name;
-        custSelect.appendChild(opt);
+        select.appendChild(opt);
       });
-
-      const saleSelect = document.getElementById('invoice-sale-select');
-      saleSelect.innerHTML = '';
-      salesHistory.slice(0, 30).forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = `${new Date(s.created_at).toLocaleString()} - $${parseFloat(s.total).toFixed(2)}`;
-        saleSelect.appendChild(opt);
-      });
-
-      loadInvoicesList();
+      select.value = currentVal;
     }
 
     async function loadInvoicesList() {
       const { data } = await supabase.from('invoices').select('*').eq('business_id', currentBusinessId).order('created_at', { ascending: false });
+      invoicedAppointmentIds = new Set((data || []).filter(inv => inv.appointment_id).map(inv => inv.appointment_id));
+      populateInvoiceAppointmentSelect();
+      renderAppointmentsForSelectedDate();
+
       const tbody = document.getElementById('invoices-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
@@ -2347,179 +2094,152 @@
         tbody.querySelectorAll('.btn-re-pdf').forEach(btn => {
           btn.onclick = (e) => {
             const inv = data.find(i => i.id === e.target.dataset.id);
-            if (inv) generateInvoicePDF(inv, null);
+            if (inv) generateInvoicePDF(inv);
           };
         });
       }
     }
 
-    function generateInvoicePDF(invoice, sale) {
+    // Genera el PDF de la factura con la estructura tipo "Nota de Remisión":
+    // encabezado con datos del cliente, tabla de servicio y totales, pie con
+    // los datos de contacto del salón.
+    function generateInvoicePDF(invoice) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const b = currentBusinessData || {};
       const curr = b.currency_symbol || '$';
+      const appt = appointmentsSnapshot.find(a => a.id === invoice.appointment_id);
+      const svc = appt ? servicesSnapshot.find(s => s.id === appt.service_id) : null;
+      const customer = customersSnapshot.find(c => c.id === invoice.customer_id);
+      const pageW = 210;
+      const marginL = 14, marginR = 196;
+      const rowH = 8;
 
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
-      doc.text(b.name || "Mi Salón", 14, 20);
-
-      doc.setFontSize(9);
+      // --- Título ---
+      doc.setFont("helvetica", "bolditalic");
+      doc.setFontSize(30);
+      doc.text("Factura", pageW / 2, 22, { align: "center" });
       doc.setFont("helvetica", "normal");
-      let y = 26;
-      if (b.legal_name) { doc.text(b.legal_name, 14, y); y += 5; }
-      if (b.tax_id) { doc.text(`RNC/Tax ID: ${b.tax_id}`, 14, y); y += 5; }
-      if (b.address) { doc.text(b.address, 14, y); y += 5; }
-      if (b.phone) { doc.text(`Tel: ${b.phone}`, 14, y); y += 5; }
+      doc.setFontSize(11);
+      doc.text("COMPROBANTE DE SERVICIO", pageW / 2, 30, { align: "center" });
 
-      doc.setFont("helvetica", "bold");
-      doc.text(`FACTURA N°: ${invoice.invoice_number}`, 140, 20);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Fecha: ${new Date(invoice.created_at).toLocaleDateString()}`, 140, 26);
-
-      y = Math.max(y, 36);
-      doc.line(14, y, 196, y);
-      y += 8;
-
-      if (sale && sale.items) {
+      // --- Bloque de datos (Factura No./Fecha, Cliente, Domicilio, E-mail/Tel) ---
+      let y = 40;
+      const drawRow = (leftLabel, leftVal, rightLabel, rightVal, dark) => {
+        doc.setDrawColor(35, 43, 66);
+        doc.rect(marginL, y, marginR - marginL, rowH);
+        if (rightLabel) {
+          const splitX = marginL + (marginR - marginL) * 0.68;
+          doc.line(splitX, y, splitX, y + rowH);
+          if (dark) {
+            doc.setFillColor(26, 26, 26);
+            doc.rect(splitX, y, marginR - splitX, rowH, 'F');
+            doc.setTextColor(255, 255, 255);
+          }
+          doc.setFontSize(9);
+          doc.setFont("helvetica", "bold");
+          doc.text(`${rightLabel}${rightVal ? ': ' + rightVal : ''}`, splitX + 3, y + rowH / 2 + 1.5);
+          doc.setTextColor(0, 0, 0);
+        }
         doc.setFont("helvetica", "bold");
-        doc.text("Producto", 14, y);
-        doc.text("Cant", 120, y);
-        doc.text("Total", 170, y);
-        y += 5;
+        doc.setFontSize(9);
+        doc.text(`${leftLabel}: `, marginL + 3, y + rowH / 2 + 1.5);
         doc.setFont("helvetica", "normal");
-        sale.items.forEach(item => {
-          doc.text(String(item.name).substring(0, 40), 14, y);
-          doc.text(String(item.qty), 120, y);
-          doc.text(`${curr}${item.subtotal.toFixed(2)}`, 170, y);
-          y += 5;
-        });
-        y += 4;
-        doc.line(14, y, 196, y);
-        y += 8;
-      }
+        const labelW = doc.getTextWidth(`${leftLabel}: `);
+        doc.text(String(leftVal || ''), marginL + 3 + labelW, y + rowH / 2 + 1.5);
+        y += rowH;
+      };
 
-      doc.text(`Subtotal: ${curr}${parseFloat(invoice.subtotal).toFixed(2)}`, 140, y); y += 6;
-      doc.text(`Impuesto: ${curr}${parseFloat(invoice.tax_amount).toFixed(2)}`, 140, y); y += 6;
+      drawRow("FACTURA NO.", invoice.invoice_number, "FECHA", new Date(invoice.created_at).toLocaleDateString(), true);
+      drawRow("CLIENTE", customer ? customer.name : 'N/A', null, null);
+      drawRow("DOMICILIO", customer?.address || '', null, null);
+      drawRow("E-MAIL", customer?.email || '', "TEL.", customer?.phone || '');
+      y += 4;
+
+      // --- Tabla de servicio ---
+      const cols = [
+        { label: 'CANTIDAD', w: 0.15 },
+        { label: 'DESCRIPCIÓN', w: 0.45 },
+        { label: 'VALOR UNITARIO', w: 0.20 },
+        { label: 'IMPORTE', w: 0.20 }
+      ];
+      const tableW = marginR - marginL;
+      let cx = marginL;
+      doc.setFillColor(26, 26, 26);
+      doc.rect(marginL, y, tableW, rowH, 'F');
+      doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
-      doc.text(`TOTAL: ${curr}${parseFloat(invoice.total).toFixed(2)}`, 140, y);
+      doc.setFontSize(8.5);
+      cols.forEach(col => {
+        doc.text(col.label, cx + 3, y + rowH / 2 + 1.5);
+        cx += tableW * col.w;
+      });
+      doc.setTextColor(0, 0, 0);
+      y += rowH;
+
+      const descripcion = `${svc ? svc.name : 'Servicio'}${appt ? ' — Especialista: ' + specialistLabel(appt.employee_id) : ''}`;
+      const unitPrice = appt ? appointmentRevenue(appt) : parseFloat(invoice.total);
+      const rowVals = ['1', descripcion, `${curr}${unitPrice.toFixed(2)}`, `${curr}${unitPrice.toFixed(2)}`];
+      cx = marginL;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.rect(marginL, y, tableW, rowH);
+      cols.forEach((col, i) => {
+        doc.text(String(rowVals[i]).substring(0, 45), cx + 3, y + rowH / 2 + 1.5);
+        cx += tableW * col.w;
+      });
+      y += rowH + 4;
+
+      // --- Totales ---
+      const totalsW = 70;
+      const totalsX = marginR - totalsW;
+      const totalRows = [
+        ['SUBTOTAL', `${curr}${parseFloat(invoice.subtotal).toFixed(2)}`],
+        ['IMPUESTO', `${curr}${parseFloat(invoice.tax_amount).toFixed(2)}`],
+        ['TOTAL', `${curr}${parseFloat(invoice.total).toFixed(2)}`]
+      ];
+      totalRows.forEach(([label, val]) => {
+        doc.setFillColor(26, 26, 26);
+        doc.rect(totalsX, y, totalsW * 0.5, rowH, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.text(label, totalsX + 3, y + rowH / 2 + 1.5);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+        doc.rect(totalsX + totalsW * 0.5, y, totalsW * 0.5, rowH);
+        doc.text(val, totalsX + totalsW * 0.5 + 3, y + rowH / 2 + 1.5);
+        y += rowH;
+      });
+
+      // --- Negocio + Pie de página ---
+      y += 10;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(b.name || "Mi Salón", marginL, y);
+      if (b.legal_name) { y += 5; doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.text(b.legal_name, marginL, y); }
+
+      y += 12;
+      doc.setDrawColor(0, 0, 0);
+      doc.line(marginL, y, marginR, y);
+      y += 6;
+      const footerCols = [
+        ['Dirección', b.address || 'N/A'],
+        ['Teléfono', b.phone || 'N/A'],
+        ['Sitio Web', b.website || 'N/A']
+      ];
+      const footerColW = tableW / 3;
+      footerCols.forEach(([label, val], i) => {
+        const fx = marginL + footerColW * i;
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(9);
+        doc.text(label, fx, y);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
+        doc.text(String(val), fx, y + 5);
+      });
 
       doc.save(`${invoice.invoice_number}.pdf`);
-    }
-
-    // -------------------------------------------------------------
-    // 11. INVENTARIO DE PRODUCTOS (RETAIL)
-    // -------------------------------------------------------------
-    async function initInventory() {
-      const form = document.getElementById('product-form');
-      document.getElementById('btn-show-add-product').onclick = () => { form.reset(); document.getElementById('prod-id').value = ''; form.classList.remove('hidden'); };
-      document.getElementById('btn-cancel-product').onclick = () => form.classList.add('hidden');
-
-      const loadProducts = async () => {
-        const { data } = await supabase.from('products').select('*').eq('business_id', currentBusinessId);
-        if (data) {
-          inventorySnapshot = data;
-          renderInventoryTable(inventorySnapshot);
-          populateSalesSelect(inventorySnapshot);
-        }
-      };
-
-      await loadProducts();
-
-      form.onsubmit = async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('prod-id').value;
-        const payload = {
-          business_id: currentBusinessId,
-          name: document.getElementById('prod-name').value,
-          purchase_price: parseFloat(document.getElementById('prod-cost').value) || 0,
-          sale_price: parseFloat(document.getElementById('prod-price').value),
-          stock: parseInt(document.getElementById('prod-stock').value),
-          min_stock: parseInt(document.getElementById('prod-min').value)
-        };
-
-        if (id) await supabase.from('products').update(payload).eq('id', id);
-        else await supabase.from('products').insert([payload]);
-
-        await logActivity(id ? `Editó el producto "${payload.name}"` : `Creó el producto "${payload.name}"`);
-        form.classList.add('hidden');
-        await loadProducts();
-      };
-    }
-
-    function renderInventoryTable(products) {
-      const tbody = document.getElementById('inventory-table-body');
-      tbody.innerHTML = '';
-      products.forEach(p => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${p.name}</td>
-          <td class="font-numeric">$${parseFloat(p.sale_price).toFixed(2)}</td>
-          <td>${p.stock}</td>
-          <td><button class="btn-edit" data-id="${p.id}" style="padding:0.2rem 0.5rem; margin:0; font-size:0.8rem;">Editar</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      tbody.querySelectorAll('.btn-edit').forEach(btn => {
-        btn.onclick = (e) => {
-          const prod = inventorySnapshot.find(p => p.id === e.target.dataset.id);
-          if (!prod) return;
-          document.getElementById('prod-id').value = prod.id;
-          document.getElementById('prod-name').value = prod.name;
-          document.getElementById('prod-cost').value = prod.purchase_price;
-          document.getElementById('prod-price').value = prod.sale_price;
-          document.getElementById('prod-stock').value = prod.stock;
-          document.getElementById('prod-min').value = prod.min_stock;
-          document.getElementById('product-form').classList.remove('hidden');
-        };
-      });
-    }
-
-    function populateSalesSelect(products) {
-      const select = document.getElementById('sale-product-select');
-      select.innerHTML = '';
-      const alertsOn = currentBusinessData?.global_low_stock_alert !== false;
-      products.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        const isLow = alertsOn && p.stock <= p.min_stock;
-        if (isLow) opt.className = 'low-stock-option';
-        opt.textContent = `${p.name} ($${parseFloat(p.sale_price).toFixed(2)} | Stock: ${p.stock})${isLow ? ' ⚠️ STOCK BAJO' : ''}`;
-        select.appendChild(opt);
-      });
-    }
-
-    function renderCart() {
-      const tbody = document.getElementById('cart-table-body');
-      tbody.innerHTML = '';
-      let total = 0;
-      cart.forEach((item, index) => {
-        total += item.subtotal;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
-          <td class="font-numeric">$${item.subtotal.toFixed(2)}</td>
-          <td><button class="btn-danger btn-remove" data-index="${index}" style="padding:0.1rem 0.4rem; margin:0; font-size:0.75rem;">X</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById('cart-total').textContent = total.toFixed(2);
-      tbody.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.onclick = (e) => {
-          cart.splice(parseInt(e.target.dataset.index), 1);
-          renderCart();
-        };
-      });
-    }
-
-    async function initReports() {
-      const { data } = await supabase.from('sales').select('*').eq('business_id', currentBusinessId).order('created_at', { ascending: false });
-      if (data) {
-        salesHistory = data;
-        calculateFinancialDashboard();
-      }
     }
 
     document.getElementById('btn-logout').onclick = () => supabase.auth.signOut();

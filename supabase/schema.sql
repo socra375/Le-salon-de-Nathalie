@@ -317,6 +317,33 @@ create policy "business_update_own_logo" on storage.objects
   );
 
 -- ============================================================
+-- 7. MIGRACIÓN — Se elimina Ventas/Inventario, Facturas ahora
+--    nace de una cita completada. Ejecuta SOLO este bloque si
+--    ya corriste el script completo anteriormente.
+-- ============================================================
+
+-- Sitio web del negocio (pie de la factura)
+alter table businesses add column if not exists website text;
+
+-- Domicilio y e-mail del cliente (encabezado de la factura)
+alter table customers add column if not exists address text;
+alter table customers add column if not exists email text;
+
+-- Precio del servicio al momento de la cita (para el dashboard
+-- e historial, aunque el precio del servicio cambie después)
+alter table appointments add column if not exists price numeric;
+
+-- Las facturas ahora se generan desde una cita completada, no
+-- desde una venta de producto
+alter table invoices add column if not exists appointment_id uuid references appointments(id);
+
+-- Los créditos ("fiado") ahora se generan desde una factura de
+-- servicio, no desde una venta de producto
+alter table customer_credits add column if not exists invoice_id uuid references invoices(id);
+
+create index if not exists idx_invoices_appointment on invoices(appointment_id);
+
+-- ============================================================
 -- FIN DEL SCRIPT
 -- Recuerda: en el HTML, reemplaza SUPABASE_URL y SUPABASE_ANON_KEY
 -- con las credenciales de tu proyecto (Project Settings > API).
