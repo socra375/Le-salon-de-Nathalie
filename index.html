@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gestión Salón — Agenda y Citas</title>
+
+  <!-- Google Fonts: Space Grotesk & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="manifest" href="data:application/manifest+json;utf8,{
+    %22short_name%22:%22MiSal%C3%B3n%22,
+    %22name%22:%22Gesti%C3%B3n%20Sal%C3%B3n%22,
+    %22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/2937/2937470.png%22,%22type%22:%22image/png%22,%22sizes%22:%22192x192%22}],
+    %22start_url%22:%22.%22,
+    %22background_color%22:%22%230B1120%22,
+    %22theme_color%22:%22%23141B2E%22,
+    %22display%22:%22standalone%22,
+    %22orientation%22:%22portrait%22
+  }">
+  <meta name="theme-color" content="#141B2E">
+
+  <link rel="icon" type="image/png" href="favicon-512.png">
+
+  <!-- Supabase JS v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Chart.js y jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #0B1120;
+      --bg-card: #141B2E;
+      --accent-profit: #00D9A3;
+      --accent-expense: #FF5A5F;
+      --accent-recommend: #F5B942;
+      --accent-agenda: #8B5CF6;
+      --text-primary: #E8ECF4;
+      --text-muted: #8891A8;
+      --border-subtle: #232B42;
+      --font-grotesk: 'Space Grotesk', sans-serif;
+      --font-inter: 'Inter', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-inter); }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      padding-bottom: 90px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .hidden { display: none !important; }
+
+    header {
+      background-color: var(--bg-card);
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    h1, h2, h3, h4, .font-numeric {
+      font-family: var(--font-grotesk);
+      font-weight: 700;
+    }
+
+    .main-content { padding: 1rem; max-width: 900px; margin: 0 auto; }
+
+    .card {
+      background-color: var(--bg-card);
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 1rem;
+    }
+
+    label { display: block; margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-muted); }
+
+    input, select, button, textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      margin-top: 0.35rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background-color: #070B14;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: var(--font-inter);
+    }
+
+    textarea { resize: vertical; min-height: 70px; }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--accent-profit); }
+
+    button {
+      background-color: #1E2942;
+      color: var(--text-primary);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      margin-top: 0.75rem;
+    }
+
+    button:active { opacity: 0.85; }
+    button.btn-primary { background-color: var(--accent-profit); color: #0B1120; }
+    button.btn-danger { background-color: var(--accent-expense); color: #ffffff; }
+    button.btn-agenda { background-color: var(--accent-agenda); color: #ffffff; }
+    button.btn-outline { background-color: transparent; border: 1px solid var(--border-subtle); color: var(--text-primary); }
+    button.btn-small { width: auto; padding: 0.3rem 0.7rem; margin: 0 0.25rem 0.25rem 0; font-size: 0.8rem; }
+
+    .radio-group { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+
+    .radio-card {
+      flex: 1;
+      padding: 0.85rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background-color: #070B14;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      user-select: none;
+    }
+
+    .radio-card.selected {
+      border-color: var(--accent-profit);
+      background-color: rgba(0, 217, 163, 0.08);
+      color: var(--accent-profit);
+      font-weight: 600;
+    }
+
+    .smooth-collapse {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.35s ease, margin-top 0.35s ease;
+      margin-top: 0;
+    }
+
+    .smooth-collapse.expanded { max-height: 220px; opacity: 1; margin-top: 0.75rem; }
+
+    .auth-exit { animation: fadeOutSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    @keyframes fadeOutSlide { to { opacity: 0; transform: translateY(-20px); } }
+
+    .dashboard-stagger .card-stagger {
+      opacity: 0;
+      transform: translateY(15px);
+      animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .dashboard-stagger .card-stagger:nth-child(1) { animation-delay: 0.05s; }
+    .dashboard-stagger .card-stagger:nth-child(2) { animation-delay: 0.15s; }
+    .dashboard-stagger .card-stagger:nth-child(3) { animation-delay: 0.25s; }
+    .dashboard-stagger .card-stagger:nth-child(4) { animation-delay: 0.35s; }
+
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+    .shake { animation: shake 0.3s ease-in-out; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .hero-metric { grid-column: 1 / -1; border-left: 4px solid var(--accent-profit); }
+    .agenda-metric { grid-column: 1 / -1; border-left: 4px solid var(--accent-agenda); }
+
+    .metrics-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 640px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
+
+    .val-large {
+      font-size: 2.5rem;
+      line-height: 1.1;
+      color: var(--text-primary);
+      margin: 0.3rem 0;
+      letter-spacing: -0.03em;
+    }
+
+    .badge-trend {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .trend-up { background: rgba(0, 217, 163, 0.15); color: var(--accent-profit); }
+    .trend-down { background: rgba(255, 90, 95, 0.15); color: var(--accent-expense); }
+
+    .ring-container { position: relative; width: 220px; height: 220px; margin: 1rem auto; }
+    .ring-center-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 80%;
+      pointer-events: none;
+    }
+
+    .gauge-card { display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+    .gauge-container { position: relative; width: 100%; max-width: 160px; height: 90px; margin: 0.5rem auto 0 auto; }
+
+    .period-selector { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .period-btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; margin: 0; background: #141B2E; border: 1px solid var(--border-subtle); }
+    .period-btn.active { background: var(--accent-profit); color: #0B1120; font-weight: bold; }
+
+    .segmented-bar {
+      display: flex;
+      height: 14px;
+      border-radius: 7px;
+      overflow: hidden;
+      background-color: #070B14;
+      margin: 1rem 0;
+    }
+    .segment { height: 100%; transition: width 0.4s ease; }
+    .seg-inventory { background-color: var(--accent-profit); }
+    .seg-operations { background-color: #3B82F6; }
+    .seg-savings { background-color: var(--accent-recommend); }
+    .seg-personal { background-color: #A855F7; }
+
+    .recommend-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 0.75rem; }
+    .recommend-item { font-size: 0.85rem; color: var(--text-muted); }
+    .recommend-item strong { display: block; color: var(--text-primary); font-family: var(--font-grotesk); font-size: 1.1rem; }
+
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-subtle); font-size: 0.9rem; }
+    th { color: var(--text-muted); text-transform: none; font-weight: 500; }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background-color: var(--bg-card);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.6rem 0;
+      border-top: 1px solid var(--border-subtle);
+      z-index: 100;
+      overflow-x: auto;
+    }
+    .nav-item {
+      background: none; border: none;
+      color: var(--text-muted);
+      display: flex; flex-direction: column; align-items: center;
+      font-size: 0.72rem; margin: 0; padding: 0.2rem 0.5rem; width: auto;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .nav-item.active { color: var(--accent-profit); font-weight: 600; }
+
+    .badge-status {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .status-pendiente { background: rgba(245, 185, 66, 0.2); color: var(--accent-recommend); }
+    .status-parcial { background: rgba(245, 185, 66, 0.2); color: var(--accent-recommend); }
+    .status-pagado { background: rgba(0, 217, 163, 0.2); color: var(--accent-profit); }
+    .status-confirmada { background: rgba(59, 130, 246, 0.2); color: #3B82F6; }
+    .status-completada { background: rgba(0, 217, 163, 0.2); color: var(--accent-profit); }
+    .status-cancelada { background: rgba(136, 145, 168, 0.2); color: var(--text-muted); }
+    .status-no_show { background: rgba(255, 90, 95, 0.2); color: var(--accent-expense); }
+
+    /* CONFIGURACIÓN: pestañas */
+    .tabs-nav { display: flex; gap: 0.5rem; overflow-x: auto; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    .tab-btn { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; white-space: nowrap; width: auto; margin: 0; }
+    .tab-btn.active { background: var(--accent-profit); color: #0B1120; font-weight: bold; border-color: var(--accent-profit); }
+    .tab-content.hidden { display: none; }
+    .low-stock-option { background-color: rgba(255, 90, 95, 0.25) !important; color: var(--accent-expense) !important; }
+
+    /* AGENDA Y SERVICIOS */
+    .checklist-box { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem; margin-top: 0.35rem; max-height: 180px; overflow-y: auto; background: #070B14; }
+    .checklist-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; }
+    .checklist-item input { width: auto; margin: 0; }
+    .checklist-item label { margin: 0; color: var(--text-primary); font-size: 0.9rem; }
+    .service-info-box { font-size: 0.8rem; color: var(--accent-agenda); margin-top: 0.4rem; min-height: 1.1rem; }
+    .appt-date-nav { display: flex; align-items: center; gap: 0.5rem; }
+    .appt-date-nav input[type="date"] { margin: 0; }
+    .empty-hint { color: var(--text-muted); font-size: 0.85rem; padding: 0.5rem 0; }
+  </style>
+</head>
+<body>
+
+<header id="app-header" class="hidden">
+  <div style="display: flex; align-items: center; gap: 0.6rem;">
+    <img id="header-logo-img" src="logo-header.png" alt="Logo" style="width: 32px; height: 32px; border-radius: 6px; object-fit: cover;">
+    <div>
+      <h2 id="business-display-name" style="font-size: 1.1rem; line-height: 1.1;">Mi Salón</h2>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span id="user-role-badge" style="font-size: 0.75rem; color: var(--accent-profit);">Admin</span>
+        <button id="btn-header-settings" class="nav-admin-only" style="background: none; border: none; padding: 0; margin: 0; width: auto; cursor: pointer; font-size: 1rem; line-height: 1; color: var(--text-muted);" title="Configuración">⚙️</button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <button id="btn-set-password" style="width: auto; padding: 0.35rem 0.8rem; margin: 0 0.25rem 0 0; font-size: 0.85rem; background-color: #1E2942; border: 1px solid var(--border-subtle);">Contraseña</button>
+    <button id="btn-logout" class="btn-danger" style="width: auto; padding: 0.35rem 0.8rem; margin: 0; font-size: 0.85rem;">Salir</button>
+  </div>
+</header>
+
+  <main class="main-content">
+
+    <!-- PANTALLA: LOGIN / REGISTRO -->
+    <section id="auth-screen" class="card">
+      <h2 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Gestión Salón</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">Agenda, servicios y control administrativo para tu salón de belleza.</p>
+
+      <form id="login-form">
+        <label>Correo Electrónico</label>
+        <input type="email" id="auth-email" placeholder="ejemplo@salon.com" required>
+
+        <label>Contraseña</label>
+        <input type="password" id="auth-password" required>
+
+        <label>¿Tienes un código de invitación de tu salón? (Opcional)</label>
+        <input type="text" id="auth-invite-code" placeholder="Ej: EMP12345">
+
+        <div id="invite-fullname-container" class="smooth-collapse">
+          <label style="color: var(--accent-profit); font-weight: 600;">Tu nombre completo (Obligatorio)</label>
+          <input type="text" id="auth-employee-name" placeholder="Ej: Juan Pérez">
+        </div>
+
+        <button type="submit" class="btn-primary">Iniciar Sesión / Registrarse</button>
+      </form>
+      <button id="btn-google-auth" style="background-color: #1E2942; border: 1px solid var(--border-subtle);">Entrar con Google</button>
+    </section>
+
+    <!-- ONBOARDING -->
+    <section id="onboarding-screen" class="card hidden">
+      <h2 style="margin-bottom: 0.25rem; font-size: 1.4rem;">Configuración Inicial</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Personaliza tu salón antes de comenzar.</p>
+
+      <form id="onboarding-form">
+        <label>Nombre del Salón</label>
+        <input type="text" id="onb-business-name" placeholder="Ej: Salón Nathalie Beauty Studio" required>
+
+        <label>Tipo de Negocio</label>
+        <div class="radio-group">
+          <div class="radio-card selected" data-type="individual">Solo yo (independiente)</div>
+          <div class="radio-card" data-type="group">Salón con equipo</div>
+        </div>
+
+        <div id="team-size-container" class="smooth-collapse">
+          <label>¿Cuántos estilistas/especialistas conforman el equipo?</label>
+          <input type="number" id="onb-team-size" min="1" placeholder="Ej: 3">
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 1.5rem;">Continuar al Dashboard</button>
+      </form>
+    </section>
+
+    <!-- FORZAR CONTRASEÑA EN ONBOARDING GRUPO -->
+    <div id="modal-forced-password" class="card hidden" style="position: fixed; top: 10%; left: 5%; right: 5%; z-index: 300; border: 2px solid var(--accent-profit);">
+      <h3>Crea tu contraseña obligatoria</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Has creado un salón de tipo "Salón con equipo". Para la seguridad de tu negocio y la gestión de empleados, debes definir una contraseña master.
+      </p>
+      <label>Nueva Contraseña Admin</label>
+      <input type="password" id="forced-password-input" placeholder="Mínimo 6 caracteres" required>
+      <button id="btn-save-forced-password" class="btn-primary" style="margin-top: 1rem;">Establecer Contraseña y Entrar</button>
+    </div>
+
+    <!-- MÓDULO: DASHBOARD -->
+    <section id="sec-dashboard" class="view-module hidden">
+      <div class="period-selector">
+        <button class="period-btn active" data-period="today">Hoy</button>
+        <button class="period-btn" data-period="week">Esta Semana</button>
+        <button class="period-btn" data-period="month">Este Mes</button>
+      </div>
+
+      <div class="metrics-grid dashboard-stagger">
+        <!-- Citas de Hoy -->
+        <div class="card agenda-metric card-stagger">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Citas de Hoy</h3>
+            <span id="dash-appt-count" class="badge-trend" style="background: rgba(139,92,246,0.15); color: var(--accent-agenda);">0 citas</span>
+          </div>
+          <ul id="dash-today-appointments-list" style="margin-top: 0.75rem; list-style: none;"></ul>
+        </div>
+
+        <!-- Hero Ring -->
+        <div class="card hero-metric card-stagger">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: var(--text-muted); font-size: 0.9rem;">Ganancia Neta vs Ventas</span>
+            <span id="trend-profit" class="badge-trend trend-up">↑ 0%</span>
+          </div>
+          <div class="ring-container">
+            <canvas id="chartHeroRing"></canvas>
+            <div class="ring-center-text">
+              <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">GANANCIA NETA</span>
+              <div id="dash-net-profit" class="val-large font-numeric" style="color: var(--accent-profit); font-size: 1.8rem; margin: 0;">$0.00</div>
+              <span id="dash-profit-ratio" style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">0% de ventas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ventas -->
+        <div class="card gauge-card card-stagger">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Ventas (Ingresos)</span>
+            <span id="trend-sales" class="badge-trend trend-up">↑ 0%</span>
+          </div>
+          <div class="gauge-container"><canvas id="chartMiniSales"></canvas></div>
+          <div id="dash-gross-sales" class="val-large font-numeric" style="font-size: 1.6rem; margin-top: 0;">$0.00</div>
+        </div>
+
+        <!-- Gastos -->
+        <div class="card gauge-card card-stagger">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Costo de Ventas</span>
+            <span id="trend-expenses" class="badge-trend trend-down">↓ 0%</span>
+          </div>
+          <div class="gauge-container"><canvas id="chartMiniExpenses"></canvas></div>
+          <div id="dash-expenses" class="val-large font-numeric" style="font-size: 1.6rem; color: var(--accent-expense); margin-top: 0;">$0.00</div>
+        </div>
+
+        <!-- Métrica Cuentas por Cobrar -->
+        <div class="card card-stagger" style="border-left: 4px solid var(--accent-recommend);">
+          <span style="color: var(--text-muted); font-size: 0.85rem;">Cuentas por Cobrar (Créditos)</span>
+          <div id="dash-receivables" class="val-large font-numeric" style="font-size: 1.8rem; color: var(--accent-recommend);">$0.00</div>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Saldo pendiente total clientes</span>
+        </div>
+
+        <!-- Recomendaciones -->
+        <div class="card hero-metric card-stagger" style="border-left-color: var(--accent-recommend);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Cómo distribuir tu ganancia</h3>
+          </div>
+          <div class="segmented-bar">
+            <div id="seg-inv" class="segment seg-inventory" style="width: 40%;"></div>
+            <div id="seg-ops" class="segment seg-operations" style="width: 30%;"></div>
+            <div id="seg-sav" class="segment seg-savings" style="width: 15%;"></div>
+            <div id="seg-per" class="segment seg-personal" style="width: 15%;"></div>
+          </div>
+          <p id="recommend-advice-text" style="font-size: 0.85rem; color: var(--text-muted);">
+            Basado en tu ganancia, asigna los recursos recomendados para mantener la salud financiera.
+          </p>
+          <div class="recommend-grid">
+            <div class="recommend-item"><span style="color: var(--accent-profit);">■ Reinversión (<span id="lbl-pct-inv">40</span>%)</span><strong id="rec-val-inv">$0.00</strong></div>
+            <div class="recommend-item"><span style="color: #3B82F6;">■ Operación (<span id="lbl-pct-ops">30</span>%)</span><strong id="rec-val-ops">$0.00</strong></div>
+            <div class="recommend-item"><span style="color: var(--accent-recommend);">■ Fondo Emerg. (<span id="lbl-pct-sav">15</span>%)</span><strong id="rec-val-sav">$0.00</strong></div>
+            <div class="recommend-item"><span style="color: #A855F7;">■ Uso Personal (<span id="lbl-pct-per">15</span>%)</span><strong id="rec-val-per">$0.00</strong></div>
+          </div>
+        </div>
+
+        <!-- Alertas Stock -->
+        <div class="card hero-metric card-stagger" style="border-left-color: var(--accent-expense);">
+          <h3>Alertas de Stock Bajo</h3>
+          <ul id="dash-low-stock-list" style="margin-top: 0.5rem; padding-left: 1.2rem; color: var(--accent-expense); font-size: 0.9rem;"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÓDULO: AGENDA / CITAS (SOLO ADMIN) -->
+    <section id="sec-appointments" class="view-module hidden">
+      <h2>Agenda de Citas</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem;">Crea, revisa y actualiza las citas de tus clientes.</p>
+
+      <div class="card">
+        <div class="appt-date-nav">
+          <label style="margin: 0; flex-shrink: 0;">Fecha</label>
+          <input type="date" id="appt-date-picker">
+          <button id="btn-appt-today" class="btn-outline btn-small" style="margin: 0.35rem 0 0;">Hoy</button>
+        </div>
+        <button id="btn-show-add-appt" class="btn-agenda" style="margin-top: 1rem;">+ Nueva Cita</button>
+      </div>
+
+      <form id="appointment-form" class="card hidden">
+        <h3>Registrar Cita</h3>
+
+        <label>Cliente</label>
+        <select id="appt-customer"><option value="">-- Walk-in / Sin cliente registrado --</option></select>
+
+        <div id="appt-walkin-container" class="smooth-collapse expanded">
+          <label>Nombre del Cliente (Walk-in, opcional)</label>
+          <input type="text" id="appt-walkin-name" placeholder="Ej: María Pérez">
+        </div>
+
+        <label>Servicio</label>
+        <select id="appt-service" required></select>
+        <div id="appt-service-info" class="service-info-box"></div>
+
+        <label>Especialista</label>
+        <select id="appt-specialist" required></select>
+
+        <label>Fecha</label>
+        <input type="date" id="appt-input-date" required>
+
+        <label>Hora</label>
+        <input type="time" id="appt-input-time" required>
+
+        <label>Notas (alergias, preferencias, etc.)</label>
+        <textarea id="appt-notes" placeholder="Opcional"></textarea>
+
+        <button type="submit" class="btn-agenda">Guardar Cita</button>
+        <button type="button" id="btn-cancel-appt-form" class="btn-danger">Cancelar</button>
+      </form>
+
+      <div class="card table-responsive">
+        <h3 id="appt-list-title">Citas del día</h3>
+        <table>
+          <thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Especialista</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="appointments-table-body"></tbody>
+        </table>
+        <p id="appt-empty-hint" class="empty-hint hidden">No hay citas registradas para este día.</p>
+      </div>
+    </section>
+
+    <!-- MÓDULO: CATÁLOGO DE SERVICIOS (SOLO ADMIN) -->
+    <section id="sec-services" class="view-module hidden">
+      <h2>Catálogo de Servicios</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem;">Define los servicios que ofrece tu salón, su duración y quién puede realizarlos.</p>
+
+      <button id="btn-show-add-service" class="btn-agenda">+ Nuevo Servicio</button>
+
+      <form id="service-form" class="card hidden">
+        <h3 id="service-form-title">Guardar Servicio</h3>
+        <input type="hidden" id="svc-id">
+        <label>Nombre del Servicio</label>
+        <input type="text" id="svc-name" placeholder="Ej: Corte de Cabello" required>
+
+        <label>Categoría</label>
+        <select id="svc-category">
+          <option value="Cabello">Cabello</option>
+          <option value="Uñas">Uñas</option>
+          <option value="Piel">Piel</option>
+          <option value="Barbería">Barbería</option>
+          <option value="Spa">Spa</option>
+          <option value="Otro">Otro</option>
+        </select>
+
+        <label>Duración Estimada (minutos)</label>
+        <input type="number" id="svc-duration" min="5" step="5" value="30" required>
+
+        <label>Precio ($)</label>
+        <input type="number" step="0.01" id="svc-price" required>
+
+        <label style="display: flex; align-items: center; justify-content: space-between;">
+          Servicio activo
+          <input type="checkbox" id="svc-active" style="width: auto; margin: 0;" checked>
+        </label>
+
+        <label>Especialistas habilitados para este servicio</label>
+        <div id="svc-specialists-checklist" class="checklist-box"></div>
+
+        <button type="submit" class="btn-agenda">Guardar Servicio</button>
+        <button type="button" id="btn-cancel-service" class="btn-danger">Cancelar</button>
+      </form>
+
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>Servicio</th><th>Categoría</th><th>Duración</th><th>Precio</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody id="services-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO: INVENTARIO (PRODUCTOS DE VENTA AL PÚBLICO) -->
+    <section id="sec-inventory" class="view-module hidden">
+      <h2>Inventario de Productos</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem;">Productos de venta al público: shampoo, tintes, cera, esmaltes, etc.</p>
+      <button id="btn-show-add-product" class="btn-primary" style="margin-top: 0.5rem;">+ Nuevo Producto</button>
+
+      <form id="product-form" class="card hidden">
+        <h3 id="product-form-title">Guardar Producto</h3>
+        <input type="hidden" id="prod-id">
+        <label>Nombre del Producto</label>
+        <input type="text" id="prod-name" required>
+        <label>Precio Compra ($)</label>
+        <input type="number" step="0.01" id="prod-cost" placeholder="0.00">
+        <label>Precio Venta ($)</label>
+        <input type="number" step="0.01" id="prod-price" required>
+        <label>Cantidad en Stock</label>
+        <input type="number" id="prod-stock" required>
+        <label>Alerta Stock Mínimo</label>
+        <input type="number" id="prod-min" value="3" required>
+        <button type="submit" class="btn-primary">Guardar Producto</button>
+        <button type="button" id="btn-cancel-product" class="btn-danger">Cancelar</button>
+      </form>
+
+      <input type="text" id="inventory-search" placeholder="Buscar producto..." style="margin-top: 1rem;">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr><th>Producto</th><th>Precio</th><th>Stock</th><th>Acción</th></tr>
+          </thead>
+          <tbody id="inventory-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO: PUNTO DE VENTA (POS) -->
+    <section id="sec-sales" class="view-module hidden">
+      <h2>Punto de Venta</h2>
+      <div class="card" style="margin-top: 0.5rem;">
+        <label>Seleccionar Producto</label>
+        <select id="sale-product-select"></select>
+        <label>Cantidad</label>
+        <input type="number" id="sale-qty" value="1" min="1">
+        <button id="btn-add-to-cart">Agregar a la Venta</button>
+      </div>
+
+      <div class="card">
+        <h3>Detalle de la Venta</h3>
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>Producto</th><th>Cant</th><th>Subtotal</th><th></th></tr></thead>
+            <tbody id="cart-table-body"></tbody>
+          </table>
+        </div>
+
+        <h2 style="margin-top: 1rem; text-align: right;" class="font-numeric">Total: $<span id="cart-total">0.00</span></h2>
+
+        <label>Método de Pago</label>
+        <select id="sale-payment-method">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Crédito">Crédito (Cuenta x Cobrar)</option>
+        </select>
+
+        <div id="credit-customer-container" class="smooth-collapse">
+          <label style="color: var(--accent-recommend); font-weight: bold;">Cliente a Fiar (Obligatorio)</label>
+          <select id="sale-customer-select"></select>
+        </div>
+
+        <button id="btn-process-sale" class="btn-primary" style="margin-top: 1rem; padding: 1rem; font-size: 1.1rem;">Completar Venta</button>
+      </div>
+    </section>
+
+    <!-- MÓDULO: CLIENTES Y CRÉDITOS -->
+    <section id="sec-customers" class="view-module hidden">
+      <h2>Clientes</h2>
+      <form id="customer-form" class="card" style="margin-top: 0.5rem;">
+        <h3>Registrar Nuevo Cliente</h3>
+        <label>Nombre del Cliente</label>
+        <input type="text" id="cust-name" required>
+        <label>Teléfono</label>
+        <input type="tel" id="cust-phone">
+        <button type="submit" class="btn-primary">Guardar Cliente</button>
+      </form>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Saldo Pendiente</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="customers-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MODAL DETALLE DE CUENTA CLIENTE -->
+    <div id="modal-customer-account" class="card hidden" style="position: fixed; top: 5%; left: 2.5%; right: 2.5%; bottom: 5%; z-index: 250; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="account-customer-name">Cuenta de Cliente</h3>
+        <button id="btn-close-account" style="width: auto; margin:0; padding: 0.3rem 0.6rem;">Cerrar</button>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.85rem;" id="account-customer-phone"></p>
+      <h2 style="color: var(--accent-recommend); margin: 0.5rem 0;" class="font-numeric">Pendiente: $<span id="account-total-pending">0.00</span></h2>
+
+      <div class="card" style="border-color: var(--accent-agenda);">
+        <h4>Historial en el Salón</h4>
+        <div id="cust-history-summary" style="font-size: 0.85rem; color: var(--text-primary); margin-top: 0.5rem; display: grid; gap: 0.35rem;"></div>
+
+        <div class="table-responsive" style="margin-top: 0.75rem;">
+          <table>
+            <thead><tr><th>Fecha</th><th>Servicio</th><th>Especialista</th><th>Estado</th></tr></thead>
+            <tbody id="cust-appointments-history-list"></tbody>
+          </table>
+        </div>
+        <p id="cust-history-empty-hint" class="empty-hint hidden">Este cliente aún no tiene citas registradas.</p>
+
+        <label>Notas (alergias a productos, preferencias de tono, etc.)</label>
+        <textarea id="cust-notes-input" placeholder="Opcional"></textarea>
+        <button id="btn-save-cust-notes" class="btn-agenda">Guardar Notas</button>
+      </div>
+
+      <h4>Créditos Activos / Historial</h4>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Monto</th>
+              <th>Abonado</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="account-credits-list"></tbody>
+        </table>
+      </div>
+
+      <form id="payment-form" style="margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <h4>Registrar Abono</h4>
+        <label>Seleccionar Crédito Pendiente</label>
+        <select id="payment-credit-select" required></select>
+
+        <label>Monto a Abonar ($)</label>
+        <input type="number" step="0.01" id="payment-amount" placeholder="0.00" required>
+
+        <button type="submit" class="btn-primary">Procesar Abono</button>
+      </form>
+    </div>
+
+    <!-- MÓDULO: FACTURAS -->
+    <section id="sec-reports" class="view-module hidden">
+      <h2>Facturas</h2>
+      <div class="card" style="margin-top: 0.5rem;">
+        <h3>Emitir Factura</h3>
+        <label>Cliente (Opcional)</label>
+        <select id="invoice-customer-select"><option value="">Cliente General</option></select>
+        <label>Venta a Facturar</label>
+        <select id="invoice-sale-select"></select>
+        <button id="btn-generate-invoice" class="btn-primary">Generar Factura (PDF)</button>
+      </div>
+
+      <div class="card">
+        <h3>Tendencia Histórica de Ventas</h3>
+        <div style="height: 250px; margin-top: 1rem;"><canvas id="salesChart"></canvas></div>
+      </div>
+
+      <div class="card table-responsive">
+        <h3>Historial de Facturas</h3>
+        <table>
+          <thead><tr><th>N° Factura</th><th>Fecha</th><th>Total</th><th>Acción</th></tr></thead>
+          <tbody id="invoices-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO: GESTIÓN DE EMPLEADOS (SOLO ADMIN) -->
+    <section id="sec-employees" class="view-module hidden">
+      <h2>Gestión de Empleados</h2>
+      <div class="card" style="margin-top: 0.5rem;">
+        <h3>Invitar Empleado</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Genera un código de acceso único para registrar nuevos estilistas/empleados.</p>
+        <button id="btn-generate-invite" class="btn-primary">Generar Código de Invitación</button>
+
+        <div id="invite-code-display" class="hidden" style="margin-top: 1rem; padding: 1rem; background: #070B14; border: 1px dashed var(--accent-profit); text-align: center; border-radius: 8px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Código generado:</span>
+          <h2 id="lbl-generated-code" style="color: var(--accent-profit); letter-spacing: 2px;"></h2>
+          <button id="btn-copy-code" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem;">Copiar Código</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Lista de Empleados Actuales</h3>
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>Nombre</th><th>Cargo</th><th>Rol Permisos</th><th>Agregado</th></tr></thead>
+            <tbody id="employees-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MÓDULO: CONFIGURACIÓN CENTRALIZADA (SOLO ADMIN) -->
+  <section id="sec-settings" class="view-module hidden">
+    <h2>Configuración General</h2>
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Administra los parámetros de tu salón.</p>
+
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="tab-cfg-business">Datos Negocio</button>
+      <button class="tab-btn" data-tab="tab-cfg-tax">Moneda e Impuestos</button>
+      <button class="tab-btn" data-tab="tab-cfg-payments">Métodos de Pago</button>
+      <button class="tab-btn" data-tab="tab-cfg-alerts">Inventario/Alertas</button>
+      <button class="tab-btn" data-tab="tab-cfg-profit">Distribución Ganancias</button>
+      <button class="tab-btn" data-tab="tab-cfg-activity">Registro Actividad</button>
+    </div>
+
+    <!-- Datos del Negocio -->
+    <div id="tab-cfg-business" class="tab-content card">
+      <form id="form-cfg-business">
+        <label>Nombre Comercial</label>
+        <input type="text" id="cfg-name" required>
+        <label>Nombre Legal / Razón Social</label>
+        <input type="text" id="cfg-legal-name" placeholder="Ej: Salón Nathalie SRL">
+        <label>RNC / Documento Fiscal</label>
+        <input type="text" id="cfg-tax-id" placeholder="Ej: 130-XXXXX-X">
+        <label>Teléfono</label>
+        <input type="tel" id="cfg-phone" placeholder="Ej: 809-555-0000">
+        <label>Dirección</label>
+        <input type="text" id="cfg-address" placeholder="Ej: Av. Principal #12">
+        <label>Logotipo del Salón</label>
+        <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
+          <img id="cfg-logo-preview" src="logo-header.png" style="width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--border-subtle); object-fit: cover;">
+          <input type="file" id="cfg-logo-file" accept="image/*" style="margin-top: 0;">
+        </div>
+        <button type="submit" class="btn-primary">Guardar Datos del Negocio</button>
+      </form>
+    </div>
+
+    <!-- Moneda e Impuestos -->
+    <div id="tab-cfg-tax" class="tab-content card hidden">
+      <form id="form-cfg-tax">
+        <label>Símbolo de Moneda</label>
+        <select id="cfg-currency-symbol">
+          <option value="$">$ (USD)</option>
+          <option value="RD$">RD$ (DOP)</option>
+          <option value="€">€ (EUR)</option>
+          <option value="MXN$">MXN$ (MXN)</option>
+        </select>
+        <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+          <input type="checkbox" id="cfg-tax-enabled" style="width: auto; margin: 0;"> ¿Tu negocio aplica impuestos?
+        </label>
+        <div id="cfg-tax-details" class="smooth-collapse">
+          <label>Porcentaje de Impuesto (%)</label>
+          <input type="number" step="0.01" id="cfg-tax-percentage" placeholder="18">
+          <label>Modo del Impuesto</label>
+          <div class="radio-group">
+            <div class="radio-card radio-tax-mode selected" data-mode="included">Precios ya incluyen impuesto</div>
+            <div class="radio-card radio-tax-mode" data-mode="added">Se suma al vender</div>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Guardar Moneda e Impuestos</button>
+      </form>
+    </div>
+
+    <!-- Métodos de Pago -->
+    <div id="tab-cfg-payments" class="tab-content card hidden">
+      <form id="form-cfg-payments">
+        <label style="display: flex; align-items: center; justify-content: space-between;">Efectivo <input type="checkbox" id="cfg-pm-efectivo" style="width: auto; margin: 0;" checked></label>
+        <label style="display: flex; align-items: center; justify-content: space-between;">Transferencia <input type="checkbox" id="cfg-pm-transferencia" style="width: auto; margin: 0;" checked></label>
+        <label style="display: flex; align-items: center; justify-content: space-between;">Tarjeta <input type="checkbox" id="cfg-pm-tarjeta" style="width: auto; margin: 0;" checked></label>
+        <label style="display: flex; align-items: center; justify-content: space-between;">Crédito / Fiao <input type="checkbox" id="cfg-pm-credito" style="width: auto; margin: 0;" checked></label>
+        <button type="submit" class="btn-primary">Guardar Métodos de Pago</button>
+      </form>
+    </div>
+
+    <!-- Inventario y Alertas -->
+    <div id="tab-cfg-alerts" class="tab-content card hidden">
+      <form id="form-cfg-alerts">
+        <label style="display: flex; align-items: center; justify-content: space-between;">
+          Mostrar alerta visual de stock bajo en el Punto de Venta
+          <input type="checkbox" id="cfg-global-low-stock" style="width: auto; margin: 0;" checked>
+        </label>
+        <button type="submit" class="btn-primary">Guardar Ajustes de Inventario</button>
+      </form>
+    </div>
+
+    <!-- Distribución de Ganancias -->
+    <div id="tab-cfg-profit" class="tab-content card hidden">
+      <form id="form-cfg-profit">
+        <p style="font-size: 0.8rem; color: var(--text-muted);">La suma de los 4 campos debe ser exactamente 100%.</p>
+        <label>Reinversión Inventario (%)</label><input type="number" id="cfg-pct-inv" value="40" min="0" max="100">
+        <label>Operación / Empleados (%)</label><input type="number" id="cfg-pct-ops" value="30" min="0" max="100">
+        <label>Fondo de Emergencia (%)</label><input type="number" id="cfg-pct-sav" value="15" min="0" max="100">
+        <label>Uso Personal (%)</label><input type="number" id="cfg-pct-per" value="15" min="0" max="100">
+        <div style="margin-top: 0.5rem; font-weight: bold; font-size: 0.9rem;" id="cfg-sum-pct-indicator">Suma: 100%</div>
+        <button type="submit" class="btn-primary">Guardar Distribución</button>
+      </form>
+    </div>
+
+    <!-- Registro de Actividad -->
+    <div id="tab-cfg-activity" class="tab-content card hidden">
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>Usuario</th><th>Acción</th><th>Fecha/Hora</th></tr></thead>
+          <tbody id="activity-log-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODALES AUXILIARES -->
+  <div id="modal-password" class="card hidden" style="position: fixed; top: 15%; left: 5%; right: 5%; z-index: 200;">
+    <h3>Crear / Vincular Contraseña</h3>
+    <p style="font-size: 0.8rem; color: var(--text-muted);">Escribe una contraseña para acceder con tu correo directo.</p>
+    <label>Nueva Contraseña</label>
+    <input type="password" id="input-new-password" placeholder="Mínimo 6 caracteres">
+    <button id="btn-save-password" class="btn-primary">Guardar Contraseña</button>
+    <button id="btn-close-password" style="background: transparent;">Cancelar</button>
+  </div>
+
+  <nav id="app-nav" class="bottom-nav hidden">
+    <button class="nav-item active nav-admin-only" data-target="sec-dashboard">Dashboard</button>
+    <button class="nav-item nav-admin-only" data-target="sec-appointments">Agenda</button>
+    <button class="nav-item nav-admin-only" data-target="sec-services">Servicios</button>
+    <button class="nav-item" data-target="sec-customers">Clientes</button>
+    <button class="nav-item" data-target="sec-sales">Ventas</button>
+    <button class="nav-item nav-admin-only" data-target="sec-reports">Facturas</button>
+    <button class="nav-item nav-admin-only" data-target="sec-inventory">Inventario</button>
+    <button class="nav-item nav-admin-only" id="nav-btn-employees" data-target="sec-employees">Empleados</button>
+  </nav>
+
+  <script type="module">
+    // -------------------------------------------------------------
+    // 1. SUPABASE INITIALIZATION
+    // -------------------------------------------------------------
+    // TODO: reemplaza con las credenciales de tu propio proyecto Supabase.
+    const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+    const SUPABASE_ANON_KEY = "TU-CLAVE-ANON-PUBLICA";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // -------------------------------------------------------------
+    // 2. ESTADO GLOBAL
+    // -------------------------------------------------------------
+    let currentBusinessId = null;
+    let currentUserRole = 'admin'; // 'admin' | 'employee'
+    let currentBusinessData = null;
+    let inventorySnapshot = [];
+    let salesHistory = [];
+    let customersSnapshot = [];
+    let creditsSnapshot = [];
+    let cart = [];
+    let activePeriod = 'today';
+    let userSettings = { pct_inventory: 40, pct_operations: 30, pct_savings: 15, pct_personal: 15 };
+    let selectedBusinessType = 'individual';
+    let heroChartAnimated = false;
+    let modulesInitialized = false;
+
+    let employeesSnapshot = [];
+    let servicesSnapshot = [];
+    let specialistServicesSnapshot = [];
+    let appointmentsSnapshot = [];
+
+    let chartHeroRing = null, chartSalesGauge = null, chartExpensesGauge = null, chartReport = null;
+
+    // -------------------------------------------------------------
+    // 3. NAVEGACIÓN Y EVENTOS GENERALES
+    // -------------------------------------------------------------
+    const navButtons = document.querySelectorAll('.nav-item');
+    const modules = document.querySelectorAll('.view-module');
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        modules.forEach(m => m.classList.add('hidden'));
+        navButtons.forEach(b => b.classList.remove('active'));
+
+        document.getElementById(targetId).classList.remove('hidden');
+        btn.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.radio-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+        const target = e.currentTarget;
+        target.classList.add('selected');
+        selectedBusinessType = target.dataset.type;
+
+        const teamContainer = document.getElementById('team-size-container');
+        if (selectedBusinessType === 'group') {
+          teamContainer.classList.add('expanded');
+          document.getElementById('onb-team-size').required = true;
+        } else {
+          teamContainer.classList.remove('expanded');
+          document.getElementById('onb-team-size').required = false;
+        }
+      });
+    });
+
+    // Selector de Período en Dashboard
+    document.querySelectorAll('.period-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        activePeriod = e.target.dataset.period;
+        calculateFinancialDashboard();
+      });
+    });
+
+    // Mostrar campo de nombre completo si hay código de invitación
+    document.getElementById('auth-invite-code').addEventListener('input', (e) => {
+      const container = document.getElementById('invite-fullname-container');
+      if (e.target.value.trim().length > 0) container.classList.add('expanded');
+      else container.classList.remove('expanded');
+    });
+
+    // Botón Entrar con Google
+    document.getElementById('btn-google-auth').onclick = async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname }
+      });
+      if (error) alert("Error OAuth: " + error.message);
+    };
+
+    // Modal de Contraseña
+    document.getElementById('btn-set-password').onclick = () => document.getElementById('modal-password').classList.remove('hidden');
+    document.getElementById('btn-close-password').onclick = () => document.getElementById('modal-password').classList.add('hidden');
+    document.getElementById('btn-save-password').onclick = async () => {
+      const newPassword = document.getElementById('input-new-password').value;
+      if (newPassword.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) alert("Error al guardar contraseña: " + error.message);
+      else {
+        alert("¡Listo! Ya puedes iniciar sesión con tu correo y esta contraseña.");
+        document.getElementById('modal-password').classList.add('hidden');
+        document.getElementById('input-new-password').value = '';
+      }
+    };
+
+    // Ícono de Configuración (header) -> abre la sección de Configuración
+    document.getElementById('btn-header-settings').onclick = () => {
+      modules.forEach(m => m.classList.add('hidden'));
+      navButtons.forEach(b => b.classList.remove('active'));
+      document.getElementById('sec-settings').classList.remove('hidden');
+      loadSettingsIntoForm();
+    };
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');
+        if (btn.dataset.tab === 'tab-cfg-activity') loadActivityLog();
+      });
+    });
+
+    // Toggle de detalle de impuesto
+    document.getElementById('cfg-tax-enabled').addEventListener('change', (e) => {
+      const container = document.getElementById('cfg-tax-details');
+      if (e.target.checked) container.classList.add('expanded');
+      else container.classList.remove('expanded');
+    });
+
+    document.querySelectorAll('.radio-tax-mode').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.radio-tax-mode').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      });
+    });
+
+    // -------------------------------------------------------------
+    // 4. AUTENTICACIÓN, ROLES & REGISTRO DE EMPLEADOS
+    // -------------------------------------------------------------
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const inviteCode = document.getElementById('auth-invite-code').value.trim();
+      const employeeName = document.getElementById('auth-employee-name').value.trim();
+
+      if (inviteCode && !employeeName) {
+        alert("Debes escribir tu nombre completo para registrarte con un código de invitación.");
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        const baseUrl = window.location.origin + window.location.pathname;
+        const params = new URLSearchParams();
+        if (inviteCode) {
+          params.set('invite', inviteCode);
+          params.set('empname', employeeName);
+        }
+        const redirectUrl = inviteCode ? `${baseUrl}?${params.toString()}` : baseUrl;
+
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: redirectUrl }
+        });
+
+        if (signUpError) {
+          alert("Error de autenticación: " + signUpError.message);
+          return;
+        }
+
+        alert("Registro exitoso. Revisa tu correo (en cualquier dispositivo) para confirmar la cuenta.");
+      }
+    });
+
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const userId = session.user.id;
+        if (modulesInitialized) return;
+
+        // Canjear código de invitación pendiente (viene desde la URL del link de confirmación)
+        const urlParams = new URLSearchParams(window.location.search);
+        const pendingCode = urlParams.get('invite');
+        const pendingName = urlParams.get('empname') || '';
+        if (pendingCode) {
+          const { data: redeemedBusinessId, error: redeemError } = await supabase.rpc('redeem_invite_code', { input_code: pendingCode, input_employee_name: pendingName });
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+          if (redeemError) {
+            alert("El código de invitación no es válido o ya fue usado: " + redeemError.message);
+          } else if (redeemedBusinessId) {
+            currentBusinessId = redeemedBusinessId;
+            currentUserRole = 'employee';
+          }
+        }
+
+        // Si no se acaba de canjear un código, determinar rol normalmente
+        if (!currentBusinessId) {
+          const { data: memberData } = await supabase
+            .from('business_members')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          if (memberData) {
+            currentBusinessId = memberData.business_id;
+            currentUserRole = memberData.role;
+          } else {
+            currentBusinessId = userId;
+            currentUserRole = 'admin';
+          }
+        }
+
+        // Cargar Ajustes y Datos del Salón
+        let { data: bData } = await supabase.from('businesses').select('*').eq('id', currentBusinessId).maybeSingle();
+
+        if (!bData && currentUserRole === 'admin') {
+          const { data: newB } = await supabase.from('businesses').insert([{ id: currentBusinessId, name: 'Mi Salón', onboarding_completed: false }]).select().single();
+          bData = newB;
+        }
+
+        currentBusinessData = bData;
+
+        // Cargar Ajustes
+        const { data: sData } = await supabase.from('business_settings').select('*').eq('business_id', currentBusinessId).maybeSingle();
+        if (sData) {
+          userSettings = { pct_inventory: sData.pct_inventory, pct_operations: sData.pct_operations, pct_savings: sData.pct_savings, pct_personal: sData.pct_personal };
+        }
+        applySettingsToUI();
+
+        // Ocultar Pantalla Login
+        document.getElementById('auth-screen').classList.add('auth-exit');
+
+        setTimeout(async () => {
+          document.getElementById('auth-screen').classList.add('hidden');
+          document.getElementById('auth-screen').classList.remove('auth-exit');
+
+          // FLUJO ONBOARDING & ROLES
+          if (currentUserRole === 'admin' && (!currentBusinessData || !currentBusinessData.onboarding_completed)) {
+            document.getElementById('onboarding-screen').classList.remove('hidden');
+          } else {
+            setupRoleInterface();
+            startSystemModules();
+          }
+        }, 400);
+
+      } else {
+        currentBusinessId = null;
+        modulesInitialized = false;
+        supabase.removeAllChannels();
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('onboarding-screen').classList.add('hidden');
+        document.getElementById('app-header').classList.add('hidden');
+        document.getElementById('app-nav').classList.add('hidden');
+        modules.forEach(m => m.classList.add('hidden'));
+      }
+    });
+
+    // Guardar Onboarding
+    document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bName = document.getElementById('onb-business-name').value.trim();
+      const teamSizeVal = parseInt(document.getElementById('onb-team-size').value) || null;
+
+      if (!bName) return alert("Por favor ingresa un nombre.");
+
+      if (selectedBusinessType === 'group') {
+        // Insertar en business_members como admin
+        await supabase.from('business_members').upsert([{
+          business_id: currentBusinessId,
+          user_id: currentBusinessId,
+          role: 'admin'
+        }]);
+
+        // Guardar estado parcial e invocar forzado de contraseña
+        await supabase.from('businesses').upsert({
+          id: currentBusinessId,
+          name: bName,
+          business_type: 'group',
+          team_size: teamSizeVal,
+          onboarding_completed: true
+        });
+
+        document.getElementById('onboarding-screen').classList.add('hidden');
+        document.getElementById('modal-forced-password').classList.remove('hidden');
+      } else {
+        await supabase.from('businesses').upsert({
+          id: currentBusinessId,
+          name: bName,
+          business_type: 'individual',
+          onboarding_completed: true
+        });
+
+        document.getElementById('onboarding-screen').classList.add('hidden');
+        setupRoleInterface();
+        startSystemModules();
+      }
+    });
+
+    // Forzado de Contraseña en Onboarding Grupo
+    document.getElementById('btn-save-forced-password').onclick = async () => {
+      const pass = document.getElementById('forced-password-input').value;
+      if (pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+
+      const { error } = await supabase.auth.updateUser({ password: pass });
+      if (error) return alert("Error guardando contraseña: " + error.message);
+
+      document.getElementById('modal-forced-password').classList.add('hidden');
+      setupRoleInterface();
+      startSystemModules();
+    };
+
+    function setupRoleInterface() {
+      document.getElementById('business-display-name').textContent = currentBusinessData?.name || 'Mi Salón';
+      document.getElementById('user-role-badge').textContent = currentUserRole === 'admin' ? 'Admin' : 'Empleado';
+
+      document.getElementById('app-header').classList.remove('hidden');
+      document.getElementById('app-nav').classList.remove('hidden');
+
+      if (currentUserRole === 'employee') {
+        document.querySelectorAll('.nav-admin-only').forEach(el => el.classList.add('hidden'));
+        document.getElementById('sec-sales').classList.remove('hidden');
+        document.querySelector('[data-target="sec-sales"]').classList.add('active');
+      } else {
+        document.querySelectorAll('.nav-admin-only').forEach(el => el.classList.remove('hidden'));
+        if (currentBusinessData?.business_type !== 'group') {
+          document.getElementById('nav-btn-employees').classList.add('hidden');
+        }
+        document.getElementById('sec-dashboard').classList.remove('hidden');
+        document.querySelector('[data-target="sec-dashboard"]').classList.add('active');
+      }
+    }
+
+    function startSystemModules() {
+      if (!modulesInitialized) {
+        initInventory();
+        initSales();
+        initReports();
+        initCustomersAndCredits();
+        initEmployeeManagement();
+        initInvoices();
+        initServices();
+        initAppointments();
+        applyLogoToHeader();
+        modulesInitialized = true;
+      }
+    }
+
+    function applyLogoToHeader() {
+      if (currentBusinessData?.logo_url) {
+        document.getElementById('header-logo-img').src = currentBusinessData.logo_url;
+        document.getElementById('cfg-logo-preview').src = currentBusinessData.logo_url;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 5. CLIENTES, CRÉDITOS E HISTORIAL DE VISITAS
+    // -------------------------------------------------------------
+    async function initCustomersAndCredits() {
+      const loadCustomers = async () => {
+        const { data } = await supabase.from('customers').select('*').eq('business_id', currentBusinessId);
+        if (data) {
+          customersSnapshot = data;
+          populateSalesCustomerSelect();
+          populateApptCustomerSelect();
+          await loadCredits();
+        }
+      };
+
+      window.loadCustomers = loadCustomers;
+      await loadCustomers();
+
+      document.getElementById('customer-form').onsubmit = async (e) => {
+        e.preventDefault();
+        await supabase.from('customers').insert([{
+          business_id: currentBusinessId,
+          name: document.getElementById('cust-name').value,
+          phone: document.getElementById('cust-phone').value
+        }]);
+        document.getElementById('customer-form').reset();
+        await loadCustomers();
+      };
+    }
+
+    async function loadCredits() {
+      const { data } = await supabase.from('customer_credits').select('*').eq('business_id', currentBusinessId);
+      if (data) {
+        creditsSnapshot = data;
+        renderCustomersTable();
+        calculateFinancialDashboard();
+      }
+    }
+
+    function renderCustomersTable() {
+      const tbody = document.getElementById('customers-table-body');
+      tbody.innerHTML = '';
+
+      customersSnapshot.forEach(c => {
+        const clientCredits = creditsSnapshot.filter(cr => cr.customer_id === c.id && cr.status !== 'pagado');
+        const pendingTotal = clientCredits.reduce((acc, cr) => acc + (parseFloat(cr.amount) - parseFloat(cr.amount_paid)), 0);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${c.name}</td>
+          <td>${c.phone || 'N/A'}</td>
+          <td class="font-numeric" style="color: ${pendingTotal > 0 ? 'var(--accent-expense)' : 'var(--accent-profit)'}">$${pendingTotal.toFixed(2)}</td>
+          <td><button class="btn-account" data-id="${c.id}" style="padding: 0.2rem 0.5rem; margin:0; font-size:0.8rem;">Ver Cuenta</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.btn-account').forEach(btn => {
+        btn.onclick = (e) => openCustomerAccountModal(e.target.dataset.id);
+      });
+    }
+
+    async function openCustomerAccountModal(customerId) {
+      const customer = customersSnapshot.find(c => c.id === customerId);
+      if (!customer) return;
+
+      document.getElementById('account-customer-name').textContent = `Cuenta de ${customer.name}`;
+      document.getElementById('account-customer-phone').textContent = `Tel: ${customer.phone || 'N/A'}`;
+      document.getElementById('cust-notes-input').value = customer.notes || '';
+
+      // --- Historial de citas del cliente (5.5) ---
+      const history = appointmentsSnapshot
+        .filter(a => a.customer_id === customerId)
+        .sort((a, b) => new Date(b.start_at) - new Date(a.start_at));
+
+      const historyBody = document.getElementById('cust-appointments-history-list');
+      historyBody.innerHTML = '';
+      document.getElementById('cust-history-empty-hint').classList.toggle('hidden', history.length > 0);
+
+      history.forEach(a => {
+        const svc = servicesSnapshot.find(s => s.id === a.service_id);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${new Date(a.start_at).toLocaleString()}</td>
+          <td>${svc ? svc.name : 'N/A'}</td>
+          <td>${specialistLabel(a.employee_id)}</td>
+          <td><span class="badge-status status-${a.status}">${a.status.replace('_', ' ').toUpperCase()}</span></td>
+        `;
+        historyBody.appendChild(tr);
+      });
+
+      const lastVisit = history.find(a => a.status === 'completada') || history[0];
+      const serviceCounts = {};
+      const specialistCounts = {};
+      history.forEach(a => {
+        serviceCounts[a.service_id] = (serviceCounts[a.service_id] || 0) + 1;
+        specialistCounts[a.employee_id] = (specialistCounts[a.employee_id] || 0) + 1;
+      });
+      const topServiceId = Object.keys(serviceCounts).sort((a, b) => serviceCounts[b] - serviceCounts[a])[0];
+      const topSpecialistId = Object.keys(specialistCounts).sort((a, b) => specialistCounts[b] - specialistCounts[a])[0];
+      const topService = topServiceId ? servicesSnapshot.find(s => s.id === topServiceId) : null;
+
+      document.getElementById('cust-history-summary').innerHTML = `
+        <div><strong>Última visita:</strong> ${lastVisit ? new Date(lastVisit.start_at).toLocaleDateString() : 'Sin registro'}</div>
+        <div><strong>Servicio más frecuente:</strong> ${topService ? topService.name : 'Sin registro'}</div>
+        <div><strong>Especialista preferido:</strong> ${topSpecialistId ? specialistLabel(topSpecialistId) : 'Sin registro'}</div>
+      `;
+
+      document.getElementById('btn-save-cust-notes').onclick = async () => {
+        const notes = document.getElementById('cust-notes-input').value;
+        const { error } = await supabase.from('customers').update({ notes }).eq('id', customerId);
+        if (error) return alert("Error al guardar notas: " + error.message);
+        customer.notes = notes;
+        alert("Notas guardadas.");
+      };
+
+      // --- Créditos ---
+      const clientCredits = creditsSnapshot.filter(cr => cr.customer_id === customerId);
+      const pendingTotal = clientCredits.filter(cr => cr.status !== 'pagado')
+        .reduce((acc, cr) => acc + (parseFloat(cr.amount) - parseFloat(cr.amount_paid)), 0);
+
+      document.getElementById('account-total-pending').textContent = pendingTotal.toFixed(2);
+
+      const tbody = document.getElementById('account-credits-list');
+      tbody.innerHTML = '';
+
+      const creditSelect = document.getElementById('payment-credit-select');
+      creditSelect.innerHTML = '';
+
+      clientCredits.forEach(cr => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${new Date(cr.created_at).toLocaleDateString()}</td>
+          <td class="font-numeric">$${parseFloat(cr.amount).toFixed(2)}</td>
+          <td class="font-numeric">$${parseFloat(cr.amount_paid).toFixed(2)}</td>
+          <td><span class="badge-status status-${cr.status}">${cr.status.toUpperCase()}</span></td>
+        `;
+        tbody.appendChild(tr);
+
+        if (cr.status !== 'pagado') {
+          const opt = document.createElement('option');
+          opt.value = cr.id;
+          opt.textContent = `Crédito ${new Date(cr.created_at).toLocaleDateString()} - Pendiente: $${(parseFloat(cr.amount) - parseFloat(cr.amount_paid)).toFixed(2)}`;
+          creditSelect.appendChild(opt);
+        }
+      });
+
+      document.getElementById('modal-customer-account').classList.remove('hidden');
+
+      // Procesar Abono
+      document.getElementById('payment-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const creditId = creditSelect.value;
+        const amountToPay = parseFloat(document.getElementById('payment-amount').value);
+
+        const targetCredit = creditsSnapshot.find(cr => cr.id === creditId);
+        if (!targetCredit || amountToPay <= 0) return alert("Monto o crédito inválido.");
+
+        const currentPaid = parseFloat(targetCredit.amount_paid);
+        const totalAmount = parseFloat(targetCredit.amount);
+        const newPaid = currentPaid + amountToPay;
+
+        let newStatus = 'parcial';
+        if (newPaid >= totalAmount) newStatus = 'pagado';
+
+        const { error } = await supabase.from('customer_credits').update({
+          amount_paid: newPaid,
+          status: newStatus
+        }).eq('id', creditId);
+
+        if (error) alert("Error al registrar abono: " + error.message);
+        else {
+          alert("Abono registrado correctamente.");
+          document.getElementById('payment-amount').value = '';
+          await loadCredits();
+          openCustomerAccountModal(customerId);
+        }
+      };
+    }
+
+    document.getElementById('btn-close-account').onclick = () => document.getElementById('modal-customer-account').classList.add('hidden');
+
+    function populateSalesCustomerSelect() {
+      const select = document.getElementById('sale-customer-select');
+      select.innerHTML = '<option value="">-- Seleccionar Cliente --</option>';
+      customersSnapshot.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        select.appendChild(opt);
+      });
+    }
+
+    // Toggle visibilidad del cliente en POS
+    document.getElementById('sale-payment-method').addEventListener('change', (e) => {
+      const container = document.getElementById('credit-customer-container');
+      if (e.target.value === 'Crédito') {
+        container.classList.add('expanded');
+        document.getElementById('sale-customer-select').required = true;
+      } else {
+        container.classList.remove('expanded');
+        document.getElementById('sale-customer-select').required = false;
+      }
+    });
+
+    // -------------------------------------------------------------
+    // 6. VENTAS (POS) INTEGRADO CON CRÉDITO
+    // -------------------------------------------------------------
+    function initSales() {
+      document.getElementById('btn-add-to-cart').onclick = () => {
+        const productId = document.getElementById('sale-product-select').value;
+        const qty = parseInt(document.getElementById('sale-qty').value);
+
+        if (!productId || qty <= 0) return;
+        const product = inventorySnapshot.find(p => p.id === productId);
+        if (!product || qty > product.stock) return alert("Stock insuficiente.");
+
+        const idx = cart.findIndex(i => i.id === productId);
+        if (idx > -1) {
+          if (cart[idx].qty + qty > product.stock) return alert("Excede el stock.");
+          cart[idx].qty += qty;
+          cart[idx].subtotal = cart[idx].qty * parseFloat(product.sale_price);
+        } else {
+          cart.push({
+            id: product.id, name: product.name,
+            cost: parseFloat(product.purchase_price), price: parseFloat(product.sale_price),
+            qty: qty, subtotal: qty * parseFloat(product.sale_price)
+          });
+        }
+        renderCart();
+      };
+
+      document.getElementById('btn-process-sale').onclick = async () => {
+        if (cart.length === 0) return alert("Carrito vacío.");
+
+        const paymentMethod = document.getElementById('sale-payment-method').value;
+        const customerId = document.getElementById('sale-customer-select').value;
+
+        if (paymentMethod === 'Crédito' && !customerId) {
+          return alert("Debe seleccionar un cliente obligatoriamente para procesar ventas a crédito.");
+        }
+
+        const totalAmount = cart.reduce((acc, i) => acc + i.subtotal, 0);
+        const totalCost = cart.reduce((acc, i) => acc + (i.cost * i.qty), 0);
+
+        try {
+          const { data: saleData, error: saleErr } = await supabase.from('sales').insert([{
+            business_id: currentBusinessId, items: cart,
+            total: totalAmount, profit: totalAmount - totalCost,
+            payment_method: paymentMethod
+          }]).select().single();
+
+          if (saleErr) throw saleErr;
+
+          // Si es venta a crédito -> Insertar en customer_credits
+          if (paymentMethod === 'Crédito') {
+            await supabase.from('customer_credits').insert([{
+              business_id: currentBusinessId,
+              customer_id: customerId,
+              sale_id: saleData.id,
+              amount: totalAmount,
+              amount_paid: 0,
+              status: 'pendiente'
+            }]);
+          }
+
+          // Descontar Stock
+          for (const item of cart) {
+            const currentProd = inventorySnapshot.find(p => p.id === item.id);
+            if (currentProd) {
+              await supabase.from('products').update({ stock: currentProd.stock - item.qty }).eq('id', item.id);
+              populateSalesSelect(inventorySnapshot);
+            }
+          }
+
+          cart = [];
+          renderCart();
+          await loadCredits();
+          await logActivity(`Registró una venta por $${totalAmount.toFixed(2)} (${paymentMethod})`);
+
+          salesHistory.unshift(saleData);
+          calculateFinancialDashboard();
+          populateInvoiceSelects();
+
+          alert("Venta completada con éxito.");
+        } catch (err) {
+          alert("Error al procesar la venta: " + err.message);
+        }
+      };
+    }
+
+    // -------------------------------------------------------------
+    // 7. GESTIÓN DE EMPLEADOS (ADMIN)
+    // -------------------------------------------------------------
+    function initEmployeeManagement() {
+      document.getElementById('btn-generate-invite').onclick = async () => {
+        const code = 'EMP' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const { error } = await supabase.from('employee_invites').insert([{
+          business_id: currentBusinessId,
+          code: code
+        }]);
+
+        if (error) alert("Error generando código: " + error.message);
+        else {
+          document.getElementById('lbl-generated-code').textContent = code;
+          document.getElementById('invite-code-display').classList.remove('hidden');
+          await logActivity(`Generó un código de invitación para empleado`);
+        }
+      };
+
+      document.getElementById('btn-copy-code').onclick = () => {
+        const code = document.getElementById('lbl-generated-code').textContent;
+        navigator.clipboard.writeText(code);
+        alert("Código copiado al portapapeles.");
+      };
+
+      loadEmployeesList();
+    }
+
+    async function loadEmployeesList() {
+      const { data } = await supabase.from('business_members')
+        .select('*')
+        .eq('business_id', currentBusinessId)
+        .eq('role', 'employee');
+
+      if (data) {
+        employeesSnapshot = data;
+        const tbody = document.getElementById('employees-table-body');
+        tbody.innerHTML = '';
+        data.forEach(m => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${m.employee_name || 'Sin nombre'}</td>
+            <td><input type="text" class="input-role-title" data-id="${m.id}" value="${m.role_title || ''}" placeholder="Ej: Estilista" style="margin:0; padding:0.3rem;"></td>
+            <td><span class="badge-status status-pagado">Empleado</span></td>
+            <td>${new Date(m.created_at).toLocaleDateString()}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll('.input-role-title').forEach(input => {
+          input.addEventListener('change', async (e) => {
+            await supabase.from('business_members').update({ role_title: e.target.value }).eq('id', e.target.dataset.id);
+            await logActivity(`Actualizó el cargo de un empleado a "${e.target.value}"`);
+          });
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 7b. ESPECIALISTAS (helper compartido por Servicios y Agenda)
+    // -------------------------------------------------------------
+    function getSpecialistOptions() {
+      const opts = [{ id: currentBusinessId, label: 'Tú (Administrador/a)' }];
+      employeesSnapshot.forEach(e => opts.push({ id: e.user_id, label: e.employee_name || 'Empleado sin nombre' }));
+      return opts;
+    }
+
+    function specialistLabel(employeeId) {
+      const found = getSpecialistOptions().find(o => o.id === employeeId);
+      return found ? found.label : 'Especialista';
+    }
+
+    // -------------------------------------------------------------
+    // 8. CATÁLOGO DE SERVICIOS (5.1)
+    // -------------------------------------------------------------
+    async function initServices() {
+      const form = document.getElementById('service-form');
+
+      document.getElementById('btn-show-add-service').onclick = () => {
+        form.reset();
+        document.getElementById('svc-id').value = '';
+        document.getElementById('service-form-title').textContent = 'Guardar Servicio';
+        document.getElementById('svc-active').checked = true;
+        renderSpecialistChecklist([]);
+        form.classList.remove('hidden');
+      };
+      document.getElementById('btn-cancel-service').onclick = () => form.classList.add('hidden');
+
+      await loadServices();
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('svc-id').value;
+        const payload = {
+          business_id: currentBusinessId,
+          name: document.getElementById('svc-name').value,
+          category: document.getElementById('svc-category').value,
+          duration_minutes: parseInt(document.getElementById('svc-duration').value),
+          price: parseFloat(document.getElementById('svc-price').value),
+          active: document.getElementById('svc-active').checked
+        };
+
+        let serviceId = id;
+        if (id) {
+          await supabase.from('services').update(payload).eq('id', id);
+        } else {
+          const { data: newSvc, error } = await supabase.from('services').insert([payload]).select().single();
+          if (error) return alert("Error al guardar el servicio: " + error.message);
+          serviceId = newSvc.id;
+        }
+
+        // Guardar especialistas habilitados (relación muchos-a-muchos)
+        const selectedSpecialists = Array.from(document.querySelectorAll('.svc-specialist-check:checked')).map(cb => cb.value);
+        await supabase.from('specialist_services').delete().eq('service_id', serviceId).eq('business_id', currentBusinessId);
+        if (selectedSpecialists.length > 0) {
+          await supabase.from('specialist_services').insert(
+            selectedSpecialists.map(empId => ({ business_id: currentBusinessId, employee_id: empId, service_id: serviceId }))
+          );
+        }
+
+        await logActivity(id ? `Editó el servicio "${payload.name}"` : `Creó el servicio "${payload.name}"`);
+        form.classList.add('hidden');
+        await loadServices();
+      };
+    }
+
+    function renderSpecialistChecklist(selectedIds) {
+      const container = document.getElementById('svc-specialists-checklist');
+      container.innerHTML = '';
+      getSpecialistOptions().forEach(opt => {
+        const div = document.createElement('div');
+        div.className = 'checklist-item';
+        const checked = selectedIds.includes(opt.id) ? 'checked' : '';
+        div.innerHTML = `<input type="checkbox" class="svc-specialist-check" id="svc-spec-${opt.id}" value="${opt.id}" ${checked}><label for="svc-spec-${opt.id}">${opt.label}</label>`;
+        container.appendChild(div);
+      });
+    }
+
+    async function loadServices() {
+      const { data } = await supabase.from('services').select('*').eq('business_id', currentBusinessId);
+      const { data: linkData } = await supabase.from('specialist_services').select('*').eq('business_id', currentBusinessId);
+      servicesSnapshot = data || [];
+      specialistServicesSnapshot = linkData || [];
+      renderServicesTable();
+      populateApptServiceSelect();
+    }
+
+    function renderServicesTable() {
+      const tbody = document.getElementById('services-table-body');
+      tbody.innerHTML = '';
+      servicesSnapshot.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${s.name}</td>
+          <td>${s.category || 'N/A'}</td>
+          <td>${s.duration_minutes} min</td>
+          <td class="font-numeric">$${parseFloat(s.price).toFixed(2)}</td>
+          <td><span class="badge-status ${s.active ? 'status-pagado' : 'status-cancelada'}">${s.active ? 'Activo' : 'Inactivo'}</span></td>
+          <td><button class="btn-edit-service btn-small btn-outline" data-id="${s.id}">Editar</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.btn-edit-service').forEach(btn => {
+        btn.onclick = () => {
+          const svc = servicesSnapshot.find(s => s.id === btn.dataset.id);
+          if (!svc) return;
+          document.getElementById('svc-id').value = svc.id;
+          document.getElementById('svc-name').value = svc.name;
+          document.getElementById('svc-category').value = svc.category || 'Otro';
+          document.getElementById('svc-duration').value = svc.duration_minutes;
+          document.getElementById('svc-price').value = svc.price;
+          document.getElementById('svc-active').checked = svc.active;
+          document.getElementById('service-form-title').textContent = 'Editar Servicio';
+          const selected = specialistServicesSnapshot.filter(l => l.service_id === svc.id).map(l => l.employee_id);
+          renderSpecialistChecklist(selected);
+          document.getElementById('service-form').classList.remove('hidden');
+        };
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 9. AGENDA / CITAS (5.2) — Fase 1: crear, ver y cancelar citas
+    // -------------------------------------------------------------
+    function toDateInputValue(date) {
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      return new Date(date - tzOffset).toISOString().slice(0, 10);
+    }
+
+    async function initAppointments() {
+      const datePicker = document.getElementById('appt-date-picker');
+      datePicker.value = toDateInputValue(new Date());
+
+      datePicker.addEventListener('change', renderAppointmentsForSelectedDate);
+      document.getElementById('btn-appt-today').onclick = () => {
+        datePicker.value = toDateInputValue(new Date());
+        renderAppointmentsForSelectedDate();
+      };
+
+      const form = document.getElementById('appointment-form');
+      document.getElementById('btn-show-add-appt').onclick = () => {
+        form.reset();
+        document.getElementById('appt-input-date').value = datePicker.value;
+        document.getElementById('appt-service-info').textContent = '';
+        form.classList.remove('hidden');
+      };
+      document.getElementById('btn-cancel-appt-form').onclick = () => form.classList.add('hidden');
+
+      document.getElementById('appt-customer').addEventListener('change', (e) => {
+        const walkinContainer = document.getElementById('appt-walkin-container');
+        if (e.target.value === '') walkinContainer.classList.add('expanded');
+        else walkinContainer.classList.remove('expanded');
+      });
+
+      document.getElementById('appt-service').addEventListener('change', updateApptServiceInfo);
+      populateApptSpecialistSelect();
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const serviceId = document.getElementById('appt-service').value;
+        const service = servicesSnapshot.find(s => s.id === serviceId);
+        if (!service) return alert("Selecciona un servicio válido.");
+
+        const specialistId = document.getElementById('appt-specialist').value;
+        if (!specialistId) return alert("Selecciona un especialista.");
+
+        const dateVal = document.getElementById('appt-input-date').value;
+        const timeVal = document.getElementById('appt-input-time').value;
+        const startAt = new Date(`${dateVal}T${timeVal}`);
+        if (isNaN(startAt.getTime())) return alert("Fecha u hora inválida.");
+        const endAt = new Date(startAt.getTime() + service.duration_minutes * 60000);
+
+        const customerId = document.getElementById('appt-customer').value || null;
+        const walkinName = document.getElementById('appt-walkin-name').value.trim();
+        const notesInput = document.getElementById('appt-notes').value.trim();
+        const notes = (!customerId && walkinName)
+          ? `Cliente walk-in: ${walkinName}${notesInput ? ' | ' + notesInput : ''}`
+          : (notesInput || null);
+
+        const { error } = await supabase.from('appointments').insert([{
+          business_id: currentBusinessId,
+          customer_id: customerId,
+          employee_id: specialistId,
+          service_id: serviceId,
+          start_at: startAt.toISOString(),
+          end_at: endAt.toISOString(),
+          status: 'pendiente',
+          notes: notes
+        }]);
+
+        if (error) return alert("Error al crear la cita: " + error.message);
+
+        await logActivity(`Creó una cita de "${service.name}" para el ${startAt.toLocaleString()}`);
+        form.classList.add('hidden');
+        datePicker.value = dateVal;
+        await loadAppointments();
+      };
+
+      await loadAppointments();
+    }
+
+    function updateApptServiceInfo() {
+      const serviceId = document.getElementById('appt-service').value;
+      const service = servicesSnapshot.find(s => s.id === serviceId);
+      const info = document.getElementById('appt-service-info');
+      if (service) {
+        info.textContent = `Duración: ${service.duration_minutes} min | Precio: $${parseFloat(service.price).toFixed(2)}`;
+      } else {
+        info.textContent = '';
+      }
+    }
+
+    function populateApptCustomerSelect() {
+      const select = document.getElementById('appt-customer');
+      if (!select) return;
+      select.innerHTML = '<option value="">-- Walk-in / Sin cliente registrado --</option>';
+      customersSnapshot.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        select.appendChild(opt);
+      });
+    }
+
+    function populateApptServiceSelect() {
+      const select = document.getElementById('appt-service');
+      if (!select) return;
+      select.innerHTML = '';
+      servicesSnapshot.filter(s => s.active).forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.name} (${s.duration_minutes} min - $${parseFloat(s.price).toFixed(2)})`;
+        select.appendChild(opt);
+      });
+      updateApptServiceInfo();
+    }
+
+    function populateApptSpecialistSelect() {
+      const select = document.getElementById('appt-specialist');
+      if (!select) return;
+      select.innerHTML = '';
+      getSpecialistOptions().forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.id;
+        option.textContent = opt.label;
+        select.appendChild(option);
+      });
+    }
+
+    async function loadAppointments() {
+      const { data } = await supabase.from('appointments').select('*').eq('business_id', currentBusinessId).order('start_at', { ascending: true });
+      appointmentsSnapshot = data || [];
+      renderAppointmentsForSelectedDate();
+      renderTodayAppointmentsWidget();
+    }
+
+    function renderAppointmentsForSelectedDate() {
+      const dateStr = document.getElementById('appt-date-picker').value;
+      const dayAppointments = appointmentsSnapshot.filter(a => toDateInputValue(new Date(a.start_at)) === dateStr);
+
+      const isToday = dateStr === toDateInputValue(new Date());
+      document.getElementById('appt-list-title').textContent = isToday ? 'Citas de hoy' : `Citas del ${new Date(dateStr + 'T00:00:00').toLocaleDateString()}`;
+
+      const tbody = document.getElementById('appointments-table-body');
+      tbody.innerHTML = '';
+      document.getElementById('appt-empty-hint').classList.toggle('hidden', dayAppointments.length > 0);
+
+      dayAppointments.forEach(a => {
+        const svc = servicesSnapshot.find(s => s.id === a.service_id);
+        const customer = customersSnapshot.find(c => c.id === a.customer_id);
+        const clientName = customer ? customer.name : (a.notes && a.notes.startsWith('Cliente walk-in:') ? a.notes.split('|')[0].replace('Cliente walk-in:', '').trim() : 'Walk-in');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${new Date(a.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+          <td>${clientName}</td>
+          <td>${svc ? svc.name : 'N/A'}</td>
+          <td>${specialistLabel(a.employee_id)}</td>
+          <td><span class="badge-status status-${a.status}">${a.status.replace('_', ' ').toUpperCase()}</span></td>
+          <td id="appt-actions-${a.id}"></td>
+        `;
+        tbody.appendChild(tr);
+        renderApptActions(a);
+      });
+    }
+
+    function renderApptActions(appt) {
+      const cell = document.getElementById(`appt-actions-${appt.id}`);
+      if (!cell) return;
+      cell.innerHTML = '';
+
+      const addBtn = (label, status, cls) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.className = `btn-small ${cls}`;
+        btn.onclick = () => updateAppointmentStatus(appt.id, status, label);
+        cell.appendChild(btn);
+      };
+
+      if (appt.status === 'pendiente') {
+        addBtn('Confirmar', 'confirmada', 'btn-agenda');
+        addBtn('Cancelar', 'cancelada', 'btn-danger');
+      } else if (appt.status === 'confirmada') {
+        addBtn('Completar', 'completada', 'btn-primary');
+        addBtn('No-show', 'no_show', 'btn-outline');
+        addBtn('Cancelar', 'cancelada', 'btn-danger');
+      }
+    }
+
+    async function updateAppointmentStatus(id, newStatus, label) {
+      if (!confirm(`¿Confirmas marcar esta cita como "${label}"?`)) return;
+      const { error } = await supabase.from('appointments').update({ status: newStatus }).eq('id', id);
+      if (error) return alert("Error al actualizar la cita: " + error.message);
+      await logActivity(`Actualizó una cita a estado "${newStatus}"`);
+      await loadAppointments();
+    }
+
+    function renderTodayAppointmentsWidget() {
+      const todayStr = toDateInputValue(new Date());
+      const todayAppointments = appointmentsSnapshot
+        .filter(a => toDateInputValue(new Date(a.start_at)) === todayStr && a.status !== 'cancelada')
+        .sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+
+      document.getElementById('dash-appt-count').textContent = `${todayAppointments.length} cita${todayAppointments.length === 1 ? '' : 's'}`;
+
+      const list = document.getElementById('dash-today-appointments-list');
+      list.innerHTML = '';
+      if (todayAppointments.length === 0) {
+        list.innerHTML = '<li class="empty-hint">No hay citas programadas para hoy.</li>';
+        return;
+      }
+
+      todayAppointments.slice(0, 6).forEach(a => {
+        const svc = servicesSnapshot.find(s => s.id === a.service_id);
+        const customer = customersSnapshot.find(c => c.id === a.customer_id);
+        const clientName = customer ? customer.name : 'Walk-in';
+        const li = document.createElement('li');
+        li.style.cssText = 'padding: 0.4rem 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.85rem; display: flex; justify-content: space-between;';
+        li.innerHTML = `<span>${new Date(a.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} — ${clientName} (${svc ? svc.name : 'N/A'})</span><span class="badge-status status-${a.status}">${a.status.replace('_', ' ').toUpperCase()}</span>`;
+        list.appendChild(li);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 10. DASHBOARD FINANCIERO Y CÁLCULOS
+    // -------------------------------------------------------------
+    function calculateFinancialDashboard() {
+      const now = new Date();
+      let filteredSales = [];
+      let prevSales = [];
+
+      salesHistory.forEach(s => {
+        const d = new Date(s.created_at);
+        if (activePeriod === 'today') {
+          if (d.toDateString() === now.toDateString()) filteredSales.push(s);
+          const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+          if (d.toDateString() === yesterday.toDateString()) prevSales.push(s);
+        } else if (activePeriod === 'week') {
+          const diffDays = Math.ceil(Math.abs(now - d) / (1000 * 60 * 60 * 24));
+          if (diffDays <= 7) filteredSales.push(s);
+          else if (diffDays > 7 && diffDays <= 14) prevSales.push(s);
+        } else if (activePeriod === 'month') {
+          if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) filteredSales.push(s);
+          const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          if (d.getMonth() === prevMonthDate.getMonth() && d.getFullYear() === prevMonthDate.getFullYear()) prevSales.push(s);
+        }
+      });
+
+      const grossSales = filteredSales.reduce((acc, s) => acc + parseFloat(s.total), 0);
+      const netProfit = filteredSales.reduce((acc, s) => acc + parseFloat(s.profit), 0);
+      const expenses = grossSales - netProfit;
+
+      const totalReceivables = creditsSnapshot.filter(cr => cr.status !== 'pagado')
+        .reduce((acc, cr) => acc + (parseFloat(cr.amount) - parseFloat(cr.amount_paid)), 0);
+
+      document.getElementById('dash-receivables').textContent = `$${totalReceivables.toFixed(2)}`;
+
+      animateCounter('dash-net-profit', netProfit);
+      document.getElementById('dash-gross-sales').textContent = `$${grossSales.toFixed(2)}`;
+      document.getElementById('dash-expenses').textContent = `$${expenses.toFixed(2)}`;
+
+      const profitRatio = grossSales > 0 ? ((netProfit / grossSales) * 100).toFixed(0) : 0;
+      document.getElementById('dash-profit-ratio').textContent = `${profitRatio}% de ventas`;
+
+      const recInv = (netProfit * userSettings.pct_inventory) / 100;
+      const recOps = (netProfit * userSettings.pct_operations) / 100;
+      const recSav = (netProfit * userSettings.pct_savings) / 100;
+      const recPer = (netProfit * userSettings.pct_personal) / 100;
+
+      document.getElementById('rec-val-inv').textContent = `$${recInv.toFixed(2)}`;
+      document.getElementById('rec-val-ops').textContent = `$${recOps.toFixed(2)}`;
+      document.getElementById('rec-val-sav').textContent = `$${recSav.toFixed(2)}`;
+      document.getElementById('rec-val-per').textContent = `$${recPer.toFixed(2)}`;
+
+      document.getElementById('recommend-advice-text').textContent =
+        `Con $${netProfit.toFixed(2)} de ganancia neta en este período, asigna $${recInv.toFixed(2)} a reponer inventario y $${recOps.toFixed(2)} a gastos operativos.`;
+
+      renderCircularDashboard(grossSales, netProfit, expenses);
+    }
+
+    function animateCounter(elementId, targetVal) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      let start = 0;
+      const duration = 1000;
+      const startTime = performance.now();
+
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const currentVal = start + (targetVal - start) * progress;
+        el.textContent = `$${currentVal.toFixed(2)}`;
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    function renderCircularDashboard(grossSales, netProfit, expenses) {
+      const shouldAnimate = !heroChartAnimated;
+      const animDuration = shouldAnimate ? 1200 : 0;
+
+      const remainingSales = Math.max(0, grossSales - Math.max(0, netProfit));
+      const heroFill = grossSales > 0 ? [Math.max(0, netProfit), remainingSales] : [0, 100];
+      const heroColors = grossSales > 0 ? ['#00D9A3', '#232B42'] : ['#232B42', '#141B2E'];
+
+      if (chartHeroRing) chartHeroRing.destroy();
+      const ctxRing = document.getElementById('chartHeroRing');
+      if (ctxRing) {
+        chartHeroRing = new Chart(ctxRing, {
+          type: 'doughnut',
+          data: {
+            labels: ['Ganancia Neta', 'Resto de Ventas'],
+            datasets: [{ data: heroFill, backgroundColor: heroColors, borderWidth: 0, borderRadius: 6 }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false, cutout: '82%',
+            plugins: { legend: { display: false } },
+            animation: { duration: animDuration }
+          }
+        });
+      }
+
+      const totalVolume = grossSales + expenses;
+      const salesPct = totalVolume > 0 ? (grossSales / totalVolume) * 100 : 50;
+      const expPct = totalVolume > 0 ? (expenses / totalVolume) * 100 : 50;
+
+      if (chartSalesGauge) chartSalesGauge.destroy();
+      const ctxSales = document.getElementById('chartMiniSales');
+      if (ctxSales) {
+        chartSalesGauge = new Chart(ctxSales, {
+          type: 'doughnut',
+          data: { datasets: [{ data: [salesPct, 100 - salesPct], backgroundColor: ['#3B82F6', '#232B42'], borderWidth: 0, circumference: 180, rotation: 270 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } }, animation: { duration: animDuration } }
+        });
+      }
+
+      if (chartExpensesGauge) chartExpensesGauge.destroy();
+      const ctxExpenses = document.getElementById('chartMiniExpenses');
+      if (ctxExpenses) {
+        chartExpensesGauge = new Chart(ctxExpenses, {
+          type: 'doughnut',
+          data: { datasets: [{ data: [expPct, 100 - expPct], backgroundColor: ['#FF5A5F', '#232B42'], borderWidth: 0, circumference: 180, rotation: 270 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } }, animation: { duration: animDuration } }
+        });
+      }
+
+      heroChartAnimated = true;
+    }
+
+    function applySettingsToUI() {
+      document.getElementById('lbl-pct-inv').textContent = userSettings.pct_inventory;
+      document.getElementById('lbl-pct-ops').textContent = userSettings.pct_operations;
+      document.getElementById('lbl-pct-sav').textContent = userSettings.pct_savings;
+      document.getElementById('lbl-pct-per').textContent = userSettings.pct_personal;
+
+      document.getElementById('seg-inv').style.width = `${userSettings.pct_inventory}%`;
+      document.getElementById('seg-ops').style.width = `${userSettings.pct_operations}%`;
+      document.getElementById('seg-sav').style.width = `${userSettings.pct_savings}%`;
+      document.getElementById('seg-per').style.width = `${userSettings.pct_personal}%`;
+    }
+
+    // -------------------------------------------------------------
+    // 10b. REGISTRO DE ACTIVIDAD (BITÁCORA)
+    // -------------------------------------------------------------
+    async function logActivity(action) {
+      if (!currentBusinessId) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.from('activity_log').insert([{
+        business_id: currentBusinessId,
+        user_id: user ? user.id : null,
+        action: action
+      }]);
+    }
+
+    async function loadActivityLog() {
+      const { data } = await supabase.from('activity_log').select('*').eq('business_id', currentBusinessId).order('created_at', { ascending: false }).limit(30);
+      const tbody = document.getElementById('activity-log-table-body');
+      tbody.innerHTML = '';
+      if (data) {
+        data.forEach(log => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${log.user_id ? log.user_id.substring(0,8) : 'Sistema'}</td><td>${log.action}</td><td>${new Date(log.created_at).toLocaleString()}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 10c. CONFIGURACIÓN CENTRALIZADA (ADMIN)
+    // -------------------------------------------------------------
+    function loadSettingsIntoForm() {
+      const b = currentBusinessData || {};
+      document.getElementById('cfg-name').value = b.name || '';
+      document.getElementById('cfg-legal-name').value = b.legal_name || '';
+      document.getElementById('cfg-tax-id').value = b.tax_id || '';
+      document.getElementById('cfg-phone').value = b.phone || '';
+      document.getElementById('cfg-address').value = b.address || '';
+      document.getElementById('cfg-currency-symbol').value = b.currency_symbol || '$';
+
+      const taxEnabled = b.tax_enabled || false;
+      document.getElementById('cfg-tax-enabled').checked = taxEnabled;
+      document.getElementById('cfg-tax-details').classList.toggle('expanded', taxEnabled);
+      document.getElementById('cfg-tax-percentage').value = b.tax_percentage || 0;
+
+      document.querySelectorAll('.radio-tax-mode').forEach(c => c.classList.remove('selected'));
+      const modeSel = b.tax_included_in_price ? 'included' : 'added';
+      document.querySelector(`.radio-tax-mode[data-mode="${modeSel}"]`)?.classList.add('selected');
+
+      const pm = b.payment_methods || { efectivo: true, transferencia: true, tarjeta: true, credito: true };
+      document.getElementById('cfg-pm-efectivo').checked = pm.efectivo !== false;
+      document.getElementById('cfg-pm-transferencia').checked = pm.transferencia !== false;
+      document.getElementById('cfg-pm-tarjeta').checked = pm.tarjeta !== false;
+      document.getElementById('cfg-pm-credito').checked = pm.credito !== false;
+
+      document.getElementById('cfg-global-low-stock').checked = b.global_low_stock_alert !== false;
+
+      document.getElementById('cfg-pct-inv').value = userSettings.pct_inventory;
+      document.getElementById('cfg-pct-ops').value = userSettings.pct_operations;
+      document.getElementById('cfg-pct-sav').value = userSettings.pct_savings;
+      document.getElementById('cfg-pct-per').value = userSettings.pct_personal;
+
+      if (b.logo_url) document.getElementById('cfg-logo-preview').src = b.logo_url;
+    }
+
+    document.getElementById('form-cfg-business').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let logoUrl = currentBusinessData?.logo_url || null;
+
+      const fileInput = document.getElementById('cfg-logo-file');
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${currentBusinessId}/logo.${fileExt}`;
+        const { error: uploadErr } = await supabase.storage.from('business-logos').upload(filePath, file, { upsert: true });
+        if (uploadErr) {
+          alert("Error subiendo el logo: " + uploadErr.message);
+        } else {
+          const { data: pub } = supabase.storage.from('business-logos').getPublicUrl(filePath);
+          logoUrl = pub.publicUrl;
+        }
+      }
+
+      const updates = {
+        name: document.getElementById('cfg-name').value,
+        legal_name: document.getElementById('cfg-legal-name').value,
+        tax_id: document.getElementById('cfg-tax-id').value,
+        phone: document.getElementById('cfg-phone').value,
+        address: document.getElementById('cfg-address').value,
+        logo_url: logoUrl,
+        updated_at: new Date()
+      };
+
+      const { error } = await supabase.from('businesses').update(updates).eq('id', currentBusinessId);
+      if (error) return alert("Error: " + error.message);
+
+      currentBusinessData = { ...currentBusinessData, ...updates };
+      document.getElementById('business-display-name').textContent = updates.name;
+      applyLogoToHeader();
+      await logActivity('Actualizó los datos del negocio');
+      alert("Datos del salón guardados.");
+    });
+
+    document.getElementById('form-cfg-tax').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const isIncluded = document.querySelector('.radio-tax-mode.selected')?.dataset.mode === 'included';
+      const updates = {
+        currency_symbol: document.getElementById('cfg-currency-symbol').value,
+        tax_enabled: document.getElementById('cfg-tax-enabled').checked,
+        tax_percentage: parseFloat(document.getElementById('cfg-tax-percentage').value) || 0,
+        tax_included_in_price: isIncluded,
+        updated_at: new Date()
+      };
+      const { error } = await supabase.from('businesses').update(updates).eq('id', currentBusinessId);
+      if (error) return alert("Error: " + error.message);
+      currentBusinessData = { ...currentBusinessData, ...updates };
+      await logActivity('Actualizó moneda e impuestos');
+      alert("Configuración fiscal guardada.");
+    });
+
+    document.getElementById('form-cfg-payments').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payment_methods = {
+        efectivo: document.getElementById('cfg-pm-efectivo').checked,
+        transferencia: document.getElementById('cfg-pm-transferencia').checked,
+        tarjeta: document.getElementById('cfg-pm-tarjeta').checked,
+        credito: document.getElementById('cfg-pm-credito').checked
+      };
+      const { error } = await supabase.from('businesses').update({ payment_methods, updated_at: new Date() }).eq('id', currentBusinessId);
+      if (error) return alert("Error: " + error.message);
+      currentBusinessData.payment_methods = payment_methods;
+      await logActivity('Actualizó métodos de pago');
+      alert("Métodos de pago guardados.");
+    });
+
+    document.getElementById('form-cfg-alerts').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const val = document.getElementById('cfg-global-low-stock').checked;
+      const { error } = await supabase.from('businesses').update({ global_low_stock_alert: val, updated_at: new Date() }).eq('id', currentBusinessId);
+      if (error) return alert("Error: " + error.message);
+      currentBusinessData.global_low_stock_alert = val;
+      await logActivity('Actualizó alerta de stock bajo');
+      alert("Ajustes de inventario guardados.");
+    });
+
+    document.getElementById('form-cfg-profit').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pInv = parseInt(document.getElementById('cfg-pct-inv').value) || 0;
+      const pOps = parseInt(document.getElementById('cfg-pct-ops').value) || 0;
+      const pSav = parseInt(document.getElementById('cfg-pct-sav').value) || 0;
+      const pPer = parseInt(document.getElementById('cfg-pct-per').value) || 0;
+
+      if (pInv + pOps + pSav + pPer !== 100) return alert("La suma de los porcentajes debe ser exactamente 100%");
+
+      userSettings = { pct_inventory: pInv, pct_operations: pOps, pct_savings: pSav, pct_personal: pPer };
+      const { error } = await supabase.from('business_settings').upsert({
+        business_id: currentBusinessId, ...userSettings, updated_at: new Date()
+      });
+      if (error) return alert("Error: " + error.message);
+
+      await logActivity('Actualizó la distribución de ganancias');
+      calculateFinancialDashboard();
+      alert("Distribución de ganancias guardada.");
+    });
+
+    // -------------------------------------------------------------
+    // 10d. MÓDULO DE FACTURAS
+    // -------------------------------------------------------------
+    function initInvoices() {
+      populateInvoiceSelects();
+
+      document.getElementById('btn-generate-invoice').onclick = async () => {
+        const saleId = document.getElementById('invoice-sale-select').value;
+        const customerId = document.getElementById('invoice-customer-select').value || null;
+        const sale = salesHistory.find(s => s.id === saleId);
+        if (!sale) return alert("Selecciona una venta para facturar.");
+
+        const taxEnabled = currentBusinessData?.tax_enabled;
+        const taxRate = taxEnabled ? (currentBusinessData.tax_percentage / 100) : 0;
+        let subtotal = sale.total;
+        let taxAmount = 0;
+
+        if (taxEnabled) {
+          if (currentBusinessData.tax_included_in_price) {
+            subtotal = sale.total / (1 + taxRate);
+            taxAmount = sale.total - subtotal;
+          } else {
+            taxAmount = sale.total * taxRate;
+          }
+        }
+        const total = subtotal + taxAmount;
+        const invoiceNumber = 'FAC-' + Math.floor(100000 + Math.random() * 900000);
+
+        const { data: invData, error } = await supabase.from('invoices').insert([{
+          business_id: currentBusinessId,
+          sale_id: saleId,
+          customer_id: customerId,
+          invoice_number: invoiceNumber,
+          subtotal: subtotal,
+          tax_amount: taxAmount,
+          total: total
+        }]).select().single();
+
+        if (error) return alert("Error al generar factura: " + error.message);
+
+        await logActivity(`Generó la factura ${invoiceNumber}`);
+        generateInvoicePDF(invData, sale);
+        await loadInvoicesList();
+      };
+    }
+
+    function populateInvoiceSelects() {
+      const custSelect = document.getElementById('invoice-customer-select');
+      custSelect.innerHTML = '<option value="">Cliente General</option>';
+      customersSnapshot.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id; opt.textContent = c.name;
+        custSelect.appendChild(opt);
+      });
+
+      const saleSelect = document.getElementById('invoice-sale-select');
+      saleSelect.innerHTML = '';
+      salesHistory.slice(0, 30).forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${new Date(s.created_at).toLocaleString()} - $${parseFloat(s.total).toFixed(2)}`;
+        saleSelect.appendChild(opt);
+      });
+
+      loadInvoicesList();
+    }
+
+    async function loadInvoicesList() {
+      const { data } = await supabase.from('invoices').select('*').eq('business_id', currentBusinessId).order('created_at', { ascending: false });
+      const tbody = document.getElementById('invoices-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (data) {
+        data.forEach(inv => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${inv.invoice_number}</td>
+            <td>${new Date(inv.created_at).toLocaleDateString()}</td>
+            <td class="font-numeric">$${parseFloat(inv.total).toFixed(2)}</td>
+            <td><button class="btn-re-pdf" data-id="${inv.id}" style="padding:0.2rem 0.5rem; margin:0; font-size:0.8rem;">PDF</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        tbody.querySelectorAll('.btn-re-pdf').forEach(btn => {
+          btn.onclick = (e) => {
+            const inv = data.find(i => i.id === e.target.dataset.id);
+            if (inv) generateInvoicePDF(inv, null);
+          };
+        });
+      }
+    }
+
+    function generateInvoicePDF(invoice, sale) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const b = currentBusinessData || {};
+      const curr = b.currency_symbol || '$';
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text(b.name || "Mi Salón", 14, 20);
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      let y = 26;
+      if (b.legal_name) { doc.text(b.legal_name, 14, y); y += 5; }
+      if (b.tax_id) { doc.text(`RNC/Tax ID: ${b.tax_id}`, 14, y); y += 5; }
+      if (b.address) { doc.text(b.address, 14, y); y += 5; }
+      if (b.phone) { doc.text(`Tel: ${b.phone}`, 14, y); y += 5; }
+
+      doc.setFont("helvetica", "bold");
+      doc.text(`FACTURA N°: ${invoice.invoice_number}`, 140, 20);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Fecha: ${new Date(invoice.created_at).toLocaleDateString()}`, 140, 26);
+
+      y = Math.max(y, 36);
+      doc.line(14, y, 196, y);
+      y += 8;
+
+      if (sale && sale.items) {
+        doc.setFont("helvetica", "bold");
+        doc.text("Producto", 14, y);
+        doc.text("Cant", 120, y);
+        doc.text("Total", 170, y);
+        y += 5;
+        doc.setFont("helvetica", "normal");
+        sale.items.forEach(item => {
+          doc.text(String(item.name).substring(0, 40), 14, y);
+          doc.text(String(item.qty), 120, y);
+          doc.text(`${curr}${item.subtotal.toFixed(2)}`, 170, y);
+          y += 5;
+        });
+        y += 4;
+        doc.line(14, y, 196, y);
+        y += 8;
+      }
+
+      doc.text(`Subtotal: ${curr}${parseFloat(invoice.subtotal).toFixed(2)}`, 140, y); y += 6;
+      doc.text(`Impuesto: ${curr}${parseFloat(invoice.tax_amount).toFixed(2)}`, 140, y); y += 6;
+      doc.setFont("helvetica", "bold");
+      doc.text(`TOTAL: ${curr}${parseFloat(invoice.total).toFixed(2)}`, 140, y);
+
+      doc.save(`${invoice.invoice_number}.pdf`);
+    }
+
+    // -------------------------------------------------------------
+    // 11. INVENTARIO DE PRODUCTOS (RETAIL)
+    // -------------------------------------------------------------
+    async function initInventory() {
+      const form = document.getElementById('product-form');
+      document.getElementById('btn-show-add-product').onclick = () => { form.reset(); document.getElementById('prod-id').value = ''; form.classList.remove('hidden'); };
+      document.getElementById('btn-cancel-product').onclick = () => form.classList.add('hidden');
+
+      const loadProducts = async () => {
+        const { data } = await supabase.from('products').select('*').eq('business_id', currentBusinessId);
+        if (data) {
+          inventorySnapshot = data;
+          renderInventoryTable(inventorySnapshot);
+          populateSalesSelect(inventorySnapshot);
+        }
+      };
+
+      await loadProducts();
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('prod-id').value;
+        const payload = {
+          business_id: currentBusinessId,
+          name: document.getElementById('prod-name').value,
+          purchase_price: parseFloat(document.getElementById('prod-cost').value) || 0,
+          sale_price: parseFloat(document.getElementById('prod-price').value),
+          stock: parseInt(document.getElementById('prod-stock').value),
+          min_stock: parseInt(document.getElementById('prod-min').value)
+        };
+
+        if (id) await supabase.from('products').update(payload).eq('id', id);
+        else await supabase.from('products').insert([payload]);
+
+        await logActivity(id ? `Editó el producto "${payload.name}"` : `Creó el producto "${payload.name}"`);
+        form.classList.add('hidden');
+        await loadProducts();
+      };
+    }
+
+    function renderInventoryTable(products) {
+      const tbody = document.getElementById('inventory-table-body');
+      tbody.innerHTML = '';
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.name}</td>
+          <td class="font-numeric">$${parseFloat(p.sale_price).toFixed(2)}</td>
+          <td>${p.stock}</td>
+          <td><button class="btn-edit" data-id="${p.id}" style="padding:0.2rem 0.5rem; margin:0; font-size:0.8rem;">Editar</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.onclick = (e) => {
+          const prod = inventorySnapshot.find(p => p.id === e.target.dataset.id);
+          if (!prod) return;
+          document.getElementById('prod-id').value = prod.id;
+          document.getElementById('prod-name').value = prod.name;
+          document.getElementById('prod-cost').value = prod.purchase_price;
+          document.getElementById('prod-price').value = prod.sale_price;
+          document.getElementById('prod-stock').value = prod.stock;
+          document.getElementById('prod-min').value = prod.min_stock;
+          document.getElementById('product-form').classList.remove('hidden');
+        };
+      });
+    }
+
+    function populateSalesSelect(products) {
+      const select = document.getElementById('sale-product-select');
+      select.innerHTML = '';
+      const alertsOn = currentBusinessData?.global_low_stock_alert !== false;
+      products.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        const isLow = alertsOn && p.stock <= p.min_stock;
+        if (isLow) opt.className = 'low-stock-option';
+        opt.textContent = `${p.name} ($${parseFloat(p.sale_price).toFixed(2)} | Stock: ${p.stock})${isLow ? ' ⚠️ STOCK BAJO' : ''}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderCart() {
+      const tbody = document.getElementById('cart-table-body');
+      tbody.innerHTML = '';
+      let total = 0;
+      cart.forEach((item, index) => {
+        total += item.subtotal;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td class="font-numeric">$${item.subtotal.toFixed(2)}</td>
+          <td><button class="btn-danger btn-remove" data-index="${index}" style="padding:0.1rem 0.4rem; margin:0; font-size:0.75rem;">X</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('cart-total').textContent = total.toFixed(2);
+      tbody.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.onclick = (e) => {
+          cart.splice(parseInt(e.target.dataset.index), 1);
+          renderCart();
+        };
+      });
+    }
+
+    async function initReports() {
+      const { data } = await supabase.from('sales').select('*').eq('business_id', currentBusinessId).order('created_at', { ascending: false });
+      if (data) {
+        salesHistory = data;
+        calculateFinancialDashboard();
+      }
+    }
+
+    document.getElementById('btn-logout').onclick = () => supabase.auth.signOut();
+  </script>
+</body>
+</html>
