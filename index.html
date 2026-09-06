@@ -199,23 +199,6 @@
     .period-btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; margin: 0; background: #141B2E; border: 1px solid var(--border-subtle); }
     .period-btn.active { background: var(--accent-profit); color: #0B1120; font-weight: bold; }
 
-    .segmented-bar {
-      display: flex;
-      height: 14px;
-      border-radius: 7px;
-      overflow: hidden;
-      background-color: #070B14;
-      margin: 1rem 0;
-    }
-    .segment { height: 100%; transition: width 0.4s ease; }
-    .seg-inventory { background-color: var(--accent-profit); }
-    .seg-operations { background-color: #3B82F6; }
-    .seg-savings { background-color: var(--accent-recommend); }
-    .seg-personal { background-color: #A855F7; }
-
-    .recommend-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 0.75rem; }
-    .recommend-item { font-size: 0.85rem; color: var(--text-muted); }
-    .recommend-item strong { display: block; color: var(--text-primary); font-family: var(--font-grotesk); font-size: 1.1rem; }
 
     .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
@@ -289,8 +272,8 @@
     </div>
   </div>
   <div>
-    <button id="btn-set-password" style="width: auto; padding: 0.35rem 0.8rem; margin: 0 0.25rem 0 0; font-size: 0.85rem; background-color: #1E2942; border: 1px solid var(--border-subtle);">Contraseña</button>
-    <button id="btn-logout" class="btn-danger" style="width: auto; padding: 0.35rem 0.8rem; margin: 0; font-size: 0.85rem;">Salir</button>
+    <button id="btn-set-password" style="width: auto; padding: 0.35rem 0.8rem; margin: 0 0.25rem 0 0; font-size: 0.85rem; background-color: #1E2942; border: 1px solid var(--border-subtle);" data-i18n="header.password_btn">Contraseña</button>
+    <button id="btn-logout" class="btn-danger" style="width: auto; padding: 0.35rem 0.8rem; margin: 0; font-size: 0.85rem;" data-i18n="header.logout">Salir</button>
   </div>
 </header>
 
@@ -299,76 +282,76 @@
     <!-- PANTALLA: LOGIN / REGISTRO -->
     <section id="auth-screen" class="card">
       <h2 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Gestión Salón</h2>
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">Agenda, servicios y control administrativo para tu salón de belleza.</p>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;" data-i18n="auth.subtitle">Agenda, servicios y control administrativo para tu salón de belleza.</p>
 
       <form id="login-form">
-        <label>Correo Electrónico</label>
+        <label data-i18n="auth.email_label">Correo Electrónico</label>
         <input type="email" id="auth-email" placeholder="ejemplo@salon.com" required>
 
-        <label>Contraseña</label>
+        <label data-i18n="auth.password_label">Contraseña</label>
         <input type="password" id="auth-password" required>
 
-        <label>¿Tienes un código de invitación de tu salón? (Opcional)</label>
+        <label data-i18n="auth.invite_label">¿Tienes un código de invitación de tu salón? (Opcional)</label>
         <input type="text" id="auth-invite-code" placeholder="Ej: EMP12345">
 
         <div id="invite-fullname-container" class="smooth-collapse">
-          <label style="color: var(--accent-profit); font-weight: 600;">Tu nombre completo (Obligatorio)</label>
+          <label style="color: var(--accent-profit); font-weight: 600;" data-i18n="auth.fullname_label">Tu nombre completo (Obligatorio)</label>
           <input type="text" id="auth-employee-name" placeholder="Ej: Juan Pérez">
         </div>
 
-        <button type="submit" class="btn-primary">Iniciar Sesión / Registrarse</button>
+        <button type="submit" class="btn-primary" data-i18n="auth.submit">Iniciar Sesión / Registrarse</button>
       </form>
-      <button id="btn-google-auth" style="background-color: #1E2942; border: 1px solid var(--border-subtle);">Entrar con Google</button>
+      <button id="btn-google-auth" style="background-color: #1E2942; border: 1px solid var(--border-subtle);" data-i18n="auth.google">Entrar con Google</button>
     </section>
 
     <!-- ONBOARDING -->
     <section id="onboarding-screen" class="card hidden">
-      <h2 style="margin-bottom: 0.25rem; font-size: 1.4rem;">Configuración Inicial</h2>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Personaliza tu salón antes de comenzar.</p>
+      <h2 style="margin-bottom: 0.25rem; font-size: 1.4rem;" data-i18n="onboarding.title">Configuración Inicial</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;" data-i18n="onboarding.subtitle">Personaliza tu salón antes de comenzar.</p>
 
       <form id="onboarding-form">
-        <label>Nombre del Salón</label>
+        <label data-i18n="onboarding.business_name_label">Nombre del Salón</label>
         <input type="text" id="onb-business-name" placeholder="Ej: Salón Nathalie Beauty Studio" required>
 
-        <label>Tipo de Negocio</label>
+        <label data-i18n="onboarding.business_type_label">Tipo de Negocio</label>
         <div class="radio-group">
-          <div class="radio-card selected" data-type="individual">Solo yo (independiente)</div>
-          <div class="radio-card" data-type="group">Salón con equipo</div>
+          <div class="radio-card selected" data-type="individual" data-i18n="onboarding.type_individual">Solo yo (independiente)</div>
+          <div class="radio-card" data-type="group" data-i18n="onboarding.type_group">Salón con equipo</div>
         </div>
 
         <div id="team-size-container" class="smooth-collapse">
-          <label>¿Cuántos estilistas/especialistas conforman el equipo?</label>
+          <label data-i18n="onboarding.team_size_label">¿Cuántos estilistas/especialistas conforman el equipo?</label>
           <input type="number" id="onb-team-size" min="1" placeholder="Ej: 3">
         </div>
 
-        <button type="submit" class="btn-primary" style="margin-top: 1.5rem;">Continuar al Dashboard</button>
+        <button type="submit" class="btn-primary" style="margin-top: 1.5rem;" data-i18n="onboarding.submit">Continuar al Dashboard</button>
       </form>
     </section>
 
     <!-- FORZAR CONTRASEÑA EN ONBOARDING GRUPO -->
     <div id="modal-forced-password" class="card hidden" style="position: fixed; top: 10%; left: 5%; right: 5%; z-index: 300; border: 2px solid var(--accent-profit);">
-      <h3>Crea tu contraseña obligatoria</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+      <h3 data-i18n="fp.title">Crea tu contraseña obligatoria</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;" data-i18n="fp.body">
         Has creado un salón de tipo "Salón con equipo". Para la seguridad de tu negocio y la gestión de empleados, debes definir una contraseña master.
       </p>
-      <label>Nueva Contraseña Admin</label>
+      <label data-i18n="fp.label">Nueva Contraseña Admin</label>
       <input type="password" id="forced-password-input" placeholder="Mínimo 6 caracteres" required>
-      <button id="btn-save-forced-password" class="btn-primary" style="margin-top: 1rem;">Establecer Contraseña y Entrar</button>
+      <button id="btn-save-forced-password" class="btn-primary" style="margin-top: 1rem;" data-i18n="fp.submit">Establecer Contraseña y Entrar</button>
     </div>
 
     <!-- MÓDULO: DASHBOARD -->
     <section id="sec-dashboard" class="view-module hidden">
       <div class="period-selector">
-        <button class="period-btn active" data-period="today">Hoy</button>
-        <button class="period-btn" data-period="week">Esta Semana</button>
-        <button class="period-btn" data-period="month">Este Mes</button>
+        <button class="period-btn active" data-period="today" data-i18n="dash.period_today">Hoy</button>
+        <button class="period-btn" data-period="week" data-i18n="dash.period_week">Esta Semana</button>
+        <button class="period-btn" data-period="month" data-i18n="dash.period_month">Este Mes</button>
       </div>
 
       <div class="metrics-grid dashboard-stagger">
         <!-- Citas de Hoy -->
         <div class="card agenda-metric card-stagger">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>Citas de Hoy</h3>
+            <h3 data-i18n="dash.appts_today_title">Citas de Hoy</h3>
             <span id="dash-appt-count" class="badge-trend" style="background: rgba(139,92,246,0.15); color: var(--accent-agenda);">0 citas</span>
           </div>
           <ul id="dash-today-appointments-list" style="margin-top: 0.75rem; list-style: none;"></ul>
@@ -376,174 +359,73 @@
 
         <!-- Ingresos por Servicios -->
         <div class="card hero-metric card-stagger">
-          <span style="color: var(--text-muted); font-size: 0.9rem;">Ingresos por Servicios Completados</span>
+          <span style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="dash.income_title">Ingresos por Servicios Completados</span>
           <div id="dash-net-profit" class="val-large font-numeric" style="color: var(--accent-profit); font-size: 2.2rem; margin: 0.4rem 0;">$0.00</div>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">Suma de citas marcadas como "completada" en el período seleccionado.</span>
+          <span style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="dash.income_hint">Suma de citas marcadas como "completada" en el período seleccionado.</span>
         </div>
 
         <!-- Métrica Cuentas por Cobrar -->
         <div class="card card-stagger" style="border-left: 4px solid var(--accent-recommend);">
-          <span style="color: var(--text-muted); font-size: 0.85rem;">Cuentas por Cobrar (Créditos)</span>
+          <span style="color: var(--text-muted); font-size: 0.85rem;" data-i18n="dash.receivables_title">Cuentas por Cobrar (Créditos)</span>
           <div id="dash-receivables" class="val-large font-numeric" style="font-size: 1.8rem; color: var(--accent-recommend);">$0.00</div>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Saldo pendiente total clientes</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);" data-i18n="dash.receivables_hint">Saldo pendiente total clientes</span>
         </div>
 
-        <!-- Recomendaciones -->
-        <div class="card hero-metric card-stagger" style="border-left-color: var(--accent-recommend);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>Cómo distribuir tu ganancia</h3>
-          </div>
-          <div class="segmented-bar">
-            <div id="seg-inv" class="segment seg-inventory" style="width: 40%;"></div>
-            <div id="seg-ops" class="segment seg-operations" style="width: 30%;"></div>
-            <div id="seg-sav" class="segment seg-savings" style="width: 15%;"></div>
-            <div id="seg-per" class="segment seg-personal" style="width: 15%;"></div>
-          </div>
-          <p id="recommend-advice-text" style="font-size: 0.85rem; color: var(--text-muted);">
-            Basado en tu ganancia, asigna los recursos recomendados para mantener la salud financiera.
-          </p>
-          <div class="recommend-grid">
-            <div class="recommend-item"><span style="color: var(--accent-profit);">■ Reinversión (<span id="lbl-pct-inv">40</span>%)</span><strong id="rec-val-inv">$0.00</strong></div>
-            <div class="recommend-item"><span style="color: #3B82F6;">■ Operación (<span id="lbl-pct-ops">30</span>%)</span><strong id="rec-val-ops">$0.00</strong></div>
-            <div class="recommend-item"><span style="color: var(--accent-recommend);">■ Fondo Emerg. (<span id="lbl-pct-sav">15</span>%)</span><strong id="rec-val-sav">$0.00</strong></div>
-            <div class="recommend-item"><span style="color: #A855F7;">■ Uso Personal (<span id="lbl-pct-per">15</span>%)</span><strong id="rec-val-per">$0.00</strong></div>
-          </div>
-        </div>
       </div>
     </section>
 
     <!-- MÓDULO: AGENDA / CITAS (SOLO ADMIN) -->
     <section id="sec-appointments" class="view-module hidden">
-      <h2>Agenda de Citas</h2>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem;">Crea, revisa y actualiza las citas de tus clientes.</p>
+      <h2 data-i18n="appt.title">Agenda de Citas</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem;" data-i18n="appt.subtitle">Crea, revisa y actualiza las citas de tus clientes.</p>
 
       <div class="card">
         <div class="appt-date-nav">
-          <label style="margin: 0; flex-shrink: 0;">Fecha</label>
+          <label style="margin: 0; flex-shrink: 0;" data-i18n="appt.date_label">Fecha</label>
           <input type="date" id="appt-date-picker">
-          <button id="btn-appt-today" class="btn-outline btn-small" style="margin: 0.35rem 0 0;">Hoy</button>
+          <button id="btn-appt-today" class="btn-outline btn-small" style="margin: 0.35rem 0 0;" data-i18n="appt.today_btn">Hoy</button>
         </div>
-        <button id="btn-show-add-appt" class="btn-agenda" style="margin-top: 1rem;">+ Nueva Cita</button>
+        <button id="btn-show-add-appt" class="btn-agenda" style="margin-top: 1rem;" data-i18n="appt.new_btn">+ Nueva Cita</button>
       </div>
 
       <form id="appointment-form" class="card hidden">
-        <h3>Registrar Cita</h3>
+        <h3 data-i18n="appt.form_title">Registrar Cita</h3>
 
-        <label>Cliente</label>
-        <select id="appt-customer"><option value="">-- Walk-in / Sin cliente registrado --</option></select>
+        <label data-i18n="appt.customer_label">Cliente</label>
+        <select id="appt-customer"><option value="" data-i18n="appt.customer_walkin_opt">-- Walk-in / Sin cliente registrado --</option></select>
 
         <div id="appt-walkin-container" class="smooth-collapse expanded">
-          <label>Nombre del Cliente (Walk-in, opcional)</label>
+          <label data-i18n="appt.walkin_name_label">Nombre del Cliente (Walk-in, opcional)</label>
           <input type="text" id="appt-walkin-name" placeholder="Ej: María Pérez">
         </div>
 
-        <label>Servicio</label>
+        <label data-i18n="appt.service_label">Servicio</label>
         <select id="appt-service" required></select>
         <div id="appt-service-info" class="service-info-box"></div>
 
-        <label>Especialista</label>
+        <label data-i18n="appt.specialist_label">Especialista</label>
         <select id="appt-specialist" required></select>
 
-        <label>Fecha</label>
+        <label data-i18n="appt.date_field">Fecha</label>
         <input type="date" id="appt-input-date" required>
 
-        <label>Hora</label>
+        <label data-i18n="appt.time_field">Hora</label>
         <input type="time" id="appt-input-time" required>
 
-        <label>Notas (alergias, preferencias, etc.)</label>
+        <label data-i18n="appt.notes_label">Notas (alergias, preferencias, etc.)</label>
         <textarea id="appt-notes" placeholder="Opcional"></textarea>
 
-        <button type="submit" class="btn-agenda">Guardar Cita</button>
-        <button type="button" id="btn-cancel-appt-form" class="btn-danger">Cancelar</button>
+        <button type="submit" class="btn-agenda" data-i18n="appt.save">Guardar Cita</button>
+        <button type="button" id="btn-cancel-appt-form" class="btn-danger" data-i18n="common.cancel">Cancelar</button>
       </form>
 
       <div class="card table-responsive">
-        <h3 id="appt-list-title">Citas del día</h3>
+        <h3 id="appt-list-title" data-i18n="appt.list_title_today">Citas del día</h3>
         <table>
-          <thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Especialista</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <thead><tr><th data-i18n="appt.th_time">Hora</th><th data-i18n="appt.th_client">Cliente</th><th data-i18n="appt.th_service">Servicio</th><th data-i18n="appt.th_specialist">Especialista</th><th data-i18n="appt.th_status">Estado</th><th data-i18n="appt.th_actions">Acciones</th></tr></thead>
           <tbody id="appointments-table-body"></tbody>
         </table>
-        <p id="appt-empty-hint" class="empty-hint hidden">No hay citas registradas para este día.</p>
-      </div>
-    </section>
-
-    <!-- MÓDULO: CATÁLOGO DE SERVICIOS (SOLO ADMIN) -->
-    <section id="sec-services" class="view-module hidden">
-      <h2>Catálogo de Servicios</h2>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem;">Define los servicios que ofrece tu salón, su duración y quién puede realizarlos.</p>
-
-      <button id="btn-show-add-service" class="btn-agenda">+ Nuevo Servicio</button>
-
-      <form id="service-form" class="card hidden">
-        <h3 id="service-form-title">Guardar Servicio</h3>
-        <input type="hidden" id="svc-id">
-        <label>Nombre del Servicio</label>
-        <input type="text" id="svc-name" placeholder="Ej: Corte de Cabello" required>
-
-        <label>Categoría</label>
-        <select id="svc-category">
-          <option value="Cabello">Cabello</option>
-          <option value="Uñas">Uñas</option>
-          <option value="Piel">Piel</option>
-          <option value="Barbería">Barbería</option>
-          <option value="Spa">Spa</option>
-          <option value="Otro">Otro</option>
-        </select>
-
-        <label>Duración Estimada (minutos)</label>
-        <input type="number" id="svc-duration" min="5" step="5" value="30" required>
-
-        <label>Precio ($)</label>
-        <input type="number" step="0.01" id="svc-price" required>
-
-        <label style="display: flex; align-items: center; justify-content: space-between;">
-          Servicio activo
-          <input type="checkbox" id="svc-active" style="width: auto; margin: 0;" checked>
-        </label>
-
-        <label>Especialistas habilitados para este servicio</label>
-        <div id="svc-specialists-checklist" class="checklist-box"></div>
-
-        <button type="submit" class="btn-agenda">Guardar Servicio</button>
-        <button type="button" id="btn-cancel-service" class="btn-danger">Cancelar</button>
-      </form>
-
-      <div class="table-responsive">
-        <table>
-          <thead><tr><th>Servicio</th><th>Categoría</th><th>Duración</th><th>Precio</th><th>Estado</th><th>Acción</th></tr></thead>
-          <tbody id="services-table-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- MÓDULO: CLIENTES Y CRÉDITOS -->
-    <section id="sec-customers" class="view-module hidden">
-      <h2>Clientes</h2>
-      <form id="customer-form" class="card" style="margin-top: 0.5rem;">
-        <h3>Registrar Nuevo Cliente</h3>
-        <label>Nombre del Cliente</label>
-        <input type="text" id="cust-name" required>
-        <label>Teléfono</label>
-        <input type="tel" id="cust-phone">
-        <label>Domicilio (opcional)</label>
-        <input type="text" id="cust-address" placeholder="Para la factura">
-        <label>E-mail (opcional)</label>
-        <input type="email" id="cust-email" placeholder="Para la factura">
-        <button type="submit" class="btn-primary">Guardar Cliente</button>
-      </form>
-
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Teléfono</th>
-              <th>Saldo Pendiente</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="customers-table-body"></tbody>
-        </table>
+        <p id="appt-empty-hint" class="empty-hint hidden" data-i18n="appt.empty">No hay citas registradas para este día.</p>
       </div>
     </section>
 
@@ -551,37 +433,37 @@
     <div id="modal-customer-account" class="card hidden" style="position: fixed; top: 5%; left: 2.5%; right: 2.5%; bottom: 5%; z-index: 250; overflow-y: auto;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 id="account-customer-name">Cuenta de Cliente</h3>
-        <button id="btn-close-account" style="width: auto; margin:0; padding: 0.3rem 0.6rem;">Cerrar</button>
+        <button id="btn-close-account" style="width: auto; margin:0; padding: 0.3rem 0.6rem;" data-i18n="cust.close">Cerrar</button>
       </div>
       <p style="color: var(--text-muted); font-size: 0.85rem;" id="account-customer-phone"></p>
-      <h2 style="color: var(--accent-recommend); margin: 0.5rem 0;" class="font-numeric">Pendiente: $<span id="account-total-pending">0.00</span></h2>
+      <h2 style="color: var(--accent-recommend); margin: 0.5rem 0;" class="font-numeric"><span data-i18n="cust.pending_title">Pendiente:</span> $<span id="account-total-pending">0.00</span></h2>
 
       <div class="card" style="border-color: var(--accent-agenda);">
-        <h4>Historial en el Salón</h4>
+        <h4 data-i18n="cust.history_title">Historial en el Salón</h4>
         <div id="cust-history-summary" style="font-size: 0.85rem; color: var(--text-primary); margin-top: 0.5rem; display: grid; gap: 0.35rem;"></div>
 
         <div class="table-responsive" style="margin-top: 0.75rem;">
           <table>
-            <thead><tr><th>Fecha</th><th>Servicio</th><th>Especialista</th><th>Estado</th></tr></thead>
+            <thead><tr><th data-i18n="cust.th_date">Fecha</th><th data-i18n="cust.th_service">Servicio</th><th data-i18n="cust.th_specialist">Especialista</th><th data-i18n="cust.th_status">Estado</th></tr></thead>
             <tbody id="cust-appointments-history-list"></tbody>
           </table>
         </div>
-        <p id="cust-history-empty-hint" class="empty-hint hidden">Este cliente aún no tiene citas registradas.</p>
+        <p id="cust-history-empty-hint" class="empty-hint hidden" data-i18n="cust.history_empty">Este cliente aún no tiene citas registradas.</p>
 
-        <label>Notas (alergias a productos, preferencias de tono, etc.)</label>
+        <label data-i18n="cust.notes_label">Notas (alergias a productos, preferencias de tono, etc.)</label>
         <textarea id="cust-notes-input" placeholder="Opcional"></textarea>
-        <button id="btn-save-cust-notes" class="btn-agenda">Guardar Notas</button>
+        <button id="btn-save-cust-notes" class="btn-agenda" data-i18n="cust.save_notes">Guardar Notas</button>
       </div>
 
-      <h4>Créditos Activos / Historial</h4>
+      <h4 data-i18n="cust.credits_title">Créditos Activos / Historial</h4>
       <div class="table-responsive">
         <table>
           <thead>
             <tr>
-              <th>Fecha</th>
-              <th>Monto</th>
-              <th>Abonado</th>
-              <th>Estado</th>
+              <th data-i18n="cust.th_date">Fecha</th>
+              <th data-i18n="cust.th_amount">Monto</th>
+              <th data-i18n="cust.th_paid">Abonado</th>
+              <th data-i18n="cust.th_status">Estado</th>
             </tr>
           </thead>
           <tbody id="account-credits-list"></tbody>
@@ -589,45 +471,45 @@
       </div>
 
       <form id="payment-form" style="margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
-        <h4>Registrar Abono</h4>
-        <label>Seleccionar Crédito Pendiente</label>
+        <h4 data-i18n="cust.payment_form_title">Registrar Abono</h4>
+        <label data-i18n="cust.select_credit">Seleccionar Crédito Pendiente</label>
         <select id="payment-credit-select" required></select>
 
-        <label>Monto a Abonar ($)</label>
+        <label data-i18n="cust.amount_to_pay">Monto a Abonar ($)</label>
         <input type="number" step="0.01" id="payment-amount" placeholder="0.00" required>
 
-        <button type="submit" class="btn-primary">Procesar Abono</button>
+        <button type="submit" class="btn-primary" data-i18n="cust.process_payment">Procesar Abono</button>
       </form>
     </div>
 
     <!-- MÓDULO: FACTURAS -->
     <section id="sec-reports" class="view-module hidden">
-      <h2>Facturas</h2>
+      <h2 data-i18n="inv.title">Facturas</h2>
       <div class="card" style="margin-top: 0.5rem;">
-        <h3>Emitir Factura</h3>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Se factura un servicio ya marcado como "completada" en la Agenda.</p>
+        <h3 data-i18n="inv.emit_title">Emitir Factura</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="inv.emit_hint">Se factura un servicio ya marcado como "completada" en la Agenda.</p>
 
-        <label>Servicio Completado a Facturar</label>
+        <label data-i18n="inv.appt_label">Servicio Completado a Facturar</label>
         <select id="invoice-appointment-select"></select>
 
-        <label>Cliente (obligatorio)</label>
-        <select id="invoice-customer-select" required><option value="">-- Selecciona un cliente --</option></select>
+        <label data-i18n="inv.customer_label">Cliente (obligatorio)</label>
+        <select id="invoice-customer-select" required><option value="" data-i18n="inv.customer_placeholder">-- Selecciona un cliente --</option></select>
 
-        <label>Método de Pago</label>
+        <label data-i18n="inv.payment_method_label">Método de Pago</label>
         <select id="invoice-payment-method">
-          <option value="Efectivo">Efectivo</option>
-          <option value="Transferencia">Transferencia</option>
-          <option value="Tarjeta">Tarjeta</option>
-          <option value="Crédito">Crédito (Cuenta x Cobrar)</option>
+          <option value="Efectivo" data-i18n="inv.pm_cash">Efectivo</option>
+          <option value="Transferencia" data-i18n="inv.pm_transfer">Transferencia</option>
+          <option value="Tarjeta" data-i18n="inv.pm_card">Tarjeta</option>
+          <option value="Crédito" data-i18n="inv.pm_credit">Crédito (Cuenta x Cobrar)</option>
         </select>
 
-        <button id="btn-generate-invoice" class="btn-primary">Generar Factura (PDF)</button>
+        <button id="btn-generate-invoice" class="btn-primary" data-i18n="inv.generate">Generar Factura (PDF)</button>
       </div>
 
       <div class="card table-responsive">
-        <h3>Historial de Facturas</h3>
+        <h3 data-i18n="inv.history_title">Historial de Facturas</h3>
         <table>
-          <thead><tr><th>N° Factura</th><th>Fecha</th><th>Total</th><th>Acción</th></tr></thead>
+          <thead><tr><th data-i18n="inv.th_number">N° Factura</th><th data-i18n="inv.th_date">Fecha</th><th data-i18n="inv.th_total">Total</th><th data-i18n="inv.th_action">Acción</th></tr></thead>
           <tbody id="invoices-table-body"></tbody>
         </table>
       </div>
@@ -635,24 +517,24 @@
 
     <!-- MÓDULO: GESTIÓN DE EMPLEADOS (SOLO ADMIN) -->
     <section id="sec-employees" class="view-module hidden">
-      <h2>Gestión de Empleados</h2>
+      <h2 data-i18n="emp.title">Gestión de Empleados</h2>
       <div class="card" style="margin-top: 0.5rem;">
-        <h3>Invitar Empleado</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Genera un código de acceso único para registrar nuevos estilistas/empleados.</p>
-        <button id="btn-generate-invite" class="btn-primary">Generar Código de Invitación</button>
+        <h3 data-i18n="emp.invite_title">Invitar Empleado</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;" data-i18n="emp.invite_hint">Genera un código de acceso único para registrar nuevos estilistas/empleados.</p>
+        <button id="btn-generate-invite" class="btn-primary" data-i18n="emp.generate_code">Generar Código de Invitación</button>
 
         <div id="invite-code-display" class="hidden" style="margin-top: 1rem; padding: 1rem; background: #070B14; border: 1px dashed var(--accent-profit); text-align: center; border-radius: 8px;">
-          <span style="font-size: 0.8rem; color: var(--text-muted);">Código generado:</span>
+          <span style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="emp.code_generated">Código generado:</span>
           <h2 id="lbl-generated-code" style="color: var(--accent-profit); letter-spacing: 2px;"></h2>
-          <button id="btn-copy-code" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem;">Copiar Código</button>
+          <button id="btn-copy-code" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem;" data-i18n="emp.copy_code">Copiar Código</button>
         </div>
       </div>
 
       <div class="card">
-        <h3>Lista de Empleados Actuales</h3>
+        <h3 data-i18n="emp.list_title">Lista de Empleados Actuales</h3>
         <div class="table-responsive">
           <table>
-            <thead><tr><th>Nombre</th><th>Cargo</th><th>Rol Permisos</th><th>Agregado</th></tr></thead>
+            <thead><tr><th data-i18n="emp.th_name">Nombre</th><th data-i18n="emp.th_position">Cargo</th><th data-i18n="emp.th_role">Rol Permisos</th><th data-i18n="emp.th_added">Agregado</th></tr></thead>
             <tbody id="employees-table-body"></tbody>
           </table>
         </div>
@@ -667,41 +549,56 @@
     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Administra los parámetros de tu salón.</p>
 
     <div class="tabs-nav">
-      <button class="tab-btn active" data-tab="tab-cfg-business">Datos Negocio</button>
-      <button class="tab-btn" data-tab="tab-cfg-tax">Moneda e Impuestos</button>
-      <button class="tab-btn" data-tab="tab-cfg-payments">Métodos de Pago</button>
-      <button class="tab-btn" data-tab="tab-cfg-profit">Distribución Ganancias</button>
-      <button class="tab-btn" data-tab="tab-cfg-activity">Registro Actividad</button>
+      <button class="tab-btn active" data-tab="tab-cfg-business" data-i18n="cfg.tab_business">Datos Negocio</button>
+      <button class="tab-btn" data-tab="tab-cfg-language" data-i18n="cfg.tab_language">Idioma</button>
+      <button class="tab-btn" data-tab="tab-cfg-tax" data-i18n="cfg.tab_tax">Moneda e Impuestos</button>
+      <button class="tab-btn" data-tab="tab-cfg-payments" data-i18n="cfg.tab_payments">Métodos de Pago</button>
+      <button class="tab-btn" data-tab="tab-cfg-customers" data-i18n="cfg.tab_customers">Clientes</button>
+      <button class="tab-btn" data-tab="tab-cfg-services" data-i18n="cfg.tab_services">Servicios</button>
+      <button class="tab-btn" data-tab="tab-cfg-activity" data-i18n="cfg.tab_activity">Registro Actividad</button>
     </div>
 
     <!-- Datos del Negocio -->
     <div id="tab-cfg-business" class="tab-content card">
       <form id="form-cfg-business">
-        <label>Nombre Comercial</label>
+        <label data-i18n="cfg.business_name_label">Nombre Comercial</label>
         <input type="text" id="cfg-name" required>
-        <label>Nombre Legal / Razón Social</label>
+        <label data-i18n="cfg.legal_name_label">Nombre Legal / Razón Social</label>
         <input type="text" id="cfg-legal-name" placeholder="Ej: Salón Nathalie SRL">
-        <label>RNC / Documento Fiscal</label>
+        <label data-i18n="cfg.tax_id_label">RNC / Documento Fiscal</label>
         <input type="text" id="cfg-tax-id" placeholder="Ej: 130-XXXXX-X">
-        <label>Teléfono</label>
+        <label data-i18n="cfg.phone_label">Teléfono</label>
         <input type="tel" id="cfg-phone" placeholder="Ej: 809-555-0000">
-        <label>Dirección</label>
+        <label data-i18n="cfg.address_label">Dirección</label>
         <input type="text" id="cfg-address" placeholder="Ej: Av. Principal #12">
-        <label>Sitio Web</label>
+        <label data-i18n="cfg.website_label">Sitio Web</label>
         <input type="text" id="cfg-website" placeholder="Ej: www.salonnathalie.com">
-        <label>Logotipo del Salón</label>
+        <label data-i18n="cfg.logo_label">Logotipo del Salón</label>
         <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
           <img id="cfg-logo-preview" src="logo-header.png" style="width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--border-subtle); object-fit: cover;">
           <input type="file" id="cfg-logo-file" accept="image/*" style="margin-top: 0;">
         </div>
-        <button type="submit" class="btn-primary">Guardar Datos del Negocio</button>
+        <button type="submit" class="btn-primary" data-i18n="cfg.save_business">Guardar Datos del Negocio</button>
+      </form>
+    </div>
+
+    <!-- Idioma -->
+    <div id="tab-cfg-language" class="tab-content card hidden">
+      <form id="form-cfg-language">
+        <label data-i18n="cfg.language_label">Idioma de la interfaz</label>
+        <select id="cfg-language">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+        </select>
+        <button type="submit" class="btn-primary" data-i18n="cfg.save_language">Guardar Idioma</button>
       </form>
     </div>
 
     <!-- Moneda e Impuestos -->
     <div id="tab-cfg-tax" class="tab-content card hidden">
       <form id="form-cfg-tax">
-        <label>Símbolo de Moneda</label>
+        <label data-i18n="cfg.currency_label">Símbolo de Moneda</label>
         <select id="cfg-currency-symbol">
           <option value="$">$ (USD)</option>
           <option value="RD$">RD$ (DOP)</option>
@@ -709,50 +606,115 @@
           <option value="MXN$">MXN$ (MXN)</option>
         </select>
         <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
-          <input type="checkbox" id="cfg-tax-enabled" style="width: auto; margin: 0;"> ¿Tu negocio aplica impuestos?
+          <input type="checkbox" id="cfg-tax-enabled" style="width: auto; margin: 0;"> <span data-i18n="cfg.tax_enabled_label">¿Tu negocio aplica impuestos?</span>
         </label>
         <div id="cfg-tax-details" class="smooth-collapse">
-          <label>Porcentaje de Impuesto (%)</label>
+          <label data-i18n="cfg.tax_pct_label">Porcentaje de Impuesto (%)</label>
           <input type="number" step="0.01" id="cfg-tax-percentage" placeholder="18">
-          <label>Modo del Impuesto</label>
+          <label data-i18n="cfg.tax_mode_label">Modo del Impuesto</label>
           <div class="radio-group">
-            <div class="radio-card radio-tax-mode selected" data-mode="included">Precios ya incluyen impuesto</div>
-            <div class="radio-card radio-tax-mode" data-mode="added">Se suma al vender</div>
+            <div class="radio-card radio-tax-mode selected" data-mode="included" data-i18n="cfg.tax_mode_included">Precios ya incluyen impuesto</div>
+            <div class="radio-card radio-tax-mode" data-mode="added" data-i18n="cfg.tax_mode_added">Se suma al vender</div>
           </div>
         </div>
-        <button type="submit" class="btn-primary">Guardar Moneda e Impuestos</button>
+        <button type="submit" class="btn-primary" data-i18n="cfg.save_tax">Guardar Moneda e Impuestos</button>
       </form>
     </div>
 
     <!-- Métodos de Pago -->
     <div id="tab-cfg-payments" class="tab-content card hidden">
       <form id="form-cfg-payments">
-        <label style="display: flex; align-items: center; justify-content: space-between;">Efectivo <input type="checkbox" id="cfg-pm-efectivo" style="width: auto; margin: 0;" checked></label>
-        <label style="display: flex; align-items: center; justify-content: space-between;">Transferencia <input type="checkbox" id="cfg-pm-transferencia" style="width: auto; margin: 0;" checked></label>
-        <label style="display: flex; align-items: center; justify-content: space-between;">Tarjeta <input type="checkbox" id="cfg-pm-tarjeta" style="width: auto; margin: 0;" checked></label>
-        <label style="display: flex; align-items: center; justify-content: space-between;">Crédito / Fiao <input type="checkbox" id="cfg-pm-credito" style="width: auto; margin: 0;" checked></label>
-        <button type="submit" class="btn-primary">Guardar Métodos de Pago</button>
+        <label style="display: flex; align-items: center; justify-content: space-between;"><span data-i18n="cfg.pm_cash">Efectivo</span> <input type="checkbox" id="cfg-pm-efectivo" style="width: auto; margin: 0;" checked></label>
+        <label style="display: flex; align-items: center; justify-content: space-between;"><span data-i18n="cfg.pm_transfer">Transferencia</span> <input type="checkbox" id="cfg-pm-transferencia" style="width: auto; margin: 0;" checked></label>
+        <label style="display: flex; align-items: center; justify-content: space-between;"><span data-i18n="cfg.pm_card">Tarjeta</span> <input type="checkbox" id="cfg-pm-tarjeta" style="width: auto; margin: 0;" checked></label>
+        <label style="display: flex; align-items: center; justify-content: space-between;"><span data-i18n="cfg.pm_credit">Crédito / Fiao</span> <input type="checkbox" id="cfg-pm-credito" style="width: auto; margin: 0;" checked></label>
+        <button type="submit" class="btn-primary" data-i18n="cfg.save_payments">Guardar Métodos de Pago</button>
       </form>
     </div>
 
-    <!-- Distribución de Ganancias -->
-    <div id="tab-cfg-profit" class="tab-content card hidden">
-      <form id="form-cfg-profit">
-        <p style="font-size: 0.8rem; color: var(--text-muted);">La suma de los 4 campos debe ser exactamente 100%.</p>
-        <label>Reinversión Inventario (%)</label><input type="number" id="cfg-pct-inv" value="40" min="0" max="100">
-        <label>Operación / Empleados (%)</label><input type="number" id="cfg-pct-ops" value="30" min="0" max="100">
-        <label>Fondo de Emergencia (%)</label><input type="number" id="cfg-pct-sav" value="15" min="0" max="100">
-        <label>Uso Personal (%)</label><input type="number" id="cfg-pct-per" value="15" min="0" max="100">
-        <div style="margin-top: 0.5rem; font-weight: bold; font-size: 0.9rem;" id="cfg-sum-pct-indicator">Suma: 100%</div>
-        <button type="submit" class="btn-primary">Guardar Distribución</button>
+    <!-- Clientes -->
+    <div id="tab-cfg-customers" class="tab-content hidden">
+      <form id="customer-form" class="card">
+        <h3 data-i18n="cust.form_title">Registrar Nuevo Cliente</h3>
+        <label data-i18n="cust.name_label">Nombre del Cliente</label>
+        <input type="text" id="cust-name" required>
+        <label data-i18n="cust.phone_label">Teléfono</label>
+        <input type="tel" id="cust-phone">
+        <label data-i18n="cust.address_label">Domicilio (opcional)</label>
+        <input type="text" id="cust-address" data-i18n-placeholder="cust.address_placeholder" placeholder="Para la factura">
+        <label data-i18n="cust.email_label">E-mail (opcional)</label>
+        <input type="email" id="cust-email" data-i18n-placeholder="cust.address_placeholder" placeholder="Para la factura">
+        <button type="submit" class="btn-primary" data-i18n="cust.save">Guardar Cliente</button>
       </form>
+
+      <div class="card table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="cust.th_name">Nombre</th>
+              <th data-i18n="cust.th_phone">Teléfono</th>
+              <th data-i18n="cust.th_balance">Saldo Pendiente</th>
+              <th data-i18n="cust.th_action">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="customers-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Servicios -->
+    <div id="tab-cfg-services" class="tab-content hidden">
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 0.75rem;" data-i18n="svc.subtitle">Define los servicios que ofrece tu salón, su duración y quién puede realizarlos.</p>
+
+      <button id="btn-show-add-service" class="btn-agenda" data-i18n="svc.new_btn">+ Nuevo Servicio</button>
+
+      <form id="service-form" class="card hidden">
+        <h3 id="service-form-title" data-i18n="svc.form_title_new">Guardar Servicio</h3>
+        <input type="hidden" id="svc-id">
+        <label data-i18n="svc.name_label">Nombre del Servicio</label>
+        <input type="text" id="svc-name" placeholder="Ej: Corte de Cabello" required>
+
+        <label data-i18n="svc.category_label">Categoría</label>
+        <select id="svc-category">
+          <option value="Cabello" data-i18n="svc.cat_hair">Cabello</option>
+          <option value="Uñas" data-i18n="svc.cat_nails">Uñas</option>
+          <option value="Piel" data-i18n="svc.cat_skin">Piel</option>
+          <option value="Barbería" data-i18n="svc.cat_barber">Barbería</option>
+          <option value="Spa" data-i18n="svc.cat_spa">Spa</option>
+          <option value="Otro" data-i18n="svc.cat_other">Otro</option>
+        </select>
+
+        <label data-i18n="svc.duration_label">Duración Estimada (minutos)</label>
+        <input type="number" id="svc-duration" min="5" step="5" value="30" required>
+
+        <label data-i18n="svc.price_label">Precio ($)</label>
+        <input type="number" step="0.01" id="svc-price" required>
+
+        <label style="display: flex; align-items: center; justify-content: space-between;">
+          <span data-i18n="svc.active_label">Servicio activo</span>
+          <input type="checkbox" id="svc-active" style="width: auto; margin: 0;" checked>
+        </label>
+
+        <label data-i18n="svc.specialists_label">Especialistas habilitados para este servicio</label>
+        <div id="svc-specialists-checklist" class="checklist-box"></div>
+
+        <button type="submit" class="btn-agenda" data-i18n="svc.save">Guardar Servicio</button>
+        <button type="button" id="btn-cancel-service" class="btn-danger" data-i18n="common.cancel">Cancelar</button>
+      </form>
+
+      <div class="card table-responsive">
+        <table>
+          <thead><tr><th data-i18n="svc.th_service">Servicio</th><th data-i18n="svc.th_category">Categoría</th><th data-i18n="svc.th_duration">Duración</th><th data-i18n="svc.th_price">Precio</th><th data-i18n="svc.th_status">Estado</th><th data-i18n="svc.th_action">Acción</th></tr></thead>
+          <tbody id="services-table-body"></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Registro de Actividad -->
     <div id="tab-cfg-activity" class="tab-content card hidden">
       <div class="table-responsive">
         <table>
-          <thead><tr><th>Usuario</th><th>Acción</th><th>Fecha/Hora</th></tr></thead>
+          <thead><tr><th data-i18n="cfg.activity_th_user">Usuario</th><th data-i18n="cfg.activity_th_action">Acción</th><th data-i18n="cfg.activity_th_date">Fecha/Hora</th></tr></thead>
           <tbody id="activity-log-table-body"></tbody>
         </table>
       </div>
@@ -761,21 +723,19 @@
 
   <!-- MODALES AUXILIARES -->
   <div id="modal-password" class="card hidden" style="position: fixed; top: 15%; left: 5%; right: 5%; z-index: 200;">
-    <h3>Crear / Vincular Contraseña</h3>
-    <p style="font-size: 0.8rem; color: var(--text-muted);">Escribe una contraseña para acceder con tu correo directo.</p>
-    <label>Nueva Contraseña</label>
+    <h3 data-i18n="pwd.title">Crear / Vincular Contraseña</h3>
+    <p style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="pwd.body">Escribe una contraseña para acceder con tu correo directo.</p>
+    <label data-i18n="pwd.label">Nueva Contraseña</label>
     <input type="password" id="input-new-password" placeholder="Mínimo 6 caracteres">
-    <button id="btn-save-password" class="btn-primary">Guardar Contraseña</button>
-    <button id="btn-close-password" style="background: transparent;">Cancelar</button>
+    <button id="btn-save-password" class="btn-primary" data-i18n="pwd.save">Guardar Contraseña</button>
+    <button id="btn-close-password" style="background: transparent;" data-i18n="common.cancel">Cancelar</button>
   </div>
 
   <nav id="app-nav" class="bottom-nav hidden">
-    <button class="nav-item active nav-admin-only" data-target="sec-dashboard">Dashboard</button>
-    <button class="nav-item nav-admin-only" data-target="sec-appointments">Agenda</button>
-    <button class="nav-item nav-admin-only" data-target="sec-services">Servicios</button>
-    <button class="nav-item" data-target="sec-customers">Clientes</button>
-    <button class="nav-item nav-admin-only" data-target="sec-reports">Facturas</button>
-    <button class="nav-item nav-admin-only" id="nav-btn-employees" data-target="sec-employees">Empleados</button>
+    <button class="nav-item active nav-admin-only" data-target="sec-dashboard" data-i18n="nav.dashboard">Dashboard</button>
+    <button class="nav-item nav-admin-only" data-target="sec-appointments" data-i18n="nav.agenda">Agenda</button>
+    <button class="nav-item nav-admin-only" data-target="sec-reports" data-i18n="nav.invoices">Facturas</button>
+    <button class="nav-item nav-admin-only" id="nav-btn-employees" data-target="sec-employees" data-i18n="nav.employees">Empleados</button>
   </nav>
 
   <script type="module">
@@ -796,7 +756,6 @@
     let customersSnapshot = [];
     let creditsSnapshot = [];
     let activePeriod = 'today';
-    let userSettings = { pct_inventory: 40, pct_operations: 30, pct_savings: 15, pct_personal: 15 };
     let selectedBusinessType = 'individual';
     let modulesInitialized = false;
 
@@ -805,6 +764,410 @@
     let specialistServicesSnapshot = [];
     let appointmentsSnapshot = [];
     let invoicedAppointmentIds = new Set();
+
+    // -------------------------------------------------------------
+    // 2b. IDIOMA / TRADUCCIONES (es / en / fr)
+    // -------------------------------------------------------------
+    let currentLang = localStorage.getItem('gs_lang') || 'es';
+    const LOCALE_MAP = { es: 'es-ES', en: 'en-US', fr: 'fr-FR' };
+
+    const TRANSLATIONS = {
+      es: {
+        'header.password_btn': 'Contraseña', 'header.logout': 'Salir', 'header.role_admin': 'Admin', 'header.role_employee': 'Empleado',
+        'auth.subtitle': 'Agenda, servicios y control administrativo para tu salón de belleza.',
+        'auth.email_label': 'Correo Electrónico', 'auth.password_label': 'Contraseña',
+        'auth.invite_label': '¿Tienes un código de invitación de tu salón? (Opcional)',
+        'auth.fullname_label': 'Tu nombre completo (Obligatorio)', 'auth.submit': 'Iniciar Sesión / Registrarse', 'auth.google': 'Entrar con Google',
+        'auth.need_fullname': 'Debes escribir tu nombre completo para registrarte con un código de invitación.',
+        'auth.oauth_error': 'Error OAuth: {{msg}}', 'auth.error': 'Error de autenticación: {{msg}}',
+        'auth.signup_success': 'Registro exitoso. Revisa tu correo (en cualquier dispositivo) para confirmar la cuenta.',
+        'auth.invite_invalid': 'El código de invitación no es válido o ya fue usado: {{msg}}',
+        'onboarding.title': 'Configuración Inicial', 'onboarding.subtitle': 'Personaliza tu salón antes de comenzar.',
+        'onboarding.business_name_label': 'Nombre del Salón', 'onboarding.business_type_label': 'Tipo de Negocio',
+        'onboarding.type_individual': 'Solo yo (independiente)', 'onboarding.type_group': 'Salón con equipo',
+        'onboarding.team_size_label': '¿Cuántos estilistas/especialistas conforman el equipo?',
+        'onboarding.submit': 'Continuar al Dashboard', 'onboarding.name_required': 'Por favor ingresa un nombre.',
+        'fp.title': 'Crea tu contraseña obligatoria',
+        'fp.body': 'Has creado un salón de tipo "Salón con equipo". Para la seguridad de tu negocio y la gestión de empleados, debes definir una contraseña master.',
+        'fp.label': 'Nueva Contraseña Admin', 'fp.submit': 'Establecer Contraseña y Entrar',
+        'pwd.title': 'Crear / Vincular Contraseña', 'pwd.body': 'Escribe una contraseña para acceder con tu correo directo.',
+        'pwd.label': 'Nueva Contraseña', 'pwd.save': 'Guardar Contraseña',
+        'pwd.min_length': 'La contraseña debe tener al menos 6 caracteres.', 'pwd.save_error': 'Error al guardar contraseña: {{msg}}',
+        'pwd.saved': '¡Listo! Ya puedes iniciar sesión con tu correo y esta contraseña.', 'pwd.forced_error': 'Error guardando contraseña: {{msg}}',
+        'common.cancel': 'Cancelar', 'common.system': 'Sistema', 'common.edit': 'Editar',
+        'nav.dashboard': 'Dashboard', 'nav.agenda': 'Agenda', 'nav.invoices': 'Facturas', 'nav.employees': 'Empleados',
+        'dash.period_today': 'Hoy', 'dash.period_week': 'Esta Semana', 'dash.period_month': 'Este Mes',
+        'dash.appts_today_title': 'Citas de Hoy', 'dash.no_appts_today': 'No hay citas programadas para hoy.',
+        'dash.income_title': 'Ingresos por Servicios Completados',
+        'dash.income_hint': 'Suma de citas marcadas como "completada" en el período seleccionado.',
+        'dash.receivables_title': 'Cuentas por Cobrar (Créditos)', 'dash.receivables_hint': 'Saldo pendiente total clientes',
+        'dash.appt_count': '{{n}} cita', 'dash.appt_count_plural': '{{n}} citas',
+        'appt.title': 'Agenda de Citas', 'appt.subtitle': 'Crea, revisa y actualiza las citas de tus clientes.',
+        'appt.date_label': 'Fecha', 'appt.today_btn': 'Hoy', 'appt.new_btn': '+ Nueva Cita', 'appt.form_title': 'Registrar Cita',
+        'appt.customer_label': 'Cliente', 'appt.customer_walkin_opt': '-- Walk-in / Sin cliente registrado --',
+        'appt.walkin_name_label': 'Nombre del Cliente (Walk-in, opcional)', 'appt.service_label': 'Servicio',
+        'appt.specialist_label': 'Especialista', 'appt.date_field': 'Fecha', 'appt.time_field': 'Hora',
+        'appt.notes_label': 'Notas (alergias, preferencias, etc.)', 'appt.save': 'Guardar Cita',
+        'appt.list_title_today': 'Citas de hoy', 'appt.list_title_date': 'Citas del {{date}}',
+        'appt.th_time': 'Hora', 'appt.th_client': 'Cliente', 'appt.th_service': 'Servicio', 'appt.th_specialist': 'Especialista',
+        'appt.th_status': 'Estado', 'appt.th_actions': 'Acciones', 'appt.empty': 'No hay citas registradas para este día.',
+        'appt.status_pendiente': 'PENDIENTE', 'appt.status_confirmada': 'CONFIRMADA', 'appt.status_completada': 'COMPLETADA',
+        'appt.status_cancelada': 'CANCELADA', 'appt.status_no_show': 'NO SHOW',
+        'appt.btn_confirm': 'Confirmar', 'appt.btn_complete': 'Completar', 'appt.btn_noshow': 'No-show', 'appt.btn_cancel': 'Cancelar', 'appt.btn_invoice': 'Facturar',
+        'appt.confirm_status': '¿Confirmas marcar esta cita como "{{label}}"?',
+        'appt.walkin_fallback': 'Walk-in', 'appt.select_valid_service': 'Selecciona un servicio válido.',
+        'appt.select_specialist': 'Selecciona un especialista.', 'appt.invalid_datetime': 'Fecha u hora inválida.',
+        'appt.error_create': 'Error al crear la cita: {{msg}}', 'appt.error_update': 'Error al actualizar la cita: {{msg}}',
+        'appt.service_info': 'Duración: {{dur}} min | Precio: {{price}}',
+        'appt.you_admin': 'Tú (Administrador/a)', 'appt.employee_unnamed': 'Empleado sin nombre', 'appt.specialist_fallback': 'Especialista',
+        'appt.walkin_notes_prefix': 'Cliente walk-in',
+        'svc.subtitle': 'Define los servicios que ofrece tu salón, su duración y quién puede realizarlos.',
+        'svc.new_btn': '+ Nuevo Servicio', 'svc.form_title_new': 'Guardar Servicio', 'svc.form_title_edit': 'Editar Servicio',
+        'svc.name_label': 'Nombre del Servicio', 'svc.category_label': 'Categoría',
+        'svc.cat_hair': 'Cabello', 'svc.cat_nails': 'Uñas', 'svc.cat_skin': 'Piel', 'svc.cat_barber': 'Barbería', 'svc.cat_spa': 'Spa', 'svc.cat_other': 'Otro',
+        'svc.duration_label': 'Duración Estimada (minutos)', 'svc.price_label': 'Precio ($)', 'svc.active_label': 'Servicio activo',
+        'svc.specialists_label': 'Especialistas habilitados para este servicio', 'svc.save': 'Guardar Servicio',
+        'svc.th_service': 'Servicio', 'svc.th_category': 'Categoría', 'svc.th_duration': 'Duración', 'svc.th_price': 'Precio',
+        'svc.th_status': 'Estado', 'svc.th_action': 'Acción', 'svc.status_active': 'Activo', 'svc.status_inactive': 'Inactivo',
+        'svc.error_save': 'Error al guardar el servicio: {{msg}}',
+        'cust.form_title': 'Registrar Nuevo Cliente', 'cust.name_label': 'Nombre del Cliente', 'cust.phone_label': 'Teléfono',
+        'cust.address_label': 'Domicilio (opcional)', 'cust.address_placeholder': 'Para la factura', 'cust.email_label': 'E-mail (opcional)',
+        'cust.save': 'Guardar Cliente', 'cust.th_name': 'Nombre', 'cust.th_phone': 'Teléfono', 'cust.th_balance': 'Saldo Pendiente', 'cust.th_action': 'Acción',
+        'cust.view_account': 'Ver Cuenta', 'cust.account_title': 'Cuenta de {{name}}', 'cust.phone_prefix': 'Tel: {{phone}}',
+        'cust.pending_title': 'Pendiente:', 'cust.history_title': 'Historial en el Salón',
+        'cust.last_visit': 'Última visita:', 'cust.top_service': 'Servicio más frecuente:', 'cust.top_specialist': 'Especialista preferido:',
+        'cust.no_record': 'Sin registro', 'cust.th_date': 'Fecha', 'cust.th_service': 'Servicio', 'cust.th_specialist': 'Especialista', 'cust.th_status': 'Estado',
+        'cust.history_empty': 'Este cliente aún no tiene citas registradas.',
+        'cust.notes_label': 'Notas (alergias a productos, preferencias de tono, etc.)', 'cust.save_notes': 'Guardar Notas',
+        'cust.notes_saved': 'Notas guardadas.', 'cust.notes_error': 'Error al guardar notas: {{msg}}',
+        'cust.credits_title': 'Créditos Activos / Historial', 'cust.th_amount': 'Monto', 'cust.th_paid': 'Abonado',
+        'cust.payment_form_title': 'Registrar Abono', 'cust.select_credit': 'Seleccionar Crédito Pendiente',
+        'cust.amount_to_pay': 'Monto a Abonar ($)', 'cust.process_payment': 'Procesar Abono', 'cust.close': 'Cerrar',
+        'cust.credit_option': 'Crédito {{date}} - Pendiente: {{amount}}', 'cust.invalid_credit': 'Monto o crédito inválido.',
+        'cust.payment_error': 'Error al registrar abono: {{msg}}', 'cust.payment_success': 'Abono registrado correctamente.',
+        'credit.status_pendiente': 'PENDIENTE', 'credit.status_parcial': 'PARCIAL', 'credit.status_pagado': 'PAGADO',
+        'inv.title': 'Facturas', 'inv.emit_title': 'Emitir Factura',
+        'inv.emit_hint': 'Se factura un servicio ya marcado como "completada" en la Agenda.',
+        'inv.appt_label': 'Servicio Completado a Facturar', 'inv.appt_placeholder': '-- Selecciona un servicio completado --',
+        'inv.customer_label': 'Cliente (obligatorio)', 'inv.customer_placeholder': '-- Selecciona un cliente --',
+        'inv.payment_method_label': 'Método de Pago', 'inv.pm_cash': 'Efectivo', 'inv.pm_transfer': 'Transferencia',
+        'inv.pm_card': 'Tarjeta', 'inv.pm_credit': 'Crédito (Cuenta x Cobrar)', 'inv.generate': 'Generar Factura (PDF)',
+        'inv.history_title': 'Historial de Facturas', 'inv.th_number': 'N° Factura', 'inv.th_date': 'Fecha', 'inv.th_total': 'Total', 'inv.th_action': 'Acción',
+        'inv.select_appt': 'Selecciona un servicio completado para facturar.',
+        'inv.customer_required': 'Debes seleccionar un cliente: el nombre del cliente es obligatorio en la factura.',
+        'inv.error_generate': 'Error al generar factura: {{msg}}', 'inv.walkin': 'Walk-in', 'inv.service_fallback': 'Servicio',
+        'pdf.title': 'Factura', 'pdf.subtitle': 'COMPROBANTE DE SERVICIO', 'pdf.invoice_no': 'FACTURA NO.', 'pdf.date': 'FECHA',
+        'pdf.client': 'CLIENTE', 'pdf.address': 'DOMICILIO', 'pdf.email': 'E-MAIL', 'pdf.phone': 'TEL.',
+        'pdf.quantity': 'CANTIDAD', 'pdf.description': 'DESCRIPCIÓN', 'pdf.unit_price': 'VALOR UNITARIO', 'pdf.amount': 'IMPORTE',
+        'pdf.subtotal': 'SUBTOTAL', 'pdf.tax': 'IMPUESTO', 'pdf.total': 'TOTAL', 'pdf.specialist_prefix': 'Especialista',
+        'pdf.address_footer': 'Dirección', 'pdf.phone_footer': 'Teléfono', 'pdf.website_footer': 'Sitio Web',
+        'emp.title': 'Gestión de Empleados', 'emp.invite_title': 'Invitar Empleado',
+        'emp.invite_hint': 'Genera un código de acceso único para registrar nuevos estilistas/empleados.',
+        'emp.generate_code': 'Generar Código de Invitación', 'emp.code_generated': 'Código generado:', 'emp.copy_code': 'Copiar Código',
+        'emp.copied': 'Código copiado al portapapeles.', 'emp.list_title': 'Lista de Empleados Actuales',
+        'emp.th_name': 'Nombre', 'emp.th_position': 'Cargo', 'emp.th_role': 'Rol Permisos', 'emp.th_added': 'Agregado',
+        'emp.role_employee': 'Empleado', 'emp.position_placeholder': 'Ej: Estilista',
+        'emp.error_generate_code': 'Error generando código: {{msg}}', 'emp.no_name': 'Sin nombre',
+        'cfg.title': 'Configuración General', 'cfg.subtitle': 'Administra los parámetros de tu salón.',
+        'cfg.tab_business': 'Datos Negocio', 'cfg.tab_language': 'Idioma', 'cfg.tab_tax': 'Moneda e Impuestos',
+        'cfg.tab_payments': 'Métodos de Pago', 'cfg.tab_customers': 'Clientes', 'cfg.tab_services': 'Servicios', 'cfg.tab_activity': 'Registro Actividad',
+        'cfg.business_name_label': 'Nombre Comercial', 'cfg.legal_name_label': 'Nombre Legal / Razón Social',
+        'cfg.tax_id_label': 'RNC / Documento Fiscal', 'cfg.phone_label': 'Teléfono', 'cfg.address_label': 'Dirección',
+        'cfg.website_label': 'Sitio Web', 'cfg.logo_label': 'Logotipo del Salón', 'cfg.save_business': 'Guardar Datos del Negocio',
+        'cfg.language_label': 'Idioma de la interfaz', 'cfg.save_language': 'Guardar Idioma', 'cfg.language_saved': 'Idioma guardado.',
+        'cfg.currency_label': 'Símbolo de Moneda', 'cfg.tax_enabled_label': '¿Tu negocio aplica impuestos?',
+        'cfg.tax_pct_label': 'Porcentaje de Impuesto (%)', 'cfg.tax_mode_label': 'Modo del Impuesto',
+        'cfg.tax_mode_included': 'Precios ya incluyen impuesto', 'cfg.tax_mode_added': 'Se suma al vender',
+        'cfg.save_tax': 'Guardar Moneda e Impuestos', 'cfg.pm_cash': 'Efectivo', 'cfg.pm_transfer': 'Transferencia',
+        'cfg.pm_card': 'Tarjeta', 'cfg.pm_credit': 'Crédito / Fiao', 'cfg.save_payments': 'Guardar Métodos de Pago',
+        'cfg.activity_th_user': 'Usuario', 'cfg.activity_th_action': 'Acción', 'cfg.activity_th_date': 'Fecha/Hora',
+        'cfg.error_generic': 'Error: {{msg}}', 'cfg.business_saved': 'Datos del salón guardados.',
+        'cfg.tax_saved': 'Configuración fiscal guardada.', 'cfg.payments_saved': 'Métodos de pago guardados.',
+        'cfg.logo_upload_error': 'Error subiendo el logo: {{msg}}',
+        'act.invite_generated': 'Generó un código de invitación para empleado', 'act.role_updated': 'Actualizó el cargo de un empleado a "{{title}}"',
+        'act.service_created': 'Creó el servicio "{{name}}"', 'act.service_edited': 'Editó el servicio "{{name}}"',
+        'act.appt_created': 'Creó una cita de "{{service}}" para el {{when}}', 'act.appt_status_updated': 'Actualizó una cita a estado "{{status}}"',
+        'act.business_updated': 'Actualizó los datos del negocio', 'act.tax_updated': 'Actualizó moneda e impuestos',
+        'act.payments_updated': 'Actualizó métodos de pago', 'act.invoice_generated': 'Generó la factura {{number}}'
+      },
+      en: {
+        'header.password_btn': 'Password', 'header.logout': 'Log Out', 'header.role_admin': 'Admin', 'header.role_employee': 'Employee',
+        'auth.subtitle': 'Scheduling, services and administrative control for your beauty salon.',
+        'auth.email_label': 'Email Address', 'auth.password_label': 'Password',
+        'auth.invite_label': 'Do you have an invitation code from your salon? (Optional)',
+        'auth.fullname_label': 'Your full name (Required)', 'auth.submit': 'Log In / Sign Up', 'auth.google': 'Sign in with Google',
+        'auth.need_fullname': 'You must enter your full name to sign up with an invitation code.',
+        'auth.oauth_error': 'OAuth error: {{msg}}', 'auth.error': 'Authentication error: {{msg}}',
+        'auth.signup_success': 'Sign up successful. Check your email (on any device) to confirm your account.',
+        'auth.invite_invalid': 'The invitation code is invalid or already used: {{msg}}',
+        'onboarding.title': 'Initial Setup', 'onboarding.subtitle': 'Customize your salon before you begin.',
+        'onboarding.business_name_label': 'Salon Name', 'onboarding.business_type_label': 'Business Type',
+        'onboarding.type_individual': 'Just me (independent)', 'onboarding.type_group': 'Salon with a team',
+        'onboarding.team_size_label': 'How many stylists/specialists make up the team?',
+        'onboarding.submit': 'Continue to Dashboard', 'onboarding.name_required': 'Please enter a name.',
+        'fp.title': 'Create your required password',
+        'fp.body': 'You created a "Salon with a team" business. For the security of your business and staff management, you must set a master password.',
+        'fp.label': 'New Admin Password', 'fp.submit': 'Set Password and Enter',
+        'pwd.title': 'Create / Link Password', 'pwd.body': 'Enter a password to sign in with your email directly.',
+        'pwd.label': 'New Password', 'pwd.save': 'Save Password',
+        'pwd.min_length': 'The password must be at least 6 characters long.', 'pwd.save_error': 'Error saving password: {{msg}}',
+        'pwd.saved': 'Done! You can now log in with your email and this password.', 'pwd.forced_error': 'Error saving password: {{msg}}',
+        'common.cancel': 'Cancel', 'common.system': 'System', 'common.edit': 'Edit',
+        'nav.dashboard': 'Dashboard', 'nav.agenda': 'Schedule', 'nav.invoices': 'Invoices', 'nav.employees': 'Employees',
+        'dash.period_today': 'Today', 'dash.period_week': 'This Week', 'dash.period_month': 'This Month',
+        'dash.appts_today_title': "Today's Appointments", 'dash.no_appts_today': 'No appointments scheduled for today.',
+        'dash.income_title': 'Revenue from Completed Services',
+        'dash.income_hint': 'Sum of appointments marked "completed" in the selected period.',
+        'dash.receivables_title': 'Accounts Receivable (Credit)', 'dash.receivables_hint': 'Total outstanding customer balance',
+        'dash.appt_count': '{{n}} appointment', 'dash.appt_count_plural': '{{n}} appointments',
+        'appt.title': 'Appointment Schedule', 'appt.subtitle': "Create, review and update your clients' appointments.",
+        'appt.date_label': 'Date', 'appt.today_btn': 'Today', 'appt.new_btn': '+ New Appointment', 'appt.form_title': 'Book Appointment',
+        'appt.customer_label': 'Customer', 'appt.customer_walkin_opt': '-- Walk-in / No registered customer --',
+        'appt.walkin_name_label': 'Customer Name (Walk-in, optional)', 'appt.service_label': 'Service',
+        'appt.specialist_label': 'Specialist', 'appt.date_field': 'Date', 'appt.time_field': 'Time',
+        'appt.notes_label': 'Notes (allergies, preferences, etc.)', 'appt.save': 'Save Appointment',
+        'appt.list_title_today': "Today's appointments", 'appt.list_title_date': 'Appointments for {{date}}',
+        'appt.th_time': 'Time', 'appt.th_client': 'Customer', 'appt.th_service': 'Service', 'appt.th_specialist': 'Specialist',
+        'appt.th_status': 'Status', 'appt.th_actions': 'Actions', 'appt.empty': 'No appointments registered for this day.',
+        'appt.status_pendiente': 'PENDING', 'appt.status_confirmada': 'CONFIRMED', 'appt.status_completada': 'COMPLETED',
+        'appt.status_cancelada': 'CANCELED', 'appt.status_no_show': 'NO SHOW',
+        'appt.btn_confirm': 'Confirm', 'appt.btn_complete': 'Complete', 'appt.btn_noshow': 'No-show', 'appt.btn_cancel': 'Cancel', 'appt.btn_invoice': 'Invoice',
+        'appt.confirm_status': 'Confirm marking this appointment as "{{label}}"?',
+        'appt.walkin_fallback': 'Walk-in', 'appt.select_valid_service': 'Select a valid service.',
+        'appt.select_specialist': 'Select a specialist.', 'appt.invalid_datetime': 'Invalid date or time.',
+        'appt.error_create': 'Error creating appointment: {{msg}}', 'appt.error_update': 'Error updating appointment: {{msg}}',
+        'appt.service_info': 'Duration: {{dur}} min | Price: {{price}}',
+        'appt.you_admin': 'You (Admin)', 'appt.employee_unnamed': 'Unnamed employee', 'appt.specialist_fallback': 'Specialist',
+        'appt.walkin_notes_prefix': 'Walk-in customer',
+        'svc.subtitle': 'Define the services your salon offers, their duration, and who can perform them.',
+        'svc.new_btn': '+ New Service', 'svc.form_title_new': 'Save Service', 'svc.form_title_edit': 'Edit Service',
+        'svc.name_label': 'Service Name', 'svc.category_label': 'Category',
+        'svc.cat_hair': 'Hair', 'svc.cat_nails': 'Nails', 'svc.cat_skin': 'Skin', 'svc.cat_barber': 'Barbershop', 'svc.cat_spa': 'Spa', 'svc.cat_other': 'Other',
+        'svc.duration_label': 'Estimated Duration (minutes)', 'svc.price_label': 'Price ($)', 'svc.active_label': 'Active service',
+        'svc.specialists_label': 'Specialists enabled for this service', 'svc.save': 'Save Service',
+        'svc.th_service': 'Service', 'svc.th_category': 'Category', 'svc.th_duration': 'Duration', 'svc.th_price': 'Price',
+        'svc.th_status': 'Status', 'svc.th_action': 'Action', 'svc.status_active': 'Active', 'svc.status_inactive': 'Inactive',
+        'svc.error_save': 'Error saving service: {{msg}}',
+        'cust.form_title': 'Register New Customer', 'cust.name_label': 'Customer Name', 'cust.phone_label': 'Phone',
+        'cust.address_label': 'Address (optional)', 'cust.address_placeholder': 'For the invoice', 'cust.email_label': 'E-mail (optional)',
+        'cust.save': 'Save Customer', 'cust.th_name': 'Name', 'cust.th_phone': 'Phone', 'cust.th_balance': 'Outstanding Balance', 'cust.th_action': 'Action',
+        'cust.view_account': 'View Account', 'cust.account_title': "{{name}}'s Account", 'cust.phone_prefix': 'Phone: {{phone}}',
+        'cust.pending_title': 'Pending:', 'cust.history_title': 'Salon History',
+        'cust.last_visit': 'Last visit:', 'cust.top_service': 'Most frequent service:', 'cust.top_specialist': 'Preferred specialist:',
+        'cust.no_record': 'No record', 'cust.th_date': 'Date', 'cust.th_service': 'Service', 'cust.th_specialist': 'Specialist', 'cust.th_status': 'Status',
+        'cust.history_empty': 'This customer has no appointments yet.',
+        'cust.notes_label': 'Notes (product allergies, tone preferences, etc.)', 'cust.save_notes': 'Save Notes',
+        'cust.notes_saved': 'Notes saved.', 'cust.notes_error': 'Error saving notes: {{msg}}',
+        'cust.credits_title': 'Active Credits / History', 'cust.th_amount': 'Amount', 'cust.th_paid': 'Paid',
+        'cust.payment_form_title': 'Record Payment', 'cust.select_credit': 'Select Pending Credit',
+        'cust.amount_to_pay': 'Amount to Pay ($)', 'cust.process_payment': 'Process Payment', 'cust.close': 'Close',
+        'cust.credit_option': 'Credit {{date}} - Pending: {{amount}}', 'cust.invalid_credit': 'Invalid amount or credit.',
+        'cust.payment_error': 'Error recording payment: {{msg}}', 'cust.payment_success': 'Payment recorded successfully.',
+        'credit.status_pendiente': 'PENDING', 'credit.status_parcial': 'PARTIAL', 'credit.status_pagado': 'PAID',
+        'inv.title': 'Invoices', 'inv.emit_title': 'Issue Invoice',
+        'inv.emit_hint': 'Invoice a service already marked "completed" in the Schedule.',
+        'inv.appt_label': 'Completed Service to Invoice', 'inv.appt_placeholder': '-- Select a completed service --',
+        'inv.customer_label': 'Customer (required)', 'inv.customer_placeholder': '-- Select a customer --',
+        'inv.payment_method_label': 'Payment Method', 'inv.pm_cash': 'Cash', 'inv.pm_transfer': 'Transfer',
+        'inv.pm_card': 'Card', 'inv.pm_credit': 'Credit (Accounts Receivable)', 'inv.generate': 'Generate Invoice (PDF)',
+        'inv.history_title': 'Invoice History', 'inv.th_number': 'Invoice No.', 'inv.th_date': 'Date', 'inv.th_total': 'Total', 'inv.th_action': 'Action',
+        'inv.select_appt': 'Select a completed service to invoice.',
+        'inv.customer_required': 'You must select a customer: the customer name is required on the invoice.',
+        'inv.error_generate': 'Error generating invoice: {{msg}}', 'inv.walkin': 'Walk-in', 'inv.service_fallback': 'Service',
+        'pdf.title': 'Invoice', 'pdf.subtitle': 'SERVICE RECEIPT', 'pdf.invoice_no': 'INVOICE NO.', 'pdf.date': 'DATE',
+        'pdf.client': 'CUSTOMER', 'pdf.address': 'ADDRESS', 'pdf.email': 'E-MAIL', 'pdf.phone': 'PHONE',
+        'pdf.quantity': 'QTY', 'pdf.description': 'DESCRIPTION', 'pdf.unit_price': 'UNIT PRICE', 'pdf.amount': 'AMOUNT',
+        'pdf.subtotal': 'SUBTOTAL', 'pdf.tax': 'TAX', 'pdf.total': 'TOTAL', 'pdf.specialist_prefix': 'Specialist',
+        'pdf.address_footer': 'Address', 'pdf.phone_footer': 'Phone', 'pdf.website_footer': 'Website',
+        'emp.title': 'Employee Management', 'emp.invite_title': 'Invite Employee',
+        'emp.invite_hint': 'Generate a unique access code to register new stylists/employees.',
+        'emp.generate_code': 'Generate Invitation Code', 'emp.code_generated': 'Generated code:', 'emp.copy_code': 'Copy Code',
+        'emp.copied': 'Code copied to clipboard.', 'emp.list_title': 'Current Employee List',
+        'emp.th_name': 'Name', 'emp.th_position': 'Position', 'emp.th_role': 'Permission Role', 'emp.th_added': 'Added',
+        'emp.role_employee': 'Employee', 'emp.position_placeholder': 'e.g. Stylist',
+        'emp.error_generate_code': 'Error generating code: {{msg}}', 'emp.no_name': 'No name',
+        'cfg.title': 'General Settings', 'cfg.subtitle': "Manage your salon's settings.",
+        'cfg.tab_business': 'Business Info', 'cfg.tab_language': 'Language', 'cfg.tab_tax': 'Currency & Taxes',
+        'cfg.tab_payments': 'Payment Methods', 'cfg.tab_customers': 'Customers', 'cfg.tab_services': 'Services', 'cfg.tab_activity': 'Activity Log',
+        'cfg.business_name_label': 'Business Name', 'cfg.legal_name_label': 'Legal Name / Business Entity',
+        'cfg.tax_id_label': 'Tax ID', 'cfg.phone_label': 'Phone', 'cfg.address_label': 'Address',
+        'cfg.website_label': 'Website', 'cfg.logo_label': 'Salon Logo', 'cfg.save_business': 'Save Business Info',
+        'cfg.language_label': 'Interface Language', 'cfg.save_language': 'Save Language', 'cfg.language_saved': 'Language saved.',
+        'cfg.currency_label': 'Currency Symbol', 'cfg.tax_enabled_label': 'Does your business charge tax?',
+        'cfg.tax_pct_label': 'Tax Percentage (%)', 'cfg.tax_mode_label': 'Tax Mode',
+        'cfg.tax_mode_included': 'Prices already include tax', 'cfg.tax_mode_added': 'Added at sale',
+        'cfg.save_tax': 'Save Currency & Taxes', 'cfg.pm_cash': 'Cash', 'cfg.pm_transfer': 'Transfer',
+        'cfg.pm_card': 'Card', 'cfg.pm_credit': 'Credit', 'cfg.save_payments': 'Save Payment Methods',
+        'cfg.activity_th_user': 'User', 'cfg.activity_th_action': 'Action', 'cfg.activity_th_date': 'Date/Time',
+        'cfg.error_generic': 'Error: {{msg}}', 'cfg.business_saved': 'Salon info saved.',
+        'cfg.tax_saved': 'Tax settings saved.', 'cfg.payments_saved': 'Payment methods saved.',
+        'cfg.logo_upload_error': 'Error uploading logo: {{msg}}',
+        'act.invite_generated': 'Generated an employee invitation code', 'act.role_updated': 'Updated an employee\'s position to "{{title}}"',
+        'act.service_created': 'Created the service "{{name}}"', 'act.service_edited': 'Edited the service "{{name}}"',
+        'act.appt_created': 'Created a "{{service}}" appointment for {{when}}', 'act.appt_status_updated': 'Updated an appointment to status "{{status}}"',
+        'act.business_updated': 'Updated business info', 'act.tax_updated': 'Updated currency and taxes',
+        'act.payments_updated': 'Updated payment methods', 'act.invoice_generated': 'Generated invoice {{number}}'
+      },
+      fr: {
+        'header.password_btn': 'Mot de passe', 'header.logout': 'Déconnexion', 'header.role_admin': 'Admin', 'header.role_employee': 'Employé',
+        'auth.subtitle': 'Agenda, services et gestion administrative pour votre salon de beauté.',
+        'auth.email_label': 'Adresse e-mail', 'auth.password_label': 'Mot de passe',
+        'auth.invite_label': "Avez-vous un code d'invitation de votre salon ? (Facultatif)",
+        'auth.fullname_label': 'Votre nom complet (Obligatoire)', 'auth.submit': 'Se connecter / S\'inscrire', 'auth.google': 'Se connecter avec Google',
+        'auth.need_fullname': "Vous devez saisir votre nom complet pour vous inscrire avec un code d'invitation.",
+        'auth.oauth_error': 'Erreur OAuth : {{msg}}', 'auth.error': "Erreur d'authentification : {{msg}}",
+        'auth.signup_success': 'Inscription réussie. Vérifiez votre e-mail (sur n\'importe quel appareil) pour confirmer votre compte.',
+        'auth.invite_invalid': "Le code d'invitation est invalide ou déjà utilisé : {{msg}}",
+        'onboarding.title': 'Configuration Initiale', 'onboarding.subtitle': 'Personnalisez votre salon avant de commencer.',
+        'onboarding.business_name_label': 'Nom du Salon', 'onboarding.business_type_label': "Type d'Entreprise",
+        'onboarding.type_individual': 'Seul(e) (indépendant(e))', 'onboarding.type_group': 'Salon avec équipe',
+        'onboarding.team_size_label': 'Combien de coiffeurs/spécialistes composent l\'équipe ?',
+        'onboarding.submit': 'Continuer vers le tableau de bord', 'onboarding.name_required': 'Veuillez saisir un nom.',
+        'fp.title': 'Créez votre mot de passe obligatoire',
+        'fp.body': 'Vous avez créé un salon de type « Salon avec équipe ». Pour la sécurité de votre entreprise et la gestion des employés, vous devez définir un mot de passe principal.',
+        'fp.label': 'Nouveau mot de passe administrateur', 'fp.submit': 'Définir le mot de passe et entrer',
+        'pwd.title': 'Créer / Associer un mot de passe', 'pwd.body': 'Saisissez un mot de passe pour vous connecter directement avec votre e-mail.',
+        'pwd.label': 'Nouveau mot de passe', 'pwd.save': 'Enregistrer le mot de passe',
+        'pwd.min_length': 'Le mot de passe doit contenir au moins 6 caractères.', 'pwd.save_error': "Erreur lors de l'enregistrement du mot de passe : {{msg}}",
+        'pwd.saved': 'Terminé ! Vous pouvez maintenant vous connecter avec votre e-mail et ce mot de passe.', 'pwd.forced_error': "Erreur lors de l'enregistrement du mot de passe : {{msg}}",
+        'common.cancel': 'Annuler', 'common.system': 'Système', 'common.edit': 'Modifier',
+        'nav.dashboard': 'Tableau de bord', 'nav.agenda': 'Agenda', 'nav.invoices': 'Factures', 'nav.employees': 'Employés',
+        'dash.period_today': "Aujourd'hui", 'dash.period_week': 'Cette Semaine', 'dash.period_month': 'Ce Mois',
+        'dash.appts_today_title': "Rendez-vous d'aujourd'hui", 'dash.no_appts_today': "Aucun rendez-vous prévu aujourd'hui.",
+        'dash.income_title': 'Revenus des Services Terminés',
+        'dash.income_hint': 'Somme des rendez-vous marqués « terminé » pour la période sélectionnée.',
+        'dash.receivables_title': 'Comptes Clients (Crédit)', 'dash.receivables_hint': 'Solde client total en attente',
+        'dash.appt_count': '{{n}} rendez-vous', 'dash.appt_count_plural': '{{n}} rendez-vous',
+        'appt.title': 'Agenda des Rendez-vous', 'appt.subtitle': 'Créez, consultez et mettez à jour les rendez-vous de vos clients.',
+        'appt.date_label': 'Date', 'appt.today_btn': "Aujourd'hui", 'appt.new_btn': '+ Nouveau Rendez-vous', 'appt.form_title': 'Enregistrer un Rendez-vous',
+        'appt.customer_label': 'Client', 'appt.customer_walkin_opt': '-- Sans rendez-vous / Client non enregistré --',
+        'appt.walkin_name_label': 'Nom du Client (sans rendez-vous, facultatif)', 'appt.service_label': 'Service',
+        'appt.specialist_label': 'Spécialiste', 'appt.date_field': 'Date', 'appt.time_field': 'Heure',
+        'appt.notes_label': 'Notes (allergies, préférences, etc.)', 'appt.save': 'Enregistrer le Rendez-vous',
+        'appt.list_title_today': "Rendez-vous d'aujourd'hui", 'appt.list_title_date': 'Rendez-vous du {{date}}',
+        'appt.th_time': 'Heure', 'appt.th_client': 'Client', 'appt.th_service': 'Service', 'appt.th_specialist': 'Spécialiste',
+        'appt.th_status': 'Statut', 'appt.th_actions': 'Actions', 'appt.empty': 'Aucun rendez-vous enregistré pour cette journée.',
+        'appt.status_pendiente': 'EN ATTENTE', 'appt.status_confirmada': 'CONFIRMÉ', 'appt.status_completada': 'TERMINÉ',
+        'appt.status_cancelada': 'ANNULÉ', 'appt.status_no_show': 'ABSENCE',
+        'appt.btn_confirm': 'Confirmer', 'appt.btn_complete': 'Terminer', 'appt.btn_noshow': 'Absence', 'appt.btn_cancel': 'Annuler', 'appt.btn_invoice': 'Facturer',
+        'appt.confirm_status': 'Confirmez-vous de marquer ce rendez-vous comme « {{label}} » ?',
+        'appt.walkin_fallback': 'Sans rendez-vous', 'appt.select_valid_service': 'Sélectionnez un service valide.',
+        'appt.select_specialist': 'Sélectionnez un spécialiste.', 'appt.invalid_datetime': 'Date ou heure invalide.',
+        'appt.error_create': 'Erreur lors de la création du rendez-vous : {{msg}}', 'appt.error_update': 'Erreur lors de la mise à jour du rendez-vous : {{msg}}',
+        'appt.service_info': 'Durée : {{dur}} min | Prix : {{price}}',
+        'appt.you_admin': 'Vous (Administrateur/trice)', 'appt.employee_unnamed': 'Employé sans nom', 'appt.specialist_fallback': 'Spécialiste',
+        'appt.walkin_notes_prefix': 'Client sans rendez-vous',
+        'svc.subtitle': 'Définissez les services offerts par votre salon, leur durée et qui peut les réaliser.',
+        'svc.new_btn': '+ Nouveau Service', 'svc.form_title_new': 'Enregistrer le Service', 'svc.form_title_edit': 'Modifier le Service',
+        'svc.name_label': 'Nom du Service', 'svc.category_label': 'Catégorie',
+        'svc.cat_hair': 'Cheveux', 'svc.cat_nails': 'Ongles', 'svc.cat_skin': 'Peau', 'svc.cat_barber': 'Barbier', 'svc.cat_spa': 'Spa', 'svc.cat_other': 'Autre',
+        'svc.duration_label': 'Durée Estimée (minutes)', 'svc.price_label': 'Prix ($)', 'svc.active_label': 'Service actif',
+        'svc.specialists_label': 'Spécialistes habilités pour ce service', 'svc.save': 'Enregistrer le Service',
+        'svc.th_service': 'Service', 'svc.th_category': 'Catégorie', 'svc.th_duration': 'Durée', 'svc.th_price': 'Prix',
+        'svc.th_status': 'Statut', 'svc.th_action': 'Action', 'svc.status_active': 'Actif', 'svc.status_inactive': 'Inactif',
+        'svc.error_save': "Erreur lors de l'enregistrement du service : {{msg}}",
+        'cust.form_title': 'Enregistrer un Nouveau Client', 'cust.name_label': 'Nom du Client', 'cust.phone_label': 'Téléphone',
+        'cust.address_label': 'Adresse (facultatif)', 'cust.address_placeholder': 'Pour la facture', 'cust.email_label': 'E-mail (facultatif)',
+        'cust.save': 'Enregistrer le Client', 'cust.th_name': 'Nom', 'cust.th_phone': 'Téléphone', 'cust.th_balance': 'Solde Impayé', 'cust.th_action': 'Action',
+        'cust.view_account': 'Voir le Compte', 'cust.account_title': 'Compte de {{name}}', 'cust.phone_prefix': 'Tél : {{phone}}',
+        'cust.pending_title': 'En attente :', 'cust.history_title': 'Historique au Salon',
+        'cust.last_visit': 'Dernière visite :', 'cust.top_service': 'Service le plus fréquent :', 'cust.top_specialist': 'Spécialiste préféré :',
+        'cust.no_record': 'Aucun enregistrement', 'cust.th_date': 'Date', 'cust.th_service': 'Service', 'cust.th_specialist': 'Spécialiste', 'cust.th_status': 'Statut',
+        'cust.history_empty': "Ce client n'a pas encore de rendez-vous enregistré.",
+        'cust.notes_label': 'Notes (allergies aux produits, préférences de teinte, etc.)', 'cust.save_notes': 'Enregistrer les Notes',
+        'cust.notes_saved': 'Notes enregistrées.', 'cust.notes_error': "Erreur lors de l'enregistrement des notes : {{msg}}",
+        'cust.credits_title': 'Crédits Actifs / Historique', 'cust.th_amount': 'Montant', 'cust.th_paid': 'Payé',
+        'cust.payment_form_title': 'Enregistrer un Paiement', 'cust.select_credit': 'Sélectionner un Crédit en Attente',
+        'cust.amount_to_pay': 'Montant à Payer ($)', 'cust.process_payment': 'Traiter le Paiement', 'cust.close': 'Fermer',
+        'cust.credit_option': 'Crédit {{date}} - En attente : {{amount}}', 'cust.invalid_credit': 'Montant ou crédit invalide.',
+        'cust.payment_error': "Erreur lors de l'enregistrement du paiement : {{msg}}", 'cust.payment_success': 'Paiement enregistré avec succès.',
+        'credit.status_pendiente': 'EN ATTENTE', 'credit.status_parcial': 'PARTIEL', 'credit.status_pagado': 'PAYÉ',
+        'inv.title': 'Factures', 'inv.emit_title': 'Émettre une Facture',
+        'inv.emit_hint': 'Facturez un service déjà marqué « terminé » dans l\'Agenda.',
+        'inv.appt_label': 'Service Terminé à Facturer', 'inv.appt_placeholder': '-- Sélectionnez un service terminé --',
+        'inv.customer_label': 'Client (obligatoire)', 'inv.customer_placeholder': '-- Sélectionnez un client --',
+        'inv.payment_method_label': 'Mode de Paiement', 'inv.pm_cash': 'Espèces', 'inv.pm_transfer': 'Virement',
+        'inv.pm_card': 'Carte', 'inv.pm_credit': 'Crédit (Compte Client)', 'inv.generate': 'Générer la Facture (PDF)',
+        'inv.history_title': 'Historique des Factures', 'inv.th_number': 'N° Facture', 'inv.th_date': 'Date', 'inv.th_total': 'Total', 'inv.th_action': 'Action',
+        'inv.select_appt': 'Sélectionnez un service terminé à facturer.',
+        'inv.customer_required': 'Vous devez sélectionner un client : le nom du client est obligatoire sur la facture.',
+        'inv.error_generate': 'Erreur lors de la génération de la facture : {{msg}}', 'inv.walkin': 'Sans rendez-vous', 'inv.service_fallback': 'Service',
+        'pdf.title': 'Facture', 'pdf.subtitle': 'REÇU DE SERVICE', 'pdf.invoice_no': 'FACTURE N°', 'pdf.date': 'DATE',
+        'pdf.client': 'CLIENT', 'pdf.address': 'ADRESSE', 'pdf.email': 'E-MAIL', 'pdf.phone': 'TÉL.',
+        'pdf.quantity': 'QTÉ', 'pdf.description': 'DESCRIPTION', 'pdf.unit_price': 'PRIX UNITAIRE', 'pdf.amount': 'MONTANT',
+        'pdf.subtotal': 'SOUS-TOTAL', 'pdf.tax': 'TAXE', 'pdf.total': 'TOTAL', 'pdf.specialist_prefix': 'Spécialiste',
+        'pdf.address_footer': 'Adresse', 'pdf.phone_footer': 'Téléphone', 'pdf.website_footer': 'Site Web',
+        'emp.title': 'Gestion des Employés', 'emp.invite_title': 'Inviter un Employé',
+        'emp.invite_hint': "Générez un code d'accès unique pour enregistrer de nouveaux coiffeurs/employés.",
+        'emp.generate_code': "Générer un Code d'Invitation", 'emp.code_generated': 'Code généré :', 'emp.copy_code': 'Copier le Code',
+        'emp.copied': 'Code copié dans le presse-papiers.', 'emp.list_title': 'Liste des Employés Actuels',
+        'emp.th_name': 'Nom', 'emp.th_position': 'Poste', 'emp.th_role': 'Rôle des Permissions', 'emp.th_added': 'Ajouté',
+        'emp.role_employee': 'Employé', 'emp.position_placeholder': 'Ex : Coiffeur/euse',
+        'emp.error_generate_code': "Erreur lors de la génération du code : {{msg}}", 'emp.no_name': 'Sans nom',
+        'cfg.title': 'Paramètres Généraux', 'cfg.subtitle': 'Gérez les paramètres de votre salon.',
+        'cfg.tab_business': 'Infos Entreprise', 'cfg.tab_language': 'Langue', 'cfg.tab_tax': 'Devise et Taxes',
+        'cfg.tab_payments': 'Modes de Paiement', 'cfg.tab_customers': 'Clients', 'cfg.tab_services': 'Services', 'cfg.tab_activity': "Journal d'Activité",
+        'cfg.business_name_label': 'Nom Commercial', 'cfg.legal_name_label': 'Raison Sociale',
+        'cfg.tax_id_label': "N° d'Identification Fiscale", 'cfg.phone_label': 'Téléphone', 'cfg.address_label': 'Adresse',
+        'cfg.website_label': 'Site Web', 'cfg.logo_label': 'Logo du Salon', 'cfg.save_business': "Enregistrer les Infos de l'Entreprise",
+        'cfg.language_label': "Langue de l'interface", 'cfg.save_language': 'Enregistrer la Langue', 'cfg.language_saved': 'Langue enregistrée.',
+        'cfg.currency_label': 'Symbole de Devise', 'cfg.tax_enabled_label': 'Votre entreprise applique-t-elle des taxes ?',
+        'cfg.tax_pct_label': 'Pourcentage de Taxe (%)', 'cfg.tax_mode_label': 'Mode de Taxe',
+        'cfg.tax_mode_included': 'Les prix incluent déjà la taxe', 'cfg.tax_mode_added': 'Ajoutée à la vente',
+        'cfg.save_tax': 'Enregistrer Devise et Taxes', 'cfg.pm_cash': 'Espèces', 'cfg.pm_transfer': 'Virement',
+        'cfg.pm_card': 'Carte', 'cfg.pm_credit': 'Crédit', 'cfg.save_payments': 'Enregistrer les Modes de Paiement',
+        'cfg.activity_th_user': 'Utilisateur', 'cfg.activity_th_action': 'Action', 'cfg.activity_th_date': 'Date/Heure',
+        'cfg.error_generic': 'Erreur : {{msg}}', 'cfg.business_saved': 'Infos du salon enregistrées.',
+        'cfg.tax_saved': 'Paramètres fiscaux enregistrés.', 'cfg.payments_saved': 'Modes de paiement enregistrés.',
+        'cfg.logo_upload_error': 'Erreur lors du téléversement du logo : {{msg}}',
+        'act.invite_generated': "A généré un code d'invitation pour un employé", 'act.role_updated': 'A mis à jour le poste d\'un employé à "{{title}}"',
+        'act.service_created': 'A créé le service "{{name}}"', 'act.service_edited': 'A modifié le service "{{name}}"',
+        'act.appt_created': 'A créé un rendez-vous "{{service}}" pour le {{when}}', 'act.appt_status_updated': 'A mis à jour un rendez-vous au statut "{{status}}"',
+        'act.business_updated': "A mis à jour les infos de l'entreprise", 'act.tax_updated': 'A mis à jour la devise et les taxes',
+        'act.payments_updated': 'A mis à jour les modes de paiement', 'act.invoice_generated': 'A généré la facture {{number}}'
+      }
+    };
+
+    function t(key, vars) {
+      let s = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.es[key] || key;
+      if (vars) Object.keys(vars).forEach(k => { s = s.split(`{{${k}}}`).join(vars[k]); });
+      return s;
+    }
+
+    function applyTranslations() {
+      document.documentElement.lang = currentLang;
+      document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('gs_lang', lang);
+      applyTranslations();
+      refreshDynamicText();
+    }
+
+    // Vuelve a renderizar las vistas dinámicas para que su texto (badges,
+    // tablas generadas por JS, etc.) también cambie de idioma al vuelo.
+    function refreshDynamicText() {
+      if (!modulesInitialized) return;
+      renderCustomersTable();
+      renderServicesTable();
+      renderAppointmentsForSelectedDate();
+      renderTodayAppointmentsWidget();
+      populateInvoiceAppointmentSelect();
+      populateInvoiceCustomerSelect();
+      loadEmployeesList();
+      if (!document.getElementById('tab-cfg-activity').classList.contains('hidden')) loadActivityLog();
+    }
+
+    function fmtDate(d) { return new Date(d).toLocaleDateString(LOCALE_MAP[currentLang] || 'es-ES'); }
+    function fmtDateTime(d) { return new Date(d).toLocaleString(LOCALE_MAP[currentLang] || 'es-ES'); }
+    function fmtTime(d) { return new Date(d).toLocaleTimeString(LOCALE_MAP[currentLang] || 'es-ES', { hour: '2-digit', minute: '2-digit' }); }
+    function apptStatusLabel(status) { return t('appt.status_' + status); }
+    function creditStatusLabel(status) { return t('credit.status_' + status); }
+
+    applyTranslations();
 
     // -------------------------------------------------------------
     // 3. NAVEGACIÓN Y EVENTOS GENERALES
@@ -864,7 +1227,7 @@
         provider: 'google',
         options: { redirectTo: window.location.origin + window.location.pathname }
       });
-      if (error) alert("Error OAuth: " + error.message);
+      if (error) alert(t('auth.oauth_error', { msg: error.message }));
     };
 
     // Modal de Contraseña
@@ -872,12 +1235,12 @@
     document.getElementById('btn-close-password').onclick = () => document.getElementById('modal-password').classList.add('hidden');
     document.getElementById('btn-save-password').onclick = async () => {
       const newPassword = document.getElementById('input-new-password').value;
-      if (newPassword.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+      if (newPassword.length < 6) return alert(t('pwd.min_length'));
 
       const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) alert("Error al guardar contraseña: " + error.message);
+      if (error) alert(t('pwd.save_error', { msg: error.message }));
       else {
-        alert("¡Listo! Ya puedes iniciar sesión con tu correo y esta contraseña.");
+        alert(t('pwd.saved'));
         document.getElementById('modal-password').classList.add('hidden');
         document.getElementById('input-new-password').value = '';
       }
@@ -926,7 +1289,7 @@
       const employeeName = document.getElementById('auth-employee-name').value.trim();
 
       if (inviteCode && !employeeName) {
-        alert("Debes escribir tu nombre completo para registrarte con un código de invitación.");
+        alert(t('auth.need_fullname'));
         return;
       }
 
@@ -948,11 +1311,11 @@
         });
 
         if (signUpError) {
-          alert("Error de autenticación: " + signUpError.message);
+          alert(t('auth.error', { msg: signUpError.message }));
           return;
         }
 
-        alert("Registro exitoso. Revisa tu correo (en cualquier dispositivo) para confirmar la cuenta.");
+        alert(t('auth.signup_success'));
       }
     });
 
@@ -970,7 +1333,7 @@
           window.history.replaceState({}, document.title, window.location.pathname);
 
           if (redeemError) {
-            alert("El código de invitación no es válido o ya fue usado: " + redeemError.message);
+            alert(t('auth.invite_invalid', { msg: redeemError.message }));
           } else if (redeemedBusinessId) {
             currentBusinessId = redeemedBusinessId;
             currentUserRole = 'employee';
@@ -1003,13 +1366,7 @@
         }
 
         currentBusinessData = bData;
-
-        // Cargar Ajustes
-        const { data: sData } = await supabase.from('business_settings').select('*').eq('business_id', currentBusinessId).maybeSingle();
-        if (sData) {
-          userSettings = { pct_inventory: sData.pct_inventory, pct_operations: sData.pct_operations, pct_savings: sData.pct_savings, pct_personal: sData.pct_personal };
-        }
-        applySettingsToUI();
+        if (currentBusinessData?.language) setLanguage(currentBusinessData.language);
 
         // Ocultar Pantalla Login
         document.getElementById('auth-screen').classList.add('auth-exit');
@@ -1045,7 +1402,7 @@
       const bName = document.getElementById('onb-business-name').value.trim();
       const teamSizeVal = parseInt(document.getElementById('onb-team-size').value) || null;
 
-      if (!bName) return alert("Por favor ingresa un nombre.");
+      if (!bName) return alert(t('onboarding.name_required'));
 
       if (selectedBusinessType === 'group') {
         // Insertar en business_members como admin
@@ -1083,10 +1440,10 @@
     // Forzado de Contraseña en Onboarding Grupo
     document.getElementById('btn-save-forced-password').onclick = async () => {
       const pass = document.getElementById('forced-password-input').value;
-      if (pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+      if (pass.length < 6) return alert(t('pwd.min_length'));
 
       const { error } = await supabase.auth.updateUser({ password: pass });
-      if (error) return alert("Error guardando contraseña: " + error.message);
+      if (error) return alert(t('pwd.forced_error', { msg: error.message }));
 
       document.getElementById('modal-forced-password').classList.add('hidden');
       setupRoleInterface();
@@ -1095,15 +1452,18 @@
 
     function setupRoleInterface() {
       document.getElementById('business-display-name').textContent = currentBusinessData?.name || 'Mi Salón';
-      document.getElementById('user-role-badge').textContent = currentUserRole === 'admin' ? 'Admin' : 'Empleado';
+      document.getElementById('user-role-badge').textContent = currentUserRole === 'admin' ? t('header.role_admin') : t('header.role_employee');
 
       document.getElementById('app-header').classList.remove('hidden');
       document.getElementById('app-nav').classList.remove('hidden');
 
       if (currentUserRole === 'employee') {
+        // Todos los módulos operativos (Agenda, Servicios, Clientes, Facturas)
+        // son exclusivos del admin en esta fase; el empleado ve un dashboard
+        // de solo lectura y no tiene barra de navegación.
         document.querySelectorAll('.nav-admin-only').forEach(el => el.classList.add('hidden'));
-        document.getElementById('sec-customers').classList.remove('hidden');
-        document.querySelector('[data-target="sec-customers"]').classList.add('active');
+        document.getElementById('app-nav').classList.add('hidden');
+        document.getElementById('sec-dashboard').classList.remove('hidden');
       } else {
         document.querySelectorAll('.nav-admin-only').forEach(el => el.classList.remove('hidden'));
         if (currentBusinessData?.business_type !== 'group') {
@@ -1186,7 +1546,7 @@
           <td>${c.name}</td>
           <td>${c.phone || 'N/A'}</td>
           <td class="font-numeric" style="color: ${pendingTotal > 0 ? 'var(--accent-expense)' : 'var(--accent-profit)'}">$${pendingTotal.toFixed(2)}</td>
-          <td><button class="btn-account" data-id="${c.id}" style="padding: 0.2rem 0.5rem; margin:0; font-size:0.8rem;">Ver Cuenta</button></td>
+          <td><button class="btn-account" data-id="${c.id}" style="padding: 0.2rem 0.5rem; margin:0; font-size:0.8rem;">${t('cust.view_account')}</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1200,8 +1560,8 @@
       const customer = customersSnapshot.find(c => c.id === customerId);
       if (!customer) return;
 
-      document.getElementById('account-customer-name').textContent = `Cuenta de ${customer.name}`;
-      document.getElementById('account-customer-phone').textContent = `Tel: ${customer.phone || 'N/A'}`;
+      document.getElementById('account-customer-name').textContent = t('cust.account_title', { name: customer.name });
+      document.getElementById('account-customer-phone').textContent = t('cust.phone_prefix', { phone: customer.phone || 'N/A' });
       document.getElementById('cust-notes-input').value = customer.notes || '';
 
       // --- Historial de citas del cliente (5.5) ---
@@ -1217,10 +1577,10 @@
         const svc = servicesSnapshot.find(s => s.id === a.service_id);
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${new Date(a.start_at).toLocaleString()}</td>
+          <td>${fmtDateTime(a.start_at)}</td>
           <td>${svc ? svc.name : 'N/A'}</td>
           <td>${specialistLabel(a.employee_id)}</td>
-          <td><span class="badge-status status-${a.status}">${a.status.replace('_', ' ').toUpperCase()}</span></td>
+          <td><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span></td>
         `;
         historyBody.appendChild(tr);
       });
@@ -1237,17 +1597,17 @@
       const topService = topServiceId ? servicesSnapshot.find(s => s.id === topServiceId) : null;
 
       document.getElementById('cust-history-summary').innerHTML = `
-        <div><strong>Última visita:</strong> ${lastVisit ? new Date(lastVisit.start_at).toLocaleDateString() : 'Sin registro'}</div>
-        <div><strong>Servicio más frecuente:</strong> ${topService ? topService.name : 'Sin registro'}</div>
-        <div><strong>Especialista preferido:</strong> ${topSpecialistId ? specialistLabel(topSpecialistId) : 'Sin registro'}</div>
+        <div><strong>${t('cust.last_visit')}</strong> ${lastVisit ? fmtDate(lastVisit.start_at) : t('cust.no_record')}</div>
+        <div><strong>${t('cust.top_service')}</strong> ${topService ? topService.name : t('cust.no_record')}</div>
+        <div><strong>${t('cust.top_specialist')}</strong> ${topSpecialistId ? specialistLabel(topSpecialistId) : t('cust.no_record')}</div>
       `;
 
       document.getElementById('btn-save-cust-notes').onclick = async () => {
         const notes = document.getElementById('cust-notes-input').value;
         const { error } = await supabase.from('customers').update({ notes }).eq('id', customerId);
-        if (error) return alert("Error al guardar notas: " + error.message);
+        if (error) return alert(t('cust.notes_error', { msg: error.message }));
         customer.notes = notes;
-        alert("Notas guardadas.");
+        alert(t('cust.notes_saved'));
       };
 
       // --- Créditos ---
@@ -1266,17 +1626,17 @@
       clientCredits.forEach(cr => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${new Date(cr.created_at).toLocaleDateString()}</td>
+          <td>${fmtDate(cr.created_at)}</td>
           <td class="font-numeric">$${parseFloat(cr.amount).toFixed(2)}</td>
           <td class="font-numeric">$${parseFloat(cr.amount_paid).toFixed(2)}</td>
-          <td><span class="badge-status status-${cr.status}">${cr.status.toUpperCase()}</span></td>
+          <td><span class="badge-status status-${cr.status}">${creditStatusLabel(cr.status)}</span></td>
         `;
         tbody.appendChild(tr);
 
         if (cr.status !== 'pagado') {
           const opt = document.createElement('option');
           opt.value = cr.id;
-          opt.textContent = `Crédito ${new Date(cr.created_at).toLocaleDateString()} - Pendiente: $${(parseFloat(cr.amount) - parseFloat(cr.amount_paid)).toFixed(2)}`;
+          opt.textContent = t('cust.credit_option', { date: fmtDate(cr.created_at), amount: (parseFloat(cr.amount) - parseFloat(cr.amount_paid)).toFixed(2) });
           creditSelect.appendChild(opt);
         }
       });
@@ -1290,7 +1650,7 @@
         const amountToPay = parseFloat(document.getElementById('payment-amount').value);
 
         const targetCredit = creditsSnapshot.find(cr => cr.id === creditId);
-        if (!targetCredit || amountToPay <= 0) return alert("Monto o crédito inválido.");
+        if (!targetCredit || amountToPay <= 0) return alert(t('cust.invalid_credit'));
 
         const currentPaid = parseFloat(targetCredit.amount_paid);
         const totalAmount = parseFloat(targetCredit.amount);
@@ -1304,9 +1664,9 @@
           status: newStatus
         }).eq('id', creditId);
 
-        if (error) alert("Error al registrar abono: " + error.message);
+        if (error) alert(t('cust.payment_error', { msg: error.message }));
         else {
-          alert("Abono registrado correctamente.");
+          alert(t('cust.payment_success'));
           document.getElementById('payment-amount').value = '';
           await loadCredits();
           openCustomerAccountModal(customerId);
@@ -1327,18 +1687,18 @@
           code: code
         }]);
 
-        if (error) alert("Error generando código: " + error.message);
+        if (error) alert(t('emp.error_generate_code', { msg: error.message }));
         else {
           document.getElementById('lbl-generated-code').textContent = code;
           document.getElementById('invite-code-display').classList.remove('hidden');
-          await logActivity(`Generó un código de invitación para empleado`);
+          await logActivity(t('act.invite_generated'));
         }
       };
 
       document.getElementById('btn-copy-code').onclick = () => {
         const code = document.getElementById('lbl-generated-code').textContent;
         navigator.clipboard.writeText(code);
-        alert("Código copiado al portapapeles.");
+        alert(t('emp.copied'));
       };
 
       loadEmployeesList();
@@ -1357,10 +1717,10 @@
         data.forEach(m => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${m.employee_name || 'Sin nombre'}</td>
-            <td><input type="text" class="input-role-title" data-id="${m.id}" value="${m.role_title || ''}" placeholder="Ej: Estilista" style="margin:0; padding:0.3rem;"></td>
-            <td><span class="badge-status status-pagado">Empleado</span></td>
-            <td>${new Date(m.created_at).toLocaleDateString()}</td>
+            <td>${m.employee_name || t('emp.no_name')}</td>
+            <td><input type="text" class="input-role-title" data-id="${m.id}" value="${m.role_title || ''}" placeholder="${t('emp.position_placeholder')}" style="margin:0; padding:0.3rem;"></td>
+            <td><span class="badge-status status-pagado">${t('emp.role_employee')}</span></td>
+            <td>${fmtDate(m.created_at)}</td>
           `;
           tbody.appendChild(tr);
         });
@@ -1368,7 +1728,7 @@
         tbody.querySelectorAll('.input-role-title').forEach(input => {
           input.addEventListener('change', async (e) => {
             await supabase.from('business_members').update({ role_title: e.target.value }).eq('id', e.target.dataset.id);
-            await logActivity(`Actualizó el cargo de un empleado a "${e.target.value}"`);
+            await logActivity(t('act.role_updated', { title: e.target.value }));
           });
         });
       }
@@ -1378,14 +1738,14 @@
     // 7b. ESPECIALISTAS (helper compartido por Servicios y Agenda)
     // -------------------------------------------------------------
     function getSpecialistOptions() {
-      const opts = [{ id: currentBusinessId, label: 'Tú (Administrador/a)' }];
-      employeesSnapshot.forEach(e => opts.push({ id: e.user_id, label: e.employee_name || 'Empleado sin nombre' }));
+      const opts = [{ id: currentBusinessId, label: t('appt.you_admin') }];
+      employeesSnapshot.forEach(e => opts.push({ id: e.user_id, label: e.employee_name || t('appt.employee_unnamed') }));
       return opts;
     }
 
     function specialistLabel(employeeId) {
       const found = getSpecialistOptions().find(o => o.id === employeeId);
-      return found ? found.label : 'Especialista';
+      return found ? found.label : t('appt.specialist_fallback');
     }
 
     // -------------------------------------------------------------
@@ -1397,7 +1757,7 @@
       document.getElementById('btn-show-add-service').onclick = () => {
         form.reset();
         document.getElementById('svc-id').value = '';
-        document.getElementById('service-form-title').textContent = 'Guardar Servicio';
+        document.getElementById('service-form-title').textContent = t('svc.form_title_new');
         document.getElementById('svc-active').checked = true;
         renderSpecialistChecklist([]);
         form.classList.remove('hidden');
@@ -1423,7 +1783,7 @@
           await supabase.from('services').update(payload).eq('id', id);
         } else {
           const { data: newSvc, error } = await supabase.from('services').insert([payload]).select().single();
-          if (error) return alert("Error al guardar el servicio: " + error.message);
+          if (error) return alert(t('svc.error_save', { msg: error.message }));
           serviceId = newSvc.id;
         }
 
@@ -1436,7 +1796,7 @@
           );
         }
 
-        await logActivity(id ? `Editó el servicio "${payload.name}"` : `Creó el servicio "${payload.name}"`);
+        await logActivity(id ? t('act.service_edited', { name: payload.name }) : t('act.service_created', { name: payload.name }));
         form.classList.add('hidden');
         await loadServices();
       };
@@ -1473,8 +1833,8 @@
           <td>${s.category || 'N/A'}</td>
           <td>${s.duration_minutes} min</td>
           <td class="font-numeric">$${parseFloat(s.price).toFixed(2)}</td>
-          <td><span class="badge-status ${s.active ? 'status-pagado' : 'status-cancelada'}">${s.active ? 'Activo' : 'Inactivo'}</span></td>
-          <td><button class="btn-edit-service btn-small btn-outline" data-id="${s.id}">Editar</button></td>
+          <td><span class="badge-status ${s.active ? 'status-pagado' : 'status-cancelada'}">${s.active ? t('svc.status_active') : t('svc.status_inactive')}</span></td>
+          <td><button class="btn-edit-service btn-small btn-outline" data-id="${s.id}">${t('common.edit')}</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1489,7 +1849,7 @@
           document.getElementById('svc-duration').value = svc.duration_minutes;
           document.getElementById('svc-price').value = svc.price;
           document.getElementById('svc-active').checked = svc.active;
-          document.getElementById('service-form-title').textContent = 'Editar Servicio';
+          document.getElementById('service-form-title').textContent = t('svc.form_title_edit');
           const selected = specialistServicesSnapshot.filter(l => l.service_id === svc.id).map(l => l.employee_id);
           renderSpecialistChecklist(selected);
           document.getElementById('service-form').classList.remove('hidden');
@@ -1537,22 +1897,22 @@
         e.preventDefault();
         const serviceId = document.getElementById('appt-service').value;
         const service = servicesSnapshot.find(s => s.id === serviceId);
-        if (!service) return alert("Selecciona un servicio válido.");
+        if (!service) return alert(t('appt.select_valid_service'));
 
         const specialistId = document.getElementById('appt-specialist').value;
-        if (!specialistId) return alert("Selecciona un especialista.");
+        if (!specialistId) return alert(t('appt.select_specialist'));
 
         const dateVal = document.getElementById('appt-input-date').value;
         const timeVal = document.getElementById('appt-input-time').value;
         const startAt = new Date(`${dateVal}T${timeVal}`);
-        if (isNaN(startAt.getTime())) return alert("Fecha u hora inválida.");
+        if (isNaN(startAt.getTime())) return alert(t('appt.invalid_datetime'));
         const endAt = new Date(startAt.getTime() + service.duration_minutes * 60000);
 
         const customerId = document.getElementById('appt-customer').value || null;
         const walkinName = document.getElementById('appt-walkin-name').value.trim();
         const notesInput = document.getElementById('appt-notes').value.trim();
         const notes = (!customerId && walkinName)
-          ? `Cliente walk-in: ${walkinName}${notesInput ? ' | ' + notesInput : ''}`
+          ? `${WALKIN_NOTE_PREFIX}${walkinName}${notesInput ? ' | ' + notesInput : ''}`
           : (notesInput || null);
 
         const { error } = await supabase.from('appointments').insert([{
@@ -1567,9 +1927,9 @@
           notes: notes
         }]);
 
-        if (error) return alert("Error al crear la cita: " + error.message);
+        if (error) return alert(t('appt.error_create', { msg: error.message }));
 
-        await logActivity(`Creó una cita de "${service.name}" para el ${startAt.toLocaleString()}`);
+        await logActivity(t('act.appt_created', { service: service.name, when: fmtDateTime(startAt) }));
         form.classList.add('hidden');
         datePicker.value = dateVal;
         await loadAppointments();
@@ -1578,12 +1938,16 @@
       await loadAppointments();
     }
 
+    // Marcador fijo (no traducido) para identificar notas de citas walk-in,
+    // independiente del idioma activo al crear o al mostrar la cita.
+    const WALKIN_NOTE_PREFIX = 'WALKIN:';
+
     function updateApptServiceInfo() {
       const serviceId = document.getElementById('appt-service').value;
       const service = servicesSnapshot.find(s => s.id === serviceId);
       const info = document.getElementById('appt-service-info');
       if (service) {
-        info.textContent = `Duración: ${service.duration_minutes} min | Precio: $${parseFloat(service.price).toFixed(2)}`;
+        info.textContent = t('appt.service_info', { dur: service.duration_minutes, price: '$' + parseFloat(service.price).toFixed(2) });
       } else {
         info.textContent = '';
       }
@@ -1592,7 +1956,7 @@
     function populateApptCustomerSelect() {
       const select = document.getElementById('appt-customer');
       if (!select) return;
-      select.innerHTML = '<option value="">-- Walk-in / Sin cliente registrado --</option>';
+      select.innerHTML = `<option value="">${t('appt.customer_walkin_opt')}</option>`;
       customersSnapshot.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.id;
@@ -1646,7 +2010,7 @@
       const dayAppointments = appointmentsSnapshot.filter(a => toDateInputValue(new Date(a.start_at)) === dateStr);
 
       const isToday = dateStr === toDateInputValue(new Date());
-      document.getElementById('appt-list-title').textContent = isToday ? 'Citas de hoy' : `Citas del ${new Date(dateStr + 'T00:00:00').toLocaleDateString()}`;
+      document.getElementById('appt-list-title').textContent = isToday ? t('appt.list_title_today') : t('appt.list_title_date', { date: fmtDate(dateStr + 'T00:00:00') });
 
       const tbody = document.getElementById('appointments-table-body');
       tbody.innerHTML = '';
@@ -1655,15 +2019,15 @@
       dayAppointments.forEach(a => {
         const svc = servicesSnapshot.find(s => s.id === a.service_id);
         const customer = customersSnapshot.find(c => c.id === a.customer_id);
-        const clientName = customer ? customer.name : (a.notes && a.notes.startsWith('Cliente walk-in:') ? a.notes.split('|')[0].replace('Cliente walk-in:', '').trim() : 'Walk-in');
+        const clientName = customer ? customer.name : (a.notes && a.notes.startsWith(WALKIN_NOTE_PREFIX) ? a.notes.split('|')[0].replace(WALKIN_NOTE_PREFIX, '').trim() : t('appt.walkin_fallback'));
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${new Date(a.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+          <td>${fmtTime(a.start_at)}</td>
           <td>${clientName}</td>
           <td>${svc ? svc.name : 'N/A'}</td>
           <td>${specialistLabel(a.employee_id)}</td>
-          <td><span class="badge-status status-${a.status}">${a.status.replace('_', ' ').toUpperCase()}</span></td>
+          <td><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span></td>
           <td id="appt-actions-${a.id}"></td>
         `;
         tbody.appendChild(tr);
@@ -1685,15 +2049,15 @@
       };
 
       if (appt.status === 'pendiente') {
-        addBtn('Confirmar', 'confirmada', 'btn-agenda');
-        addBtn('Cancelar', 'cancelada', 'btn-danger');
+        addBtn(t('appt.btn_confirm'), 'confirmada', 'btn-agenda');
+        addBtn(t('appt.btn_cancel'), 'cancelada', 'btn-danger');
       } else if (appt.status === 'confirmada') {
-        addBtn('Completar', 'completada', 'btn-primary');
-        addBtn('No-show', 'no_show', 'btn-outline');
-        addBtn('Cancelar', 'cancelada', 'btn-danger');
+        addBtn(t('appt.btn_complete'), 'completada', 'btn-primary');
+        addBtn(t('appt.btn_noshow'), 'no_show', 'btn-outline');
+        addBtn(t('appt.btn_cancel'), 'cancelada', 'btn-danger');
       } else if (appt.status === 'completada' && !invoicedAppointmentIds.has(appt.id)) {
         const btn = document.createElement('button');
-        btn.textContent = 'Facturar';
+        btn.textContent = t('appt.btn_invoice');
         btn.className = 'btn-small btn-agenda';
         btn.onclick = () => goToInvoiceForAppointment(appt.id);
         cell.appendChild(btn);
@@ -1711,10 +2075,10 @@
     }
 
     async function updateAppointmentStatus(id, newStatus, label) {
-      if (!confirm(`¿Confirmas marcar esta cita como "${label}"?`)) return;
+      if (!confirm(t('appt.confirm_status', { label }))) return;
       const { error } = await supabase.from('appointments').update({ status: newStatus }).eq('id', id);
-      if (error) return alert("Error al actualizar la cita: " + error.message);
-      await logActivity(`Actualizó una cita a estado "${newStatus}"`);
+      if (error) return alert(t('appt.error_update', { msg: error.message }));
+      await logActivity(t('act.appt_status_updated', { status: apptStatusLabel(newStatus) }));
       await loadAppointments();
     }
 
@@ -1724,22 +2088,22 @@
         .filter(a => toDateInputValue(new Date(a.start_at)) === todayStr && a.status !== 'cancelada')
         .sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
 
-      document.getElementById('dash-appt-count').textContent = `${todayAppointments.length} cita${todayAppointments.length === 1 ? '' : 's'}`;
+      document.getElementById('dash-appt-count').textContent = t(todayAppointments.length === 1 ? 'dash.appt_count' : 'dash.appt_count_plural', { n: todayAppointments.length });
 
       const list = document.getElementById('dash-today-appointments-list');
       list.innerHTML = '';
       if (todayAppointments.length === 0) {
-        list.innerHTML = '<li class="empty-hint">No hay citas programadas para hoy.</li>';
+        list.innerHTML = `<li class="empty-hint">${t('dash.no_appts_today')}</li>`;
         return;
       }
 
       todayAppointments.slice(0, 6).forEach(a => {
         const svc = servicesSnapshot.find(s => s.id === a.service_id);
         const customer = customersSnapshot.find(c => c.id === a.customer_id);
-        const clientName = customer ? customer.name : 'Walk-in';
+        const clientName = customer ? customer.name : t('appt.walkin_fallback');
         const li = document.createElement('li');
         li.style.cssText = 'padding: 0.4rem 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.85rem; display: flex; justify-content: space-between;';
-        li.innerHTML = `<span>${new Date(a.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} — ${clientName} (${svc ? svc.name : 'N/A'})</span><span class="badge-status status-${a.status}">${a.status.replace('_', ' ').toUpperCase()}</span>`;
+        li.innerHTML = `<span>${fmtTime(a.start_at)} — ${clientName} (${svc ? svc.name : 'N/A'})</span><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span>`;
         list.appendChild(li);
       });
     }
@@ -1772,19 +2136,6 @@
       document.getElementById('dash-receivables').textContent = `$${totalReceivables.toFixed(2)}`;
 
       animateCounter('dash-net-profit', netProfit);
-
-      const recInv = (netProfit * userSettings.pct_inventory) / 100;
-      const recOps = (netProfit * userSettings.pct_operations) / 100;
-      const recSav = (netProfit * userSettings.pct_savings) / 100;
-      const recPer = (netProfit * userSettings.pct_personal) / 100;
-
-      document.getElementById('rec-val-inv').textContent = `$${recInv.toFixed(2)}`;
-      document.getElementById('rec-val-ops').textContent = `$${recOps.toFixed(2)}`;
-      document.getElementById('rec-val-sav').textContent = `$${recSav.toFixed(2)}`;
-      document.getElementById('rec-val-per').textContent = `$${recPer.toFixed(2)}`;
-
-      document.getElementById('recommend-advice-text').textContent =
-        `Con $${netProfit.toFixed(2)} de ingresos en este período, asigna $${recInv.toFixed(2)} a reinversión y $${recOps.toFixed(2)} a gastos operativos.`;
     }
 
     function animateCounter(elementId, targetVal) {
@@ -1802,18 +2153,6 @@
         if (progress < 1) requestAnimationFrame(update);
       }
       requestAnimationFrame(update);
-    }
-
-    function applySettingsToUI() {
-      document.getElementById('lbl-pct-inv').textContent = userSettings.pct_inventory;
-      document.getElementById('lbl-pct-ops').textContent = userSettings.pct_operations;
-      document.getElementById('lbl-pct-sav').textContent = userSettings.pct_savings;
-      document.getElementById('lbl-pct-per').textContent = userSettings.pct_personal;
-
-      document.getElementById('seg-inv').style.width = `${userSettings.pct_inventory}%`;
-      document.getElementById('seg-ops').style.width = `${userSettings.pct_operations}%`;
-      document.getElementById('seg-sav').style.width = `${userSettings.pct_savings}%`;
-      document.getElementById('seg-per').style.width = `${userSettings.pct_personal}%`;
     }
 
     // -------------------------------------------------------------
@@ -1836,7 +2175,7 @@
       if (data) {
         data.forEach(log => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${log.user_id ? log.user_id.substring(0,8) : 'Sistema'}</td><td>${log.action}</td><td>${new Date(log.created_at).toLocaleString()}</td>`;
+          tr.innerHTML = `<td>${log.user_id ? log.user_id.substring(0,8) : t('common.system')}</td><td>${log.action}</td><td>${fmtDateTime(log.created_at)}</td>`;
           tbody.appendChild(tr);
         });
       }
@@ -1870,12 +2209,9 @@
       document.getElementById('cfg-pm-tarjeta').checked = pm.tarjeta !== false;
       document.getElementById('cfg-pm-credito').checked = pm.credito !== false;
 
-      document.getElementById('cfg-pct-inv').value = userSettings.pct_inventory;
-      document.getElementById('cfg-pct-ops').value = userSettings.pct_operations;
-      document.getElementById('cfg-pct-sav').value = userSettings.pct_savings;
-      document.getElementById('cfg-pct-per').value = userSettings.pct_personal;
-
       if (b.logo_url) document.getElementById('cfg-logo-preview').src = b.logo_url;
+
+      document.getElementById('cfg-language').value = b.language || currentLang;
     }
 
     document.getElementById('form-cfg-business').addEventListener('submit', async (e) => {
@@ -1889,7 +2225,7 @@
         const filePath = `${currentBusinessId}/logo.${fileExt}`;
         const { error: uploadErr } = await supabase.storage.from('business-logos').upload(filePath, file, { upsert: true });
         if (uploadErr) {
-          alert("Error subiendo el logo: " + uploadErr.message);
+          alert(t('cfg.logo_upload_error', { msg: uploadErr.message }));
         } else {
           const { data: pub } = supabase.storage.from('business-logos').getPublicUrl(filePath);
           logoUrl = pub.publicUrl;
@@ -1908,13 +2244,23 @@
       };
 
       const { error } = await supabase.from('businesses').update(updates).eq('id', currentBusinessId);
-      if (error) return alert("Error: " + error.message);
+      if (error) return alert(t('cfg.error_generic', { msg: error.message }));
 
       currentBusinessData = { ...currentBusinessData, ...updates };
       document.getElementById('business-display-name').textContent = updates.name;
       applyLogoToHeader();
-      await logActivity('Actualizó los datos del negocio');
-      alert("Datos del salón guardados.");
+      await logActivity(t('act.business_updated'));
+      alert(t('cfg.business_saved'));
+    });
+
+    document.getElementById('form-cfg-language').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const lang = document.getElementById('cfg-language').value;
+      const { error } = await supabase.from('businesses').update({ language: lang, updated_at: new Date() }).eq('id', currentBusinessId);
+      if (error) return alert(t('cfg.error_generic', { msg: error.message }));
+      currentBusinessData = { ...currentBusinessData, language: lang };
+      setLanguage(lang);
+      alert(t('cfg.language_saved'));
     });
 
     document.getElementById('form-cfg-tax').addEventListener('submit', async (e) => {
@@ -1928,10 +2274,10 @@
         updated_at: new Date()
       };
       const { error } = await supabase.from('businesses').update(updates).eq('id', currentBusinessId);
-      if (error) return alert("Error: " + error.message);
+      if (error) return alert(t('cfg.error_generic', { msg: error.message }));
       currentBusinessData = { ...currentBusinessData, ...updates };
-      await logActivity('Actualizó moneda e impuestos');
-      alert("Configuración fiscal guardada.");
+      await logActivity(t('act.tax_updated'));
+      alert(t('cfg.tax_saved'));
     });
 
     document.getElementById('form-cfg-payments').addEventListener('submit', async (e) => {
@@ -1943,30 +2289,10 @@
         credito: document.getElementById('cfg-pm-credito').checked
       };
       const { error } = await supabase.from('businesses').update({ payment_methods, updated_at: new Date() }).eq('id', currentBusinessId);
-      if (error) return alert("Error: " + error.message);
+      if (error) return alert(t('cfg.error_generic', { msg: error.message }));
       currentBusinessData.payment_methods = payment_methods;
-      await logActivity('Actualizó métodos de pago');
-      alert("Métodos de pago guardados.");
-    });
-
-    document.getElementById('form-cfg-profit').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const pInv = parseInt(document.getElementById('cfg-pct-inv').value) || 0;
-      const pOps = parseInt(document.getElementById('cfg-pct-ops').value) || 0;
-      const pSav = parseInt(document.getElementById('cfg-pct-sav').value) || 0;
-      const pPer = parseInt(document.getElementById('cfg-pct-per').value) || 0;
-
-      if (pInv + pOps + pSav + pPer !== 100) return alert("La suma de los porcentajes debe ser exactamente 100%");
-
-      userSettings = { pct_inventory: pInv, pct_operations: pOps, pct_savings: pSav, pct_personal: pPer };
-      const { error } = await supabase.from('business_settings').upsert({
-        business_id: currentBusinessId, ...userSettings, updated_at: new Date()
-      });
-      if (error) return alert("Error: " + error.message);
-
-      await logActivity('Actualizó la distribución de ganancias');
-      calculateFinancialDashboard();
-      alert("Distribución de ganancias guardada.");
+      await logActivity(t('act.payments_updated'));
+      alert(t('cfg.payments_saved'));
     });
 
     // -------------------------------------------------------------
@@ -1984,10 +2310,10 @@
       document.getElementById('btn-generate-invoice').onclick = async () => {
         const appointmentId = document.getElementById('invoice-appointment-select').value;
         const appt = appointmentsSnapshot.find(a => a.id === appointmentId);
-        if (!appt) return alert("Selecciona un servicio completado para facturar.");
+        if (!appt) return alert(t('inv.select_appt'));
 
         const customerId = document.getElementById('invoice-customer-select').value;
-        if (!customerId) return alert("Debes seleccionar un cliente: el nombre del cliente es obligatorio en la factura.");
+        if (!customerId) return alert(t('inv.customer_required'));
 
         const paymentMethod = document.getElementById('invoice-payment-method').value;
         const revenue = appointmentRevenue(appt);
@@ -2018,7 +2344,7 @@
           total: total
         }]).select().single();
 
-        if (error) return alert("Error al generar factura: " + error.message);
+        if (error) return alert(t('inv.error_generate', { msg: error.message }));
 
         if (paymentMethod === 'Crédito') {
           await supabase.from('customer_credits').insert([{
@@ -2032,8 +2358,8 @@
           await loadCredits();
         }
 
-        await logActivity(`Generó la factura ${invoiceNumber}`);
-        generateInvoicePDF(invData);
+        await logActivity(t('act.invoice_generated', { number: invoiceNumber }));
+        await generateInvoicePDF(invData);
         document.getElementById('invoice-appointment-select').value = '';
         document.getElementById('invoice-customer-select').value = '';
         await loadInvoicesList();
@@ -2044,7 +2370,7 @@
       const select = document.getElementById('invoice-appointment-select');
       if (!select) return;
       const currentVal = select.value;
-      select.innerHTML = '<option value="">-- Selecciona un servicio completado --</option>';
+      select.innerHTML = `<option value="">${t('inv.appt_placeholder')}</option>`;
       appointmentsSnapshot
         .filter(a => a.status === 'completada' && !invoicedAppointmentIds.has(a.id))
         .forEach(a => {
@@ -2052,7 +2378,7 @@
           const customer = customersSnapshot.find(c => c.id === a.customer_id);
           const opt = document.createElement('option');
           opt.value = a.id;
-          opt.textContent = `${new Date(a.start_at).toLocaleString()} - ${svc ? svc.name : 'Servicio'} (${customer ? customer.name : 'Walk-in'})`;
+          opt.textContent = `${fmtDateTime(a.start_at)} - ${svc ? svc.name : t('inv.service_fallback')} (${customer ? customer.name : t('inv.walkin')})`;
           select.appendChild(opt);
         });
       select.value = currentVal;
@@ -2062,7 +2388,7 @@
       const select = document.getElementById('invoice-customer-select');
       if (!select) return;
       const currentVal = select.value;
-      select.innerHTML = '<option value="">-- Selecciona un cliente --</option>';
+      select.innerHTML = `<option value="">${t('inv.customer_placeholder')}</option>`;
       customersSnapshot.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.id; opt.textContent = c.name;
@@ -2085,16 +2411,16 @@
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${inv.invoice_number}</td>
-            <td>${new Date(inv.created_at).toLocaleDateString()}</td>
+            <td>${fmtDate(inv.created_at)}</td>
             <td class="font-numeric">$${parseFloat(inv.total).toFixed(2)}</td>
             <td><button class="btn-re-pdf" data-id="${inv.id}" style="padding:0.2rem 0.5rem; margin:0; font-size:0.8rem;">PDF</button></td>
           `;
           tbody.appendChild(tr);
         });
         tbody.querySelectorAll('.btn-re-pdf').forEach(btn => {
-          btn.onclick = (e) => {
+          btn.onclick = async (e) => {
             const inv = data.find(i => i.id === e.target.dataset.id);
-            if (inv) generateInvoicePDF(inv);
+            if (inv) await generateInvoicePDF(inv);
           };
         });
       }
@@ -2103,7 +2429,27 @@
     // Genera el PDF de la factura con la estructura tipo "Nota de Remisión":
     // encabezado con datos del cliente, tabla de servicio y totales, pie con
     // los datos de contacto del salón.
-    function generateInvoicePDF(invoice) {
+    // Descarga una imagen (p.ej. el logo en Supabase Storage) y la convierte
+    // a data URL para poder incrustarla en el PDF con jsPDF.
+    async function loadImageAsDataURL(url) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        const format = blob.type.includes('png') ? 'PNG' : (blob.type.includes('webp') ? 'WEBP' : 'JPEG');
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        return { dataUrl, format };
+      } catch (err) {
+        return null;
+      }
+    }
+
+    async function generateInvoicePDF(invoice) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const b = currentBusinessData || {};
@@ -2118,10 +2464,10 @@
       // --- Título ---
       doc.setFont("helvetica", "bolditalic");
       doc.setFontSize(30);
-      doc.text("Factura", pageW / 2, 22, { align: "center" });
+      doc.text(t('pdf.title'), pageW / 2, 22, { align: "center" });
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
-      doc.text("COMPROBANTE DE SERVICIO", pageW / 2, 30, { align: "center" });
+      doc.text(t('pdf.subtitle'), pageW / 2, 30, { align: "center" });
 
       // --- Bloque de datos (Factura No./Fecha, Cliente, Domicilio, E-mail/Tel) ---
       let y = 40;
@@ -2150,18 +2496,18 @@
         y += rowH;
       };
 
-      drawRow("FACTURA NO.", invoice.invoice_number, "FECHA", new Date(invoice.created_at).toLocaleDateString(), true);
-      drawRow("CLIENTE", customer ? customer.name : 'N/A', null, null);
-      drawRow("DOMICILIO", customer?.address || '', null, null);
-      drawRow("E-MAIL", customer?.email || '', "TEL.", customer?.phone || '');
+      drawRow(t('pdf.invoice_no'), invoice.invoice_number, t('pdf.date'), fmtDate(invoice.created_at), true);
+      drawRow(t('pdf.client'), customer ? customer.name : 'N/A', null, null);
+      drawRow(t('pdf.address'), customer?.address || '', null, null);
+      drawRow(t('pdf.email'), customer?.email || '', t('pdf.phone'), customer?.phone || '');
       y += 4;
 
       // --- Tabla de servicio ---
       const cols = [
-        { label: 'CANTIDAD', w: 0.15 },
-        { label: 'DESCRIPCIÓN', w: 0.45 },
-        { label: 'VALOR UNITARIO', w: 0.20 },
-        { label: 'IMPORTE', w: 0.20 }
+        { label: t('pdf.quantity'), w: 0.15 },
+        { label: t('pdf.description'), w: 0.45 },
+        { label: t('pdf.unit_price'), w: 0.20 },
+        { label: t('pdf.amount'), w: 0.20 }
       ];
       const tableW = marginR - marginL;
       let cx = marginL;
@@ -2177,7 +2523,7 @@
       doc.setTextColor(0, 0, 0);
       y += rowH;
 
-      const descripcion = `${svc ? svc.name : 'Servicio'}${appt ? ' — Especialista: ' + specialistLabel(appt.employee_id) : ''}`;
+      const descripcion = `${svc ? svc.name : t('inv.service_fallback')}${appt ? ' — ' + t('pdf.specialist_prefix') + ': ' + specialistLabel(appt.employee_id) : ''}`;
       const unitPrice = appt ? appointmentRevenue(appt) : parseFloat(invoice.total);
       const rowVals = ['1', descripcion, `${curr}${unitPrice.toFixed(2)}`, `${curr}${unitPrice.toFixed(2)}`];
       cx = marginL;
@@ -2194,9 +2540,9 @@
       const totalsW = 70;
       const totalsX = marginR - totalsW;
       const totalRows = [
-        ['SUBTOTAL', `${curr}${parseFloat(invoice.subtotal).toFixed(2)}`],
-        ['IMPUESTO', `${curr}${parseFloat(invoice.tax_amount).toFixed(2)}`],
-        ['TOTAL', `${curr}${parseFloat(invoice.total).toFixed(2)}`]
+        [t('pdf.subtotal'), `${curr}${parseFloat(invoice.subtotal).toFixed(2)}`],
+        [t('pdf.tax'), `${curr}${parseFloat(invoice.tax_amount).toFixed(2)}`],
+        [t('pdf.total'), `${curr}${parseFloat(invoice.total).toFixed(2)}`]
       ];
       totalRows.forEach(([label, val]) => {
         doc.setFillColor(26, 26, 26);
@@ -2214,19 +2560,24 @@
 
       // --- Negocio + Pie de página ---
       y += 10;
+      const logo = b.logo_url ? await loadImageAsDataURL(b.logo_url) : null;
+      const nameX = logo ? marginL + 16 : marginL;
+      if (logo) {
+        try { doc.addImage(logo.dataUrl, logo.format, marginL, y - 10, 14, 14); } catch (e) { /* logo inválido, se omite */ }
+      }
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.text(b.name || "Mi Salón", marginL, y);
-      if (b.legal_name) { y += 5; doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.text(b.legal_name, marginL, y); }
+      doc.text(b.name || "Mi Salón", nameX, y);
+      if (b.legal_name) { y += 5; doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.text(b.legal_name, nameX, y); }
 
       y += 12;
       doc.setDrawColor(0, 0, 0);
       doc.line(marginL, y, marginR, y);
       y += 6;
       const footerCols = [
-        ['Dirección', b.address || 'N/A'],
-        ['Teléfono', b.phone || 'N/A'],
-        ['Sitio Web', b.website || 'N/A']
+        [t('pdf.address_footer'), b.address || 'N/A'],
+        [t('pdf.phone_footer'), b.phone || 'N/A'],
+        [t('pdf.website_footer'), b.website || 'N/A']
       ];
       const footerColW = tableW / 3;
       footerCols.forEach(([label, val], i) => {

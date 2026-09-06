@@ -343,6 +343,9 @@ alter table customer_credits add column if not exists invoice_id uuid references
 
 create index if not exists idx_invoices_appointment on invoices(appointment_id);
 
+-- Idioma de la interfaz para este negocio: 'es' | 'en' | 'fr'
+alter table businesses add column if not exists language text default 'es';
+
 -- ============================================================
 -- FIN DEL SCRIPT
 -- Recuerda: en el HTML, reemplaza SUPABASE_URL y SUPABASE_ANON_KEY
