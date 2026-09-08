@@ -901,7 +901,7 @@
         'cust.payment_error': 'Error al registrar abono: {{msg}}', 'cust.payment_success': 'Abono registrado correctamente.',
         'credit.status_pendiente': 'PENDIENTE', 'credit.status_parcial': 'PARCIAL', 'credit.status_pagado': 'PAGADO',
         'inv.title': 'Facturas', 'inv.emit_title': 'Emitir Factura',
-        'inv.emit_hint': 'Se factura un servicio ya marcado como "completada" en la Agenda.',
+        'inv.emit_hint': 'La factura se genera sola al completar una cita con cliente registrado. Usa esto solo para citas walk-in u otros casos que no se facturaron automáticamente.',
         'inv.appt_label': 'Servicio Completado a Facturar', 'inv.appt_placeholder': '-- Selecciona un servicio completado --',
         'inv.customer_label': 'Cliente (obligatorio)', 'inv.customer_placeholder': '-- Selecciona un cliente --',
         'inv.payment_method_label': 'Método de Pago', 'inv.pm_cash': 'Efectivo', 'inv.pm_transfer': 'Transferencia',
@@ -1019,7 +1019,7 @@
         'cust.payment_error': 'Error recording payment: {{msg}}', 'cust.payment_success': 'Payment recorded successfully.',
         'credit.status_pendiente': 'PENDING', 'credit.status_parcial': 'PARTIAL', 'credit.status_pagado': 'PAID',
         'inv.title': 'Invoices', 'inv.emit_title': 'Issue Invoice',
-        'inv.emit_hint': 'Invoice a service already marked "completed" in the Schedule.',
+        'inv.emit_hint': 'The invoice is generated automatically when a service with a registered customer is completed. Use this only for walk-ins or other cases that were not invoiced automatically.',
         'inv.appt_label': 'Completed Service to Invoice', 'inv.appt_placeholder': '-- Select a completed service --',
         'inv.customer_label': 'Customer (required)', 'inv.customer_placeholder': '-- Select a customer --',
         'inv.payment_method_label': 'Payment Method', 'inv.pm_cash': 'Cash', 'inv.pm_transfer': 'Transfer',
@@ -1137,7 +1137,7 @@
         'cust.payment_error': "Erreur lors de l'enregistrement du paiement : {{msg}}", 'cust.payment_success': 'Paiement enregistré avec succès.',
         'credit.status_pendiente': 'EN ATTENTE', 'credit.status_parcial': 'PARTIEL', 'credit.status_pagado': 'PAYÉ',
         'inv.title': 'Factures', 'inv.emit_title': 'Émettre une Facture',
-        'inv.emit_hint': 'Facturez un service déjà marqué « terminé » dans l\'Agenda.',
+        'inv.emit_hint': 'La facture est générée automatiquement lorsqu\'un service avec un client enregistré est terminé. Utilisez ceci uniquement pour les clients sans rendez-vous ou les cas non facturés automatiquement.',
         'inv.appt_label': 'Service Terminé à Facturer', 'inv.appt_placeholder': '-- Sélectionnez un service terminé --',
         'inv.customer_label': 'Client (obligatoire)', 'inv.customer_placeholder': '-- Sélectionnez un client --',
         'inv.payment_method_label': 'Mode de Paiement', 'inv.pm_cash': 'Espèces', 'inv.pm_transfer': 'Virement',
@@ -2141,9 +2141,20 @@
 
     async function updateAppointmentStatus(id, newStatus, label) {
       if (!confirm(t('appt.confirm_status', { label }))) return;
+      const appt = appointmentsSnapshot.find(a => a.id === id);
       const { error } = await supabase.from('appointments').update({ status: newStatus }).eq('id', id);
       if (error) return alert(t('appt.error_update', { msg: error.message }));
       await logActivity(t('act.appt_status_updated', { status: apptStatusLabel(newStatus) }));
+
+      // Al completar el servicio, la factura se genera automáticamente
+      // (solo si la cita tiene un cliente registrado: el nombre del
+      // cliente es obligatorio en la factura). Si es walk-in sin
+      // cliente, queda el botón manual "Facturar" en la Agenda.
+      if (newStatus === 'completada' && appt?.customer_id) {
+        const { error: invError } = await createInvoiceForAppointment(appt, appt.customer_id, 'Efectivo');
+        if (invError) alert(t('inv.error_generate', { msg: invError.message }));
+      }
+
       await loadAppointments();
     }
 
@@ -2381,54 +2392,64 @@
         if (!customerId) return alert(t('inv.customer_required'));
 
         const paymentMethod = document.getElementById('invoice-payment-method').value;
-        const revenue = appointmentRevenue(appt);
-
-        const taxEnabled = currentBusinessData?.tax_enabled;
-        const taxRate = taxEnabled ? (currentBusinessData.tax_percentage / 100) : 0;
-        let subtotal = revenue;
-        let taxAmount = 0;
-
-        if (taxEnabled) {
-          if (currentBusinessData.tax_included_in_price) {
-            subtotal = revenue / (1 + taxRate);
-            taxAmount = revenue - subtotal;
-          } else {
-            taxAmount = revenue * taxRate;
-          }
-        }
-        const total = subtotal + taxAmount;
-        const invoiceNumber = 'FAC-' + Math.floor(100000 + Math.random() * 900000);
-
-        const { data: invData, error } = await supabase.from('invoices').insert([{
-          business_id: currentBusinessId,
-          appointment_id: appointmentId,
-          customer_id: customerId,
-          invoice_number: invoiceNumber,
-          subtotal: subtotal,
-          tax_amount: taxAmount,
-          total: total
-        }]).select().single();
-
+        const { error } = await createInvoiceForAppointment(appt, customerId, paymentMethod);
         if (error) return alert(t('inv.error_generate', { msg: error.message }));
 
-        if (paymentMethod === 'Crédito') {
-          await supabase.from('customer_credits').insert([{
-            business_id: currentBusinessId,
-            customer_id: customerId,
-            invoice_id: invData.id,
-            amount: total,
-            amount_paid: 0,
-            status: 'pendiente'
-          }]);
-          await loadCredits();
-        }
-
-        await logActivity(t('act.invoice_generated', { number: invoiceNumber }));
-        await generateInvoicePDF(invData);
         document.getElementById('invoice-appointment-select').value = '';
         document.getElementById('invoice-customer-select').value = '';
-        await loadInvoicesList();
       };
+    }
+
+    // Crea la factura de una cita completada, la guarda, registra el crédito
+    // si aplica, y descarga el PDF. La usan tanto el botón manual "Generar
+    // Factura" como la facturación automática al completar una cita.
+    async function createInvoiceForAppointment(appt, customerId, paymentMethod) {
+      const revenue = appointmentRevenue(appt);
+
+      const taxEnabled = currentBusinessData?.tax_enabled;
+      const taxRate = taxEnabled ? (currentBusinessData.tax_percentage / 100) : 0;
+      let subtotal = revenue;
+      let taxAmount = 0;
+
+      if (taxEnabled) {
+        if (currentBusinessData.tax_included_in_price) {
+          subtotal = revenue / (1 + taxRate);
+          taxAmount = revenue - subtotal;
+        } else {
+          taxAmount = revenue * taxRate;
+        }
+      }
+      const total = subtotal + taxAmount;
+      const invoiceNumber = 'FAC-' + Math.floor(100000 + Math.random() * 900000);
+
+      const { data: invData, error } = await supabase.from('invoices').insert([{
+        business_id: currentBusinessId,
+        appointment_id: appt.id,
+        customer_id: customerId,
+        invoice_number: invoiceNumber,
+        subtotal: subtotal,
+        tax_amount: taxAmount,
+        total: total
+      }]).select().single();
+
+      if (error) return { error };
+
+      if (paymentMethod === 'Crédito') {
+        await supabase.from('customer_credits').insert([{
+          business_id: currentBusinessId,
+          customer_id: customerId,
+          invoice_id: invData.id,
+          amount: total,
+          amount_paid: 0,
+          status: 'pendiente'
+        }]);
+        await loadCredits();
+      }
+
+      await logActivity(t('act.invoice_generated', { number: invoiceNumber }));
+      await generateInvoicePDF(invData);
+      await loadInvoicesList();
+      return { data: invData };
     }
 
     function populateInvoiceAppointmentSelect() {
