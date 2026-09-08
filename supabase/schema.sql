@@ -346,6 +346,11 @@ create index if not exists idx_invoices_appointment on invoices(appointment_id);
 -- Idioma de la interfaz para este negocio: 'es' | 'en' | 'fr'
 alter table businesses add column if not exists language text default 'es';
 
+-- Nombre del cliente en la factura. Se guarda siempre, sea un cliente
+-- registrado (customer_id) o un walk-in sin registrar previamente:
+-- el nombre es obligatorio en la factura, pero no exige estar en Clientes.
+alter table invoices add column if not exists customer_name text;
+
 -- ============================================================
 -- FIN DEL SCRIPT
 -- Recuerda: en el HTML, reemplaza SUPABASE_URL y SUPABASE_ANON_KEY
