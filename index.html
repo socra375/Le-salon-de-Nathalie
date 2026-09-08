@@ -242,10 +242,30 @@
     .status-no_show { background: rgba(255, 90, 95, 0.2); color: var(--accent-expense); }
 
     /* CONFIGURACIÓN: pestañas */
-    .tabs-nav { display: flex; gap: 0.5rem; overflow-x: auto; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem; margin-bottom: 1rem; }
-    .tab-btn { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; white-space: nowrap; width: auto; margin: 0; }
-    .tab-btn.active { background: var(--accent-profit); color: #0B1120; font-weight: bold; border-color: var(--accent-profit); }
     .tab-content.hidden { display: none; }
+
+    /* CONFIGURACIÓN: lista estilo iOS */
+    .settings-list { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-subtle); overflow: hidden; margin-bottom: 1rem; }
+    .settings-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.85rem 1rem; border-bottom: 1px solid var(--border-subtle);
+      background: none; width: 100%; text-align: left; margin: 0;
+      color: var(--text-primary); font-size: 0.95rem; border-radius: 0;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row:active { background: rgba(255,255,255,0.04); }
+    .settings-icon {
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; color: #fff;
+    }
+    .settings-row-label { flex: 1; font-weight: 500; }
+    .settings-chevron { color: var(--text-muted); font-size: 1.1rem; }
+    .btn-settings-back {
+      width: auto; margin: 0 0 1rem; padding: 0.4rem 0.6rem 0.4rem 0.3rem;
+      background: transparent; color: var(--accent-profit); font-weight: 600;
+      display: inline-flex; align-items: center; gap: 0.15rem; font-size: 0.95rem;
+    }
 
     /* AGENDA Y SERVICIOS */
     .checklist-box { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem; margin-top: 0.35rem; max-height: 180px; overflow-y: auto; background: #070B14; }
@@ -548,18 +568,51 @@
     <h2>Configuración General</h2>
     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Administra los parámetros de tu salón.</p>
 
-    <div class="tabs-nav">
-      <button class="tab-btn active" data-tab="tab-cfg-business" data-i18n="cfg.tab_business">Datos Negocio</button>
-      <button class="tab-btn" data-tab="tab-cfg-language" data-i18n="cfg.tab_language">Idioma</button>
-      <button class="tab-btn" data-tab="tab-cfg-tax" data-i18n="cfg.tab_tax">Moneda e Impuestos</button>
-      <button class="tab-btn" data-tab="tab-cfg-payments" data-i18n="cfg.tab_payments">Métodos de Pago</button>
-      <button class="tab-btn" data-tab="tab-cfg-customers" data-i18n="cfg.tab_customers">Clientes</button>
-      <button class="tab-btn" data-tab="tab-cfg-services" data-i18n="cfg.tab_services">Servicios</button>
-      <button class="tab-btn" data-tab="tab-cfg-activity" data-i18n="cfg.tab_activity">Registro Actividad</button>
+    <div id="settings-list-view">
+      <div class="settings-list">
+        <button class="settings-row" data-tab="tab-cfg-business">
+          <span class="settings-icon" style="background:#64D2FF">🏢</span>
+          <span class="settings-row-label" data-i18n="cfg.tab_business">Datos Negocio</span>
+          <span class="settings-chevron">›</span>
+        </button>
+        <button class="settings-row" data-tab="tab-cfg-language">
+          <span class="settings-icon" style="background:#0A84FF">🌐</span>
+          <span class="settings-row-label" data-i18n="cfg.tab_language">Idioma</span>
+          <span class="settings-chevron">›</span>
+        </button>
+        <button class="settings-row" data-tab="tab-cfg-tax">
+          <span class="settings-icon" style="background:#30D158">💵</span>
+          <span class="settings-row-label" data-i18n="cfg.tab_tax">Moneda e Impuestos</span>
+          <span class="settings-chevron">›</span>
+        </button>
+        <button class="settings-row" data-tab="tab-cfg-payments">
+          <span class="settings-icon" style="background:#BF5AF2">💳</span>
+          <span class="settings-row-label" data-i18n="cfg.tab_payments">Métodos de Pago</span>
+          <span class="settings-chevron">›</span>
+        </button>
+        <button class="settings-row" data-tab="tab-cfg-customers">
+          <span class="settings-icon" style="background:#FF9F0A">👤</span>
+          <span class="settings-row-label" data-i18n="cfg.tab_customers">Clientes</span>
+          <span class="settings-chevron">›</span>
+        </button>
+        <button class="settings-row" data-tab="tab-cfg-services">
+          <span class="settings-icon" style="background:#FF375F">✂️</span>
+          <span class="settings-row-label" data-i18n="cfg.tab_services">Servicios</span>
+          <span class="settings-chevron">›</span>
+        </button>
+        <button class="settings-row" data-tab="tab-cfg-activity">
+          <span class="settings-icon" style="background:#8E8E93">📋</span>
+          <span class="settings-row-label" data-i18n="cfg.tab_activity">Registro Actividad</span>
+          <span class="settings-chevron">›</span>
+        </button>
+      </div>
     </div>
 
+    <div id="settings-detail-view" class="hidden">
+      <button id="btn-settings-back" class="btn-settings-back">‹ <span data-i18n="cfg.back">Configuración</span></button>
+
     <!-- Datos del Negocio -->
-    <div id="tab-cfg-business" class="tab-content card">
+    <div id="tab-cfg-business" class="tab-content card hidden">
       <form id="form-cfg-business">
         <label data-i18n="cfg.business_name_label">Nombre Comercial</label>
         <input type="text" id="cfg-name" required>
@@ -719,6 +772,7 @@
         </table>
       </div>
     </div>
+    </div>
   </section>
 
   <!-- MODALES AUXILIARES -->
@@ -868,7 +922,7 @@
         'emp.th_name': 'Nombre', 'emp.th_position': 'Cargo', 'emp.th_role': 'Rol Permisos', 'emp.th_added': 'Agregado',
         'emp.role_employee': 'Empleado', 'emp.position_placeholder': 'Ej: Estilista',
         'emp.error_generate_code': 'Error generando código: {{msg}}', 'emp.no_name': 'Sin nombre',
-        'cfg.title': 'Configuración General', 'cfg.subtitle': 'Administra los parámetros de tu salón.',
+        'cfg.title': 'Configuración General', 'cfg.subtitle': 'Administra los parámetros de tu salón.', 'cfg.back': 'Configuración',
         'cfg.tab_business': 'Datos Negocio', 'cfg.tab_language': 'Idioma', 'cfg.tab_tax': 'Moneda e Impuestos',
         'cfg.tab_payments': 'Métodos de Pago', 'cfg.tab_customers': 'Clientes', 'cfg.tab_services': 'Servicios', 'cfg.tab_activity': 'Registro Actividad',
         'cfg.business_name_label': 'Nombre Comercial', 'cfg.legal_name_label': 'Nombre Legal / Razón Social',
@@ -986,7 +1040,7 @@
         'emp.th_name': 'Name', 'emp.th_position': 'Position', 'emp.th_role': 'Permission Role', 'emp.th_added': 'Added',
         'emp.role_employee': 'Employee', 'emp.position_placeholder': 'e.g. Stylist',
         'emp.error_generate_code': 'Error generating code: {{msg}}', 'emp.no_name': 'No name',
-        'cfg.title': 'General Settings', 'cfg.subtitle': "Manage your salon's settings.",
+        'cfg.title': 'General Settings', 'cfg.subtitle': "Manage your salon's settings.", 'cfg.back': 'Settings',
         'cfg.tab_business': 'Business Info', 'cfg.tab_language': 'Language', 'cfg.tab_tax': 'Currency & Taxes',
         'cfg.tab_payments': 'Payment Methods', 'cfg.tab_customers': 'Customers', 'cfg.tab_services': 'Services', 'cfg.tab_activity': 'Activity Log',
         'cfg.business_name_label': 'Business Name', 'cfg.legal_name_label': 'Legal Name / Business Entity',
@@ -1104,7 +1158,7 @@
         'emp.th_name': 'Nom', 'emp.th_position': 'Poste', 'emp.th_role': 'Rôle des Permissions', 'emp.th_added': 'Ajouté',
         'emp.role_employee': 'Employé', 'emp.position_placeholder': 'Ex : Coiffeur/euse',
         'emp.error_generate_code': "Erreur lors de la génération du code : {{msg}}", 'emp.no_name': 'Sans nom',
-        'cfg.title': 'Paramètres Généraux', 'cfg.subtitle': 'Gérez les paramètres de votre salon.',
+        'cfg.title': 'Paramètres Généraux', 'cfg.subtitle': 'Gérez les paramètres de votre salon.', 'cfg.back': 'Paramètres',
         'cfg.tab_business': 'Infos Entreprise', 'cfg.tab_language': 'Langue', 'cfg.tab_tax': 'Devise et Taxes',
         'cfg.tab_payments': 'Modes de Paiement', 'cfg.tab_customers': 'Clients', 'cfg.tab_services': 'Services', 'cfg.tab_activity': "Journal d'Activité",
         'cfg.business_name_label': 'Nom Commercial', 'cfg.legal_name_label': 'Raison Sociale',
@@ -1251,18 +1305,29 @@
       modules.forEach(m => m.classList.add('hidden'));
       navButtons.forEach(b => b.classList.remove('active'));
       document.getElementById('sec-settings').classList.remove('hidden');
+      showSettingsList();
       loadSettingsIntoForm();
     };
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    // Configuración estilo iOS: lista de opciones -> al tocar una, se abre
+    // su detalle (con botón "‹ Configuración" para volver a la lista).
+    function showSettingsList() {
+      document.getElementById('settings-detail-view').classList.add('hidden');
+      document.getElementById('settings-list-view').classList.remove('hidden');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    }
+
+    document.querySelectorAll('.settings-row').forEach(row => {
+      row.addEventListener('click', () => {
+        document.getElementById('settings-list-view').classList.add('hidden');
+        document.getElementById('settings-detail-view').classList.remove('hidden');
         document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.remove('hidden');
-        if (btn.dataset.tab === 'tab-cfg-activity') loadActivityLog();
+        document.getElementById(row.dataset.tab).classList.remove('hidden');
+        if (row.dataset.tab === 'tab-cfg-activity') loadActivityLog();
       });
     });
+
+    document.getElementById('btn-settings-back').addEventListener('click', showSettingsList);
 
     // Toggle de detalle de impuesto
     document.getElementById('cfg-tax-enabled').addEventListener('change', (e) => {
