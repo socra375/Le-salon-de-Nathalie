@@ -618,10 +618,6 @@
       <form id="form-cfg-business">
         <label data-i18n="cfg.business_name_label">Nombre Comercial</label>
         <input type="text" id="cfg-name" required>
-        <label data-i18n="cfg.legal_name_label">Nombre Legal / Razón Social</label>
-        <input type="text" id="cfg-legal-name" placeholder="Ej: Salón Nathalie SRL">
-        <label data-i18n="cfg.tax_id_label">RNC / Documento Fiscal</label>
-        <input type="text" id="cfg-tax-id" placeholder="Ej: 130-XXXXX-X">
         <label data-i18n="cfg.phone_label">Teléfono</label>
         <input type="tel" id="cfg-phone" placeholder="Ej: 809-555-0000">
         <label data-i18n="cfg.address_label">Dirección</label>
@@ -923,8 +919,7 @@
         'cfg.tab_account': 'Mi Cuenta',
         'cfg.tab_business': 'Datos Negocio', 'cfg.tab_language': 'Idioma', 'cfg.tab_tax': 'Moneda e Impuestos',
         'cfg.tab_payments': 'Métodos de Pago', 'cfg.tab_customers': 'Clientes', 'cfg.tab_services': 'Servicios', 'cfg.tab_activity': 'Registro Actividad',
-        'cfg.business_name_label': 'Nombre Comercial', 'cfg.legal_name_label': 'Nombre Legal / Razón Social',
-        'cfg.tax_id_label': 'RNC / Documento Fiscal', 'cfg.phone_label': 'Teléfono', 'cfg.address_label': 'Dirección',
+        'cfg.business_name_label': 'Nombre Comercial', 'cfg.phone_label': 'Teléfono', 'cfg.address_label': 'Dirección',
         'cfg.website_label': 'Sitio Web', 'cfg.logo_label': 'Logotipo del Salón', 'cfg.save_business': 'Guardar Datos del Negocio',
         'cfg.language_label': 'Idioma de la interfaz', 'cfg.save_language': 'Guardar Idioma', 'cfg.language_saved': 'Idioma guardado.',
         'cfg.currency_label': 'Símbolo de Moneda', 'cfg.tax_enabled_label': '¿Tu negocio aplica impuestos?',
@@ -1036,8 +1031,7 @@
         'cfg.tab_account': 'My Account',
         'cfg.tab_business': 'Business Info', 'cfg.tab_language': 'Language', 'cfg.tab_tax': 'Currency & Taxes',
         'cfg.tab_payments': 'Payment Methods', 'cfg.tab_customers': 'Customers', 'cfg.tab_services': 'Services', 'cfg.tab_activity': 'Activity Log',
-        'cfg.business_name_label': 'Business Name', 'cfg.legal_name_label': 'Legal Name / Business Entity',
-        'cfg.tax_id_label': 'Tax ID', 'cfg.phone_label': 'Phone', 'cfg.address_label': 'Address',
+        'cfg.business_name_label': 'Business Name', 'cfg.phone_label': 'Phone', 'cfg.address_label': 'Address',
         'cfg.website_label': 'Website', 'cfg.logo_label': 'Salon Logo', 'cfg.save_business': 'Save Business Info',
         'cfg.language_label': 'Interface Language', 'cfg.save_language': 'Save Language', 'cfg.language_saved': 'Language saved.',
         'cfg.currency_label': 'Currency Symbol', 'cfg.tax_enabled_label': 'Does your business charge tax?',
@@ -1149,8 +1143,7 @@
         'cfg.tab_account': 'Mon Compte',
         'cfg.tab_business': 'Infos Entreprise', 'cfg.tab_language': 'Langue', 'cfg.tab_tax': 'Devise et Taxes',
         'cfg.tab_payments': 'Modes de Paiement', 'cfg.tab_customers': 'Clients', 'cfg.tab_services': 'Services', 'cfg.tab_activity': "Journal d'Activité",
-        'cfg.business_name_label': 'Nom Commercial', 'cfg.legal_name_label': 'Raison Sociale',
-        'cfg.tax_id_label': "N° d'Identification Fiscale", 'cfg.phone_label': 'Téléphone', 'cfg.address_label': 'Adresse',
+        'cfg.business_name_label': 'Nom Commercial', 'cfg.phone_label': 'Téléphone', 'cfg.address_label': 'Adresse',
         'cfg.website_label': 'Site Web', 'cfg.logo_label': 'Logo du Salon', 'cfg.save_business': "Enregistrer les Infos de l'Entreprise",
         'cfg.language_label': "Langue de l'interface", 'cfg.save_language': 'Enregistrer la Langue', 'cfg.language_saved': 'Langue enregistrée.',
         'cfg.currency_label': 'Symbole de Devise', 'cfg.tax_enabled_label': 'Votre entreprise applique-t-elle des taxes ?',
@@ -2287,8 +2280,6 @@
     function loadSettingsIntoForm() {
       const b = currentBusinessData || {};
       document.getElementById('cfg-name').value = b.name || '';
-      document.getElementById('cfg-legal-name').value = b.legal_name || '';
-      document.getElementById('cfg-tax-id').value = b.tax_id || '';
       document.getElementById('cfg-phone').value = b.phone || '';
       document.getElementById('cfg-address').value = b.address || '';
       document.getElementById('cfg-website').value = b.website || '';
@@ -2334,8 +2325,6 @@
 
       const updates = {
         name: document.getElementById('cfg-name').value,
-        legal_name: document.getElementById('cfg-legal-name').value,
-        tax_id: document.getElementById('cfg-tax-id').value,
         phone: document.getElementById('cfg-phone').value,
         address: document.getElementById('cfg-address').value,
         website: document.getElementById('cfg-website').value,
@@ -2623,7 +2612,6 @@
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.text(b.name || "Mi Salón", nameX, y);
-      if (b.legal_name) { y += 5; doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.text(b.legal_name, nameX, y); }
 
       y += 12;
       doc.setDrawColor(0, 0, 0);
