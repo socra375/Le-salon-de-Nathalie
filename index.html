@@ -501,31 +501,7 @@
     <!-- MÓDULO: FACTURAS -->
     <section id="sec-reports" class="view-module hidden">
       <h2 data-i18n="inv.title">Facturas</h2>
-      <div class="card" style="margin-top: 0.5rem;">
-        <h3 data-i18n="inv.emit_title">Emitir Factura</h3>
-        <p style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="inv.emit_hint">Se factura un servicio ya marcado como "completada" en la Agenda.</p>
-
-        <label data-i18n="inv.appt_label">Servicio Completado a Facturar</label>
-        <select id="invoice-appointment-select"></select>
-
-        <label data-i18n="inv.customer_label">Cliente</label>
-        <select id="invoice-customer-select"><option value="" data-i18n="inv.customer_placeholder">-- Walk-in / Sin cliente registrado --</option></select>
-
-        <div id="invoice-walkin-container" class="smooth-collapse expanded">
-          <label data-i18n="appt.walkin_name_label">Nombre del Cliente (Walk-in, opcional)</label>
-          <input type="text" id="invoice-walkin-name" placeholder="Ej: María Pérez">
-        </div>
-
-        <label data-i18n="inv.payment_method_label">Método de Pago</label>
-        <select id="invoice-payment-method">
-          <option value="Efectivo" data-i18n="inv.pm_cash">Efectivo</option>
-          <option value="Transferencia" data-i18n="inv.pm_transfer">Transferencia</option>
-          <option value="Tarjeta" data-i18n="inv.pm_card">Tarjeta</option>
-          <option value="Crédito" data-i18n="inv.pm_credit">Crédito (Cuenta x Cobrar)</option>
-        </select>
-
-        <button id="btn-generate-invoice" class="btn-primary" data-i18n="inv.generate">Generar Factura (PDF)</button>
-      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.25rem 0 1rem;" data-i18n="inv.auto_hint">La factura se genera automáticamente al completar un servicio en la Agenda.</p>
 
       <div class="card table-responsive">
         <h3 data-i18n="inv.history_title">Historial de Facturas</h3>
@@ -683,6 +659,7 @@
           <option value="RD$">RD$ (DOP)</option>
           <option value="€">€ (EUR)</option>
           <option value="MXN$">MXN$ (MXN)</option>
+          <option value="CA$">CA$ (CAD)</option>
         </select>
         <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
           <input type="checkbox" id="cfg-tax-enabled" style="width: auto; margin: 0;"> <span data-i18n="cfg.tax_enabled_label">¿Tu negocio aplica impuestos?</span>
@@ -926,16 +903,9 @@
         'cust.credit_option': 'Crédito {{date}} - Pendiente: {{amount}}', 'cust.invalid_credit': 'Monto o crédito inválido.',
         'cust.payment_error': 'Error al registrar abono: {{msg}}', 'cust.payment_success': 'Abono registrado correctamente.',
         'credit.status_pendiente': 'PENDIENTE', 'credit.status_parcial': 'PARCIAL', 'credit.status_pagado': 'PAGADO',
-        'inv.title': 'Facturas', 'inv.emit_title': 'Emitir Factura',
-        'inv.emit_hint': 'La factura se genera sola al completar cualquier cita, con cliente registrado o walk-in. Usa esto solo si necesitas generarla de nuevo o corregir un caso que no se facturó automáticamente.',
-        'inv.appt_label': 'Servicio Completado a Facturar', 'inv.appt_placeholder': '-- Selecciona un servicio completado --',
-        'inv.customer_label': 'Cliente', 'inv.customer_placeholder': '-- Walk-in / Sin cliente registrado --',
-        'inv.payment_method_label': 'Método de Pago', 'inv.pm_cash': 'Efectivo', 'inv.pm_transfer': 'Transferencia',
-        'inv.pm_card': 'Tarjeta', 'inv.pm_credit': 'Crédito (Cuenta x Cobrar)', 'inv.generate': 'Generar Factura (PDF)',
+        'inv.title': 'Facturas', 'inv.auto_hint': 'La factura se genera automáticamente al completar un servicio en la Agenda.',
         'inv.history_title': 'Historial de Facturas', 'inv.th_number': 'N° Factura', 'inv.th_date': 'Fecha', 'inv.th_total': 'Total', 'inv.th_action': 'Acción',
-        'inv.select_appt': 'Selecciona un servicio completado para facturar.',
-        'inv.customer_required': 'El nombre del cliente es obligatorio: selecciona un cliente registrado o escribe el nombre (walk-in).',
-        'inv.credit_needs_customer': 'El pago a Crédito requiere un cliente registrado (no disponible para walk-in).',
+        'inv.view': 'Ver',
         'inv.error_generate': 'Error al generar factura: {{msg}}', 'inv.walkin': 'Walk-in', 'inv.service_fallback': 'Servicio',
         'pdf.title': 'Factura', 'pdf.subtitle': 'COMPROBANTE DE SERVICIO', 'pdf.invoice_no': 'FACTURA NO.', 'pdf.date': 'FECHA',
         'pdf.client': 'CLIENTE', 'pdf.address': 'DOMICILIO', 'pdf.email': 'E-MAIL', 'pdf.phone': 'TEL.',
@@ -1046,16 +1016,9 @@
         'cust.credit_option': 'Credit {{date}} - Pending: {{amount}}', 'cust.invalid_credit': 'Invalid amount or credit.',
         'cust.payment_error': 'Error recording payment: {{msg}}', 'cust.payment_success': 'Payment recorded successfully.',
         'credit.status_pendiente': 'PENDING', 'credit.status_parcial': 'PARTIAL', 'credit.status_pagado': 'PAID',
-        'inv.title': 'Invoices', 'inv.emit_title': 'Issue Invoice',
-        'inv.emit_hint': 'The invoice is generated automatically when any appointment is completed, with a registered customer or a walk-in. Use this only to re-generate one or fix a case that was not invoiced automatically.',
-        'inv.appt_label': 'Completed Service to Invoice', 'inv.appt_placeholder': '-- Select a completed service --',
-        'inv.customer_label': 'Customer', 'inv.customer_placeholder': '-- Walk-in / No registered customer --',
-        'inv.payment_method_label': 'Payment Method', 'inv.pm_cash': 'Cash', 'inv.pm_transfer': 'Transfer',
-        'inv.pm_card': 'Card', 'inv.pm_credit': 'Credit (Accounts Receivable)', 'inv.generate': 'Generate Invoice (PDF)',
+        'inv.title': 'Invoices', 'inv.auto_hint': 'The invoice is generated automatically when a service is completed in the Agenda.',
         'inv.history_title': 'Invoice History', 'inv.th_number': 'Invoice No.', 'inv.th_date': 'Date', 'inv.th_total': 'Total', 'inv.th_action': 'Action',
-        'inv.select_appt': 'Select a completed service to invoice.',
-        'inv.customer_required': 'The customer name is required: select a registered customer or type a name (walk-in).',
-        'inv.credit_needs_customer': 'Credit payment requires a registered customer (not available for walk-ins).',
+        'inv.view': 'View',
         'inv.error_generate': 'Error generating invoice: {{msg}}', 'inv.walkin': 'Walk-in', 'inv.service_fallback': 'Service',
         'pdf.title': 'Invoice', 'pdf.subtitle': 'SERVICE RECEIPT', 'pdf.invoice_no': 'INVOICE NO.', 'pdf.date': 'DATE',
         'pdf.client': 'CUSTOMER', 'pdf.address': 'ADDRESS', 'pdf.email': 'E-MAIL', 'pdf.phone': 'PHONE',
@@ -1166,16 +1129,9 @@
         'cust.credit_option': 'Crédit {{date}} - En attente : {{amount}}', 'cust.invalid_credit': 'Montant ou crédit invalide.',
         'cust.payment_error': "Erreur lors de l'enregistrement du paiement : {{msg}}", 'cust.payment_success': 'Paiement enregistré avec succès.',
         'credit.status_pendiente': 'EN ATTENTE', 'credit.status_parcial': 'PARTIEL', 'credit.status_pagado': 'PAYÉ',
-        'inv.title': 'Factures', 'inv.emit_title': 'Émettre une Facture',
-        'inv.emit_hint': 'La facture est générée automatiquement à la fin de tout rendez-vous, avec un client enregistré ou sans rendez-vous. Utilisez ceci uniquement pour la régénérer ou corriger un cas non facturé automatiquement.',
-        'inv.appt_label': 'Service Terminé à Facturer', 'inv.appt_placeholder': '-- Sélectionnez un service terminé --',
-        'inv.customer_label': 'Client', 'inv.customer_placeholder': '-- Sans rendez-vous / Client non enregistré --',
-        'inv.payment_method_label': 'Mode de Paiement', 'inv.pm_cash': 'Espèces', 'inv.pm_transfer': 'Virement',
-        'inv.pm_card': 'Carte', 'inv.pm_credit': 'Crédit (Compte Client)', 'inv.generate': 'Générer la Facture (PDF)',
+        'inv.title': 'Factures', 'inv.auto_hint': 'La facture est générée automatiquement lorsqu\'un service est terminé dans l\'Agenda.',
         'inv.history_title': 'Historique des Factures', 'inv.th_number': 'N° Facture', 'inv.th_date': 'Date', 'inv.th_total': 'Total', 'inv.th_action': 'Action',
-        'inv.select_appt': 'Sélectionnez un service terminé à facturer.',
-        'inv.customer_required': 'Le nom du client est obligatoire : sélectionnez un client enregistré ou saisissez un nom (sans rendez-vous).',
-        'inv.credit_needs_customer': "Le paiement à crédit nécessite un client enregistré (non disponible pour les clients sans rendez-vous).",
+        'inv.view': 'Voir',
         'inv.error_generate': 'Erreur lors de la génération de la facture : {{msg}}', 'inv.walkin': 'Sans rendez-vous', 'inv.service_fallback': 'Service',
         'pdf.title': 'Facture', 'pdf.subtitle': 'REÇU DE SERVICE', 'pdf.invoice_no': 'FACTURE N°', 'pdf.date': 'DATE',
         'pdf.client': 'CLIENT', 'pdf.address': 'ADRESSE', 'pdf.email': 'E-MAIL', 'pdf.phone': 'TÉL.',
@@ -1241,8 +1197,6 @@
       renderServicesTable();
       renderAppointmentsForSelectedDate();
       renderTodayAppointmentsWidget();
-      populateInvoiceAppointmentSelect();
-      populateInvoiceCustomerSelect();
       loadEmployeesList();
       if (!document.getElementById('tab-cfg-activity').classList.contains('hidden')) loadActivityLog();
     }
@@ -1577,7 +1531,6 @@
         initEmployeeManagement();
         initServices();
         initAppointments();
-        initInvoices();
         applyLogoToHeader();
         loadAccountInfo();
         modulesInitialized = true;
@@ -1632,7 +1585,6 @@
         if (data) {
           customersSnapshot = data;
           populateApptCustomerSelect();
-          populateInvoiceCustomerSelect();
           await loadCredits();
         }
       };
@@ -2139,7 +2091,6 @@
       renderAppointmentsForSelectedDate();
       renderTodayAppointmentsWidget();
       calculateFinancialDashboard();
-      populateInvoiceAppointmentSelect();
     }
 
     function appointmentRevenue(appt) {
@@ -2201,19 +2152,17 @@
         const btn = document.createElement('button');
         btn.textContent = t('appt.btn_invoice');
         btn.className = 'btn-small btn-agenda';
-        btn.onclick = () => goToInvoiceForAppointment(appt.id);
+        btn.onclick = () => invoiceAppointmentManually(appt);
         cell.appendChild(btn);
       }
     }
 
-    function goToInvoiceForAppointment(appointmentId) {
-      modules.forEach(m => m.classList.add('hidden'));
-      navButtons.forEach(b => b.classList.remove('active'));
-      document.getElementById('sec-reports').classList.remove('hidden');
-      document.querySelector('[data-target="sec-reports"]')?.classList.add('active');
-      const apptSelect = document.getElementById('invoice-appointment-select');
-      apptSelect.value = appointmentId;
-      apptSelect.dispatchEvent(new Event('change'));
+    // Reintenta la facturación de una cita completada que, por algún motivo,
+    // no se facturó automáticamente (usa el mismo flujo que la auto-factura).
+    async function invoiceAppointmentManually(appt) {
+      const { error } = await createInvoiceForAppointment(appt, appt.customer_id || null, getAppointmentClientName(appt), 'Efectivo');
+      if (error) return alert(t('inv.error_generate', { msg: error.message }));
+      await loadAppointments();
     }
 
     async function updateAppointmentStatus(id, newStatus, label) {
@@ -2449,57 +2398,6 @@
     // -------------------------------------------------------------
     // 10d. MÓDULO DE FACTURAS
     // -------------------------------------------------------------
-    function initInvoices() {
-      populateInvoiceAppointmentSelect();
-      populateInvoiceCustomerSelect();
-
-      const updateWalkinVisibility = () => {
-        const select = document.getElementById('invoice-customer-select');
-        document.getElementById('invoice-walkin-container').classList.toggle('expanded', select.value === '');
-      };
-
-      document.getElementById('invoice-appointment-select').addEventListener('change', (e) => {
-        const appt = appointmentsSnapshot.find(a => a.id === e.target.value);
-        document.getElementById('invoice-customer-select').value = appt?.customer_id || '';
-        document.getElementById('invoice-walkin-name').value = (appt && !appt.customer_id) ? getAppointmentWalkinNameOnly(appt) : '';
-        updateWalkinVisibility();
-      });
-
-      document.getElementById('invoice-customer-select').addEventListener('change', updateWalkinVisibility);
-
-      document.getElementById('btn-generate-invoice').onclick = async () => {
-        const appointmentId = document.getElementById('invoice-appointment-select').value;
-        const appt = appointmentsSnapshot.find(a => a.id === appointmentId);
-        if (!appt) return alert(t('inv.select_appt'));
-
-        const customerId = document.getElementById('invoice-customer-select').value || null;
-        const registeredCustomer = customerId ? customersSnapshot.find(c => c.id === customerId) : null;
-        const walkinName = document.getElementById('invoice-walkin-name').value.trim();
-        const customerName = registeredCustomer ? registeredCustomer.name : walkinName;
-        if (!customerName) return alert(t('inv.customer_required'));
-
-        const paymentMethod = document.getElementById('invoice-payment-method').value;
-        if (paymentMethod === 'Crédito' && !customerId) return alert(t('inv.credit_needs_customer'));
-
-        const { error } = await createInvoiceForAppointment(appt, customerId, customerName, paymentMethod);
-        if (error) return alert(t('inv.error_generate', { msg: error.message }));
-
-        document.getElementById('invoice-appointment-select').value = '';
-        document.getElementById('invoice-customer-select').value = '';
-        document.getElementById('invoice-walkin-name').value = '';
-        updateWalkinVisibility();
-      };
-    }
-
-    // Como getAppointmentClientName pero sin el texto de respaldo "Walk-in",
-    // para prellenar el campo de nombre editable del formulario de Facturas.
-    function getAppointmentWalkinNameOnly(appt) {
-      if (appt.notes && appt.notes.startsWith(WALKIN_NOTE_PREFIX)) {
-        return appt.notes.split('|')[0].replace(WALKIN_NOTE_PREFIX, '').trim();
-      }
-      return '';
-    }
-
     // Crea la factura de una cita completada, la guarda, registra el crédito
     // si aplica, y descarga el PDF. La usan tanto el botón manual "Generar
     // Factura" como la facturación automática al completar una cita.
@@ -2555,40 +2453,9 @@
       return { data: invData };
     }
 
-    function populateInvoiceAppointmentSelect() {
-      const select = document.getElementById('invoice-appointment-select');
-      if (!select) return;
-      const currentVal = select.value;
-      select.innerHTML = `<option value="">${t('inv.appt_placeholder')}</option>`;
-      appointmentsSnapshot
-        .filter(a => a.status === 'completada' && !invoicedAppointmentIds.has(a.id))
-        .forEach(a => {
-          const svc = servicesSnapshot.find(s => s.id === a.service_id);
-          const opt = document.createElement('option');
-          opt.value = a.id;
-          opt.textContent = `${fmtDateTime(a.start_at)} - ${svc ? svc.name : t('inv.service_fallback')} (${getAppointmentClientName(a)})`;
-          select.appendChild(opt);
-        });
-      select.value = currentVal;
-    }
-
-    function populateInvoiceCustomerSelect() {
-      const select = document.getElementById('invoice-customer-select');
-      if (!select) return;
-      const currentVal = select.value;
-      select.innerHTML = `<option value="">${t('inv.customer_placeholder')}</option>`;
-      customersSnapshot.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id; opt.textContent = c.name;
-        select.appendChild(opt);
-      });
-      select.value = currentVal;
-    }
-
     async function loadInvoicesList() {
       const { data } = await supabase.from('invoices').select('*').eq('business_id', currentBusinessId).order('created_at', { ascending: false });
       invoicedAppointmentIds = new Set((data || []).filter(inv => inv.appointment_id).map(inv => inv.appointment_id));
-      populateInvoiceAppointmentSelect();
       renderAppointmentsForSelectedDate();
 
       const tbody = document.getElementById('invoices-table-body');
@@ -2601,7 +2468,7 @@
             <td>${inv.invoice_number}</td>
             <td>${fmtDate(inv.created_at)}</td>
             <td class="font-numeric">$${parseFloat(inv.total).toFixed(2)}</td>
-            <td><button class="btn-re-pdf" data-id="${inv.id}" style="padding:0.2rem 0.5rem; margin:0; font-size:0.8rem;">PDF</button></td>
+            <td><button class="btn-re-pdf" data-id="${inv.id}" style="padding:0.2rem 0.5rem; margin:0; font-size:0.8rem;">${t('inv.view')}</button></td>
           `;
           tbody.appendChild(tr);
         });
@@ -2778,7 +2645,10 @@
         doc.text(String(val), fx, y + 5);
       });
 
-      doc.save(`${invoice.invoice_number}.pdf`);
+      // Se abre para verla en el navegador (no se fuerza la descarga); desde
+      // ahí el usuario puede descargarla si lo desea con el visor del navegador.
+      const blobUrl = doc.output('bloburl');
+      window.open(blobUrl, '_blank');
     }
 
     document.getElementById('btn-logout').onclick = () => supabase.auth.signOut();
