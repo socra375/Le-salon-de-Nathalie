@@ -313,6 +313,7 @@
       </div>
     </div>
   </div>
+  <button id="btn-theme-toggle" style="background: none; border: none; padding: 0; margin: 0; width: auto; cursor: pointer; font-size: 1.2rem; line-height: 1; color: var(--text-muted);" title="Cambiar tono claro/oscuro">🌙</button>
 </header>
 
   <main class="main-content">
@@ -675,13 +676,8 @@
 
     <!-- Personalización -->
     <div id="tab-cfg-appearance" class="tab-content card hidden">
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;" data-i18n="cfg.theme_hint">El tono claro/oscuro se cambia con el botón 🌙/☀️ en la parte superior.</p>
       <form id="form-cfg-appearance">
-        <label data-i18n="cfg.theme_label">Tono de la Interfaz</label>
-        <select id="cfg-theme">
-          <option value="dark" data-i18n="cfg.theme_dark">Oscuro</option>
-          <option value="light" data-i18n="cfg.theme_light">Claro</option>
-        </select>
-
         <label data-i18n="cfg.background_label">Fondo Personalizado</label>
         <div id="cfg-background-preview-wrap" class="hidden" style="margin-top: 0.5rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle);">
           <img id="cfg-background-preview" src="" alt="" style="width: 100%; max-height: 140px; object-fit: cover; display: block;">
@@ -894,7 +890,7 @@
         'pwd.label': 'Nueva Contraseña', 'pwd.save': 'Guardar Contraseña',
         'pwd.min_length': 'La contraseña debe tener al menos 6 caracteres.', 'pwd.save_error': 'Error al guardar contraseña: {{msg}}',
         'pwd.saved': '¡Listo! Ya puedes iniciar sesión con tu correo y esta contraseña.', 'pwd.forced_error': 'Error guardando contraseña: {{msg}}',
-        'common.cancel': 'Cancelar', 'common.system': 'Sistema', 'common.edit': 'Editar',
+        'common.cancel': 'Cancelar', 'common.system': 'Sistema', 'common.edit': 'Editar', 'common.delete': 'Eliminar',
         'nav.dashboard': 'Dashboard', 'nav.agenda': 'Agenda', 'nav.invoices': 'Facturas', 'nav.employees': 'Empleados',
         'dash.period_today': 'Hoy', 'dash.period_week': 'Esta Semana', 'dash.period_month': 'Este Mes',
         'dash.appts_today_title': 'Citas de Hoy', 'dash.no_appts_today': 'No hay citas programadas para hoy.',
@@ -930,6 +926,9 @@
         'svc.th_service': 'Servicio', 'svc.th_category': 'Categoría', 'svc.th_duration': 'Duración', 'svc.th_price': 'Precio',
         'svc.th_status': 'Estado', 'svc.th_action': 'Acción', 'svc.status_active': 'Activo', 'svc.status_inactive': 'Inactivo',
         'svc.error_save': 'Error al guardar el servicio: {{msg}}',
+        'svc.confirm_delete': '¿Eliminar el servicio "{{name}}"? Esta acción no se puede deshacer.',
+        'svc.delete_blocked': 'No se puede eliminar "{{name}}" porque tiene citas o facturas asociadas. Puedes desactivarlo en su lugar editándolo.',
+        'svc.error_delete': 'Error al eliminar el servicio: {{msg}}',
         'cust.form_title': 'Registrar Nuevo Cliente', 'cust.name_label': 'Nombre del Cliente', 'cust.phone_label': 'Teléfono',
         'cust.address_label': 'Domicilio (opcional)', 'cust.address_placeholder': 'Para la factura', 'cust.email_label': 'E-mail (opcional)',
         'cust.save': 'Guardar Cliente', 'cust.th_name': 'Nombre', 'cust.th_phone': 'Teléfono', 'cust.th_balance': 'Saldo Pendiente', 'cust.th_action': 'Acción',
@@ -969,7 +968,7 @@
         'cfg.business_name_label': 'Nombre Comercial', 'cfg.phone_label': 'Teléfono', 'cfg.address_label': 'Dirección',
         'cfg.website_label': 'Sitio Web', 'cfg.logo_label': 'Logotipo del Salón', 'cfg.save_business': 'Guardar Datos del Negocio',
         'cfg.language_label': 'Idioma de la interfaz', 'cfg.save_language': 'Guardar Idioma', 'cfg.language_saved': 'Idioma guardado.',
-        'cfg.theme_label': 'Tono de la Interfaz', 'cfg.theme_dark': 'Oscuro', 'cfg.theme_light': 'Claro',
+        'cfg.theme_hint': 'El tono claro/oscuro se cambia con el botón 🌙/☀️ en la parte superior.',
         'cfg.background_label': 'Fondo Personalizado', 'cfg.background_clear': 'Quitar Fondo',
         'cfg.save_appearance': 'Guardar Personalización', 'cfg.appearance_saved': 'Personalización guardada.',
         'cfg.background_upload_error': 'Error subiendo el fondo: {{msg}}',
@@ -983,7 +982,7 @@
         'cfg.tax_saved': 'Configuración fiscal guardada.', 'cfg.payments_saved': 'Métodos de pago guardados.',
         'cfg.logo_upload_error': 'Error subiendo el logo: {{msg}}',
         'act.invite_generated': 'Generó un código de invitación para empleado', 'act.role_updated': 'Actualizó el cargo de un empleado a "{{title}}"',
-        'act.service_created': 'Creó el servicio "{{name}}"', 'act.service_edited': 'Editó el servicio "{{name}}"',
+        'act.service_created': 'Creó el servicio "{{name}}"', 'act.service_edited': 'Editó el servicio "{{name}}"', 'act.service_deleted': 'Eliminó el servicio "{{name}}"',
         'act.appt_created': 'Creó una cita de "{{service}}" para el {{when}}', 'act.appt_status_updated': 'Actualizó una cita a estado "{{status}}"',
         'act.business_updated': 'Actualizó los datos del negocio', 'act.appearance_updated': 'Actualizó la personalización (tono/fondo)', 'act.tax_updated': 'Actualizó moneda e impuestos',
         'act.payments_updated': 'Actualizó métodos de pago', 'act.invoice_generated': 'Generó la factura {{number}}'
@@ -1010,7 +1009,7 @@
         'pwd.label': 'New Password', 'pwd.save': 'Save Password',
         'pwd.min_length': 'The password must be at least 6 characters long.', 'pwd.save_error': 'Error saving password: {{msg}}',
         'pwd.saved': 'Done! You can now log in with your email and this password.', 'pwd.forced_error': 'Error saving password: {{msg}}',
-        'common.cancel': 'Cancel', 'common.system': 'System', 'common.edit': 'Edit',
+        'common.cancel': 'Cancel', 'common.system': 'System', 'common.edit': 'Edit', 'common.delete': 'Delete',
         'nav.dashboard': 'Dashboard', 'nav.agenda': 'Schedule', 'nav.invoices': 'Invoices', 'nav.employees': 'Employees',
         'dash.period_today': 'Today', 'dash.period_week': 'This Week', 'dash.period_month': 'This Month',
         'dash.appts_today_title': "Today's Appointments", 'dash.no_appts_today': 'No appointments scheduled for today.',
@@ -1046,6 +1045,9 @@
         'svc.th_service': 'Service', 'svc.th_category': 'Category', 'svc.th_duration': 'Duration', 'svc.th_price': 'Price',
         'svc.th_status': 'Status', 'svc.th_action': 'Action', 'svc.status_active': 'Active', 'svc.status_inactive': 'Inactive',
         'svc.error_save': 'Error saving service: {{msg}}',
+        'svc.confirm_delete': 'Delete the service "{{name}}"? This action cannot be undone.',
+        'svc.delete_blocked': '"{{name}}" can\'t be deleted because it has associated appointments or invoices. You can deactivate it instead by editing it.',
+        'svc.error_delete': 'Error deleting service: {{msg}}',
         'cust.form_title': 'Register New Customer', 'cust.name_label': 'Customer Name', 'cust.phone_label': 'Phone',
         'cust.address_label': 'Address (optional)', 'cust.address_placeholder': 'For the invoice', 'cust.email_label': 'E-mail (optional)',
         'cust.save': 'Save Customer', 'cust.th_name': 'Name', 'cust.th_phone': 'Phone', 'cust.th_balance': 'Outstanding Balance', 'cust.th_action': 'Action',
@@ -1085,7 +1087,7 @@
         'cfg.business_name_label': 'Business Name', 'cfg.phone_label': 'Phone', 'cfg.address_label': 'Address',
         'cfg.website_label': 'Website', 'cfg.logo_label': 'Salon Logo', 'cfg.save_business': 'Save Business Info',
         'cfg.language_label': 'Interface Language', 'cfg.save_language': 'Save Language', 'cfg.language_saved': 'Language saved.',
-        'cfg.theme_label': 'Interface Theme', 'cfg.theme_dark': 'Dark', 'cfg.theme_light': 'Light',
+        'cfg.theme_hint': 'Light/dark tone is switched with the 🌙/☀️ button at the top.',
         'cfg.background_label': 'Custom Background', 'cfg.background_clear': 'Remove Background',
         'cfg.save_appearance': 'Save Personalization', 'cfg.appearance_saved': 'Personalization saved.',
         'cfg.background_upload_error': 'Error uploading background: {{msg}}',
@@ -1099,7 +1101,7 @@
         'cfg.tax_saved': 'Tax settings saved.', 'cfg.payments_saved': 'Payment methods saved.',
         'cfg.logo_upload_error': 'Error uploading logo: {{msg}}',
         'act.invite_generated': 'Generated an employee invitation code', 'act.role_updated': 'Updated an employee\'s position to "{{title}}"',
-        'act.service_created': 'Created the service "{{name}}"', 'act.service_edited': 'Edited the service "{{name}}"',
+        'act.service_created': 'Created the service "{{name}}"', 'act.service_edited': 'Edited the service "{{name}}"', 'act.service_deleted': 'Deleted the service "{{name}}"',
         'act.appt_created': 'Created a "{{service}}" appointment for {{when}}', 'act.appt_status_updated': 'Updated an appointment to status "{{status}}"',
         'act.business_updated': 'Updated business info', 'act.appearance_updated': 'Updated personalization (theme/background)', 'act.tax_updated': 'Updated currency and taxes',
         'act.payments_updated': 'Updated payment methods', 'act.invoice_generated': 'Generated invoice {{number}}'
@@ -1126,7 +1128,7 @@
         'pwd.label': 'Nouveau mot de passe', 'pwd.save': 'Enregistrer le mot de passe',
         'pwd.min_length': 'Le mot de passe doit contenir au moins 6 caractères.', 'pwd.save_error': "Erreur lors de l'enregistrement du mot de passe : {{msg}}",
         'pwd.saved': 'Terminé ! Vous pouvez maintenant vous connecter avec votre e-mail et ce mot de passe.', 'pwd.forced_error': "Erreur lors de l'enregistrement du mot de passe : {{msg}}",
-        'common.cancel': 'Annuler', 'common.system': 'Système', 'common.edit': 'Modifier',
+        'common.cancel': 'Annuler', 'common.system': 'Système', 'common.edit': 'Modifier', 'common.delete': 'Supprimer',
         'nav.dashboard': 'Tableau de bord', 'nav.agenda': 'Agenda', 'nav.invoices': 'Factures', 'nav.employees': 'Employés',
         'dash.period_today': "Aujourd'hui", 'dash.period_week': 'Cette Semaine', 'dash.period_month': 'Ce Mois',
         'dash.appts_today_title': "Rendez-vous d'aujourd'hui", 'dash.no_appts_today': "Aucun rendez-vous prévu aujourd'hui.",
@@ -1162,6 +1164,9 @@
         'svc.th_service': 'Service', 'svc.th_category': 'Catégorie', 'svc.th_duration': 'Durée', 'svc.th_price': 'Prix',
         'svc.th_status': 'Statut', 'svc.th_action': 'Action', 'svc.status_active': 'Actif', 'svc.status_inactive': 'Inactif',
         'svc.error_save': "Erreur lors de l'enregistrement du service : {{msg}}",
+        'svc.confirm_delete': 'Supprimer le service "{{name}}" ? Cette action est irréversible.',
+        'svc.delete_blocked': 'Impossible de supprimer "{{name}}" car il a des rendez-vous ou factures associés. Vous pouvez le désactiver en le modifiant.',
+        'svc.error_delete': 'Erreur lors de la suppression du service : {{msg}}',
         'cust.form_title': 'Enregistrer un Nouveau Client', 'cust.name_label': 'Nom du Client', 'cust.phone_label': 'Téléphone',
         'cust.address_label': 'Adresse (facultatif)', 'cust.address_placeholder': 'Pour la facture', 'cust.email_label': 'E-mail (facultatif)',
         'cust.save': 'Enregistrer le Client', 'cust.th_name': 'Nom', 'cust.th_phone': 'Téléphone', 'cust.th_balance': 'Solde Impayé', 'cust.th_action': 'Action',
@@ -1201,7 +1206,7 @@
         'cfg.business_name_label': 'Nom Commercial', 'cfg.phone_label': 'Téléphone', 'cfg.address_label': 'Adresse',
         'cfg.website_label': 'Site Web', 'cfg.logo_label': 'Logo du Salon', 'cfg.save_business': "Enregistrer les Infos de l'Entreprise",
         'cfg.language_label': "Langue de l'interface", 'cfg.save_language': 'Enregistrer la Langue', 'cfg.language_saved': 'Langue enregistrée.',
-        'cfg.theme_label': "Tonalité de l'Interface", 'cfg.theme_dark': 'Sombre', 'cfg.theme_light': 'Claire',
+        'cfg.theme_hint': "La tonalité claire/sombre se change avec le bouton 🌙/☀️ en haut.",
         'cfg.background_label': 'Fond Personnalisé', 'cfg.background_clear': 'Retirer le Fond',
         'cfg.save_appearance': 'Enregistrer la Personnalisation', 'cfg.appearance_saved': 'Personnalisation enregistrée.',
         'cfg.background_upload_error': 'Erreur lors du téléversement du fond : {{msg}}',
@@ -1215,7 +1220,7 @@
         'cfg.tax_saved': 'Paramètres fiscaux enregistrés.', 'cfg.payments_saved': 'Modes de paiement enregistrés.',
         'cfg.logo_upload_error': 'Erreur lors du téléversement du logo : {{msg}}',
         'act.invite_generated': "A généré un code d'invitation pour un employé", 'act.role_updated': 'A mis à jour le poste d\'un employé à "{{title}}"',
-        'act.service_created': 'A créé le service "{{name}}"', 'act.service_edited': 'A modifié le service "{{name}}"',
+        'act.service_created': 'A créé le service "{{name}}"', 'act.service_edited': 'A modifié le service "{{name}}"', 'act.service_deleted': 'A supprimé le service "{{name}}"',
         'act.appt_created': 'A créé un rendez-vous "{{service}}" pour le {{when}}', 'act.appt_status_updated': 'A mis à jour un rendez-vous au statut "{{status}}"',
         'act.business_updated': "A mis à jour les infos de l'entreprise", 'act.appearance_updated': 'A mis à jour la personnalisation (tonalité/fond)', 'act.tax_updated': 'A mis à jour la devise et les taxes',
         'act.payments_updated': 'A mis à jour les modes de paiement', 'act.invoice_generated': 'A généré la facture {{number}}'
@@ -1601,11 +1606,24 @@
     // toda la web. Se llama al cargar los datos del negocio y al guardar
     // cambios en Configuración > Personalización.
     function applyAppearance() {
-      document.body.classList.toggle('theme-light', currentBusinessData?.theme === 'light');
+      const isLight = currentBusinessData?.theme === 'light';
+      document.body.classList.toggle('theme-light', isLight);
       document.body.style.backgroundImage = currentBusinessData?.background_url
         ? `url("${currentBusinessData.background_url}")`
         : '';
+      const toggleBtn = document.getElementById('btn-theme-toggle');
+      if (toggleBtn) toggleBtn.textContent = isLight ? '☀️' : '🌙';
     }
+
+    // Alterna el tono claro/oscuro del negocio (compartido, igual que el
+    // idioma) desde el botón en el header, sin pasar por Configuración.
+    document.getElementById('btn-theme-toggle').onclick = async () => {
+      const newTheme = currentBusinessData?.theme === 'light' ? 'dark' : 'light';
+      const { error } = await supabase.from('businesses').update({ theme: newTheme, updated_at: new Date() }).eq('id', currentBusinessId);
+      if (error) return alert(t('cfg.error_generic', { msg: error.message }));
+      currentBusinessData = { ...currentBusinessData, theme: newTheme };
+      applyAppearance();
+    };
 
     // Muestra el correo y, si el usuario entró con Google, su nombre y
     // foto de perfil en "Mi Cuenta" (fila de Configuración y su detalle).
@@ -1959,6 +1977,24 @@
       });
     }
 
+    // Elimina un servicio. Si tiene citas o facturas asociadas, la base de
+    // datos rechaza el borrado (llave foránea); en ese caso se sugiere
+    // desactivarlo en vez de eliminarlo para no perder el historial.
+    async function deleteService(serviceId) {
+      const svc = servicesSnapshot.find(s => s.id === serviceId);
+      if (!svc) return;
+      if (!confirm(t('svc.confirm_delete', { name: svc.name }))) return;
+
+      const { error } = await supabase.from('services').delete().eq('id', serviceId);
+      if (error) {
+        if (error.code === '23503') return alert(t('svc.delete_blocked', { name: svc.name }));
+        return alert(t('svc.error_delete', { msg: error.message }));
+      }
+
+      await logActivity(t('act.service_deleted', { name: svc.name }));
+      await loadServices();
+    }
+
     async function loadServices() {
       const { data } = await supabase.from('services').select('*').eq('business_id', currentBusinessId);
       const { data: linkData } = await supabase.from('specialist_services').select('*').eq('business_id', currentBusinessId);
@@ -1979,9 +2015,16 @@
           <td>${s.duration_minutes} min</td>
           <td class="font-numeric">$${parseFloat(s.price).toFixed(2)}</td>
           <td><span class="badge-status ${s.active ? 'status-pagado' : 'status-cancelada'}">${s.active ? t('svc.status_active') : t('svc.status_inactive')}</span></td>
-          <td><button class="btn-edit-service btn-small btn-outline" data-id="${s.id}">${t('common.edit')}</button></td>
+          <td>
+            <button class="btn-edit-service btn-small btn-outline" data-id="${s.id}">${t('common.edit')}</button>
+            <button class="btn-delete-service btn-small btn-danger" data-id="${s.id}">${t('common.delete')}</button>
+          </td>
         `;
         tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.btn-delete-service').forEach(btn => {
+        btn.onclick = () => deleteService(btn.dataset.id);
       });
 
       tbody.querySelectorAll('.btn-edit-service').forEach(btn => {
@@ -2374,7 +2417,6 @@
 
       document.getElementById('cfg-language').value = b.language || currentLang;
 
-      document.getElementById('cfg-theme').value = b.theme || 'dark';
       const bgPreview = document.getElementById('cfg-background-preview');
       const bgWrap = document.getElementById('cfg-background-preview-wrap');
       if (b.background_url) {
@@ -2449,7 +2491,6 @@
       }
 
       const updates = {
-        theme: document.getElementById('cfg-theme').value,
         background_url: backgroundUrl,
         updated_at: new Date()
       };
