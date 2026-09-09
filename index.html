@@ -41,8 +41,24 @@
       --text-primary: #E8ECF4;
       --text-muted: #8891A8;
       --border-subtle: #232B42;
+      --input-bg: #070B14;
+      --btn-bg: #1E2942;
+      --avatar-bg: #232B42;
+      --on-accent: #0B1120;
       --font-grotesk: 'Space Grotesk', sans-serif;
       --font-inter: 'Inter', sans-serif;
+    }
+
+    /* Tema claro: se activa agregando la clase "theme-light" al body */
+    body.theme-light {
+      --bg-primary: #F2F4F9;
+      --bg-card: #FFFFFF;
+      --text-primary: #1A2233;
+      --text-muted: #62697C;
+      --border-subtle: #DDE3EF;
+      --input-bg: #F0F2F7;
+      --btn-bg: #E6E9F0;
+      --avatar-bg: #DDE3EF;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-inter); }
@@ -53,6 +69,11 @@
       padding-bottom: 90px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      transition: background-color 0.2s;
     }
 
     .hidden { display: none !important; }
@@ -92,7 +113,7 @@
       margin-top: 0.35rem;
       border-radius: 8px;
       border: 1px solid var(--border-subtle);
-      background-color: #070B14;
+      background-color: var(--input-bg);
       color: var(--text-primary);
       font-size: 0.95rem;
       outline: none;
@@ -105,7 +126,7 @@
     input:focus, select:focus, textarea:focus { border-color: var(--accent-profit); }
 
     button {
-      background-color: #1E2942;
+      background-color: var(--btn-bg);
       color: var(--text-primary);
       font-weight: 600;
       border: none;
@@ -114,7 +135,7 @@
     }
 
     button:active { opacity: 0.85; }
-    button.btn-primary { background-color: var(--accent-profit); color: #0B1120; }
+    button.btn-primary { background-color: var(--accent-profit); color: var(--on-accent); }
     button.btn-danger { background-color: var(--accent-expense); color: #ffffff; }
     button.btn-agenda { background-color: var(--accent-agenda); color: #ffffff; }
     button.btn-outline { background-color: transparent; border: 1px solid var(--border-subtle); color: var(--text-primary); }
@@ -127,7 +148,7 @@
       padding: 0.85rem;
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      background-color: #070B14;
+      background-color: var(--input-bg);
       text-align: center;
       cursor: pointer;
       transition: all 0.25s ease;
@@ -196,8 +217,8 @@
       align-items: center;
     }
     .period-selector { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-    .period-btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; margin: 0; background: #141B2E; border: 1px solid var(--border-subtle); }
-    .period-btn.active { background: var(--accent-profit); color: #0B1120; font-weight: bold; }
+    .period-btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; margin: 0; background: var(--bg-card); border: 1px solid var(--border-subtle); }
+    .period-btn.active { background: var(--accent-profit); color: var(--on-accent); font-weight: bold; }
 
 
     .table-responsive { overflow-x: auto; }
@@ -254,6 +275,7 @@
     }
     .settings-row:last-child { border-bottom: none; }
     .settings-row:active { background: rgba(255,255,255,0.04); }
+    body.theme-light .settings-row:active { background: rgba(0,0,0,0.04); }
     .settings-icon {
       width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
@@ -268,7 +290,7 @@
     }
 
     /* AGENDA Y SERVICIOS */
-    .checklist-box { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem; margin-top: 0.35rem; max-height: 180px; overflow-y: auto; background: #070B14; }
+    .checklist-box { border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem; margin-top: 0.35rem; max-height: 180px; overflow-y: auto; background: var(--input-bg); }
     .checklist-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; }
     .checklist-item input { width: auto; margin: 0; }
     .checklist-item label { margin: 0; color: var(--text-primary); font-size: 0.9rem; }
@@ -317,7 +339,7 @@
 
         <button type="submit" class="btn-primary" data-i18n="auth.submit">Iniciar Sesión / Registrarse</button>
       </form>
-      <button id="btn-google-auth" style="background-color: #1E2942; border: 1px solid var(--border-subtle);" data-i18n="auth.google">Entrar con Google</button>
+      <button id="btn-google-auth" style="background-color: var(--btn-bg); border: 1px solid var(--border-subtle);" data-i18n="auth.google">Entrar con Google</button>
     </section>
 
     <!-- ONBOARDING -->
@@ -520,7 +542,7 @@
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;" data-i18n="emp.invite_hint">Genera un código de acceso único para registrar nuevos estilistas/empleados.</p>
         <button id="btn-generate-invite" class="btn-primary" data-i18n="emp.generate_code">Generar Código de Invitación</button>
 
-        <div id="invite-code-display" class="hidden" style="margin-top: 1rem; padding: 1rem; background: #070B14; border: 1px dashed var(--accent-profit); text-align: center; border-radius: 8px;">
+        <div id="invite-code-display" class="hidden" style="margin-top: 1rem; padding: 1rem; background: var(--input-bg); border: 1px dashed var(--accent-profit); text-align: center; border-radius: 8px;">
           <span style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="emp.code_generated">Código generado:</span>
           <h2 id="lbl-generated-code" style="color: var(--accent-profit); letter-spacing: 2px;"></h2>
           <button id="btn-copy-code" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem;" data-i18n="emp.copy_code">Copiar Código</button>
@@ -565,6 +587,11 @@
           <span class="settings-row-label" data-i18n="cfg.tab_language">Idioma</span>
           <span class="settings-chevron">›</span>
         </button>
+        <button class="settings-row" data-tab="tab-cfg-appearance">
+          <span class="settings-icon" style="background:#FF9F0A">🎨</span>
+          <span class="settings-row-label" data-i18n="cfg.tab_appearance">Personalización</span>
+          <span class="settings-chevron">›</span>
+        </button>
         <button class="settings-row" data-tab="tab-cfg-tax">
           <span class="settings-icon" style="background:#30D158">💵</span>
           <span class="settings-row-label" data-i18n="cfg.tab_tax">Moneda e Impuestos</span>
@@ -599,7 +626,7 @@
     <!-- Mi Cuenta -->
     <div id="tab-cfg-account" class="tab-content card hidden">
       <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
-        <div style="width: 64px; height: 64px; border-radius: 50%; background: #232B42; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; overflow: hidden; flex-shrink: 0;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--avatar-bg); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; overflow: hidden; flex-shrink: 0;">
           <img id="account-avatar" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
           <span id="account-avatar-fallback">👤</span>
         </div>
@@ -609,7 +636,7 @@
         </div>
       </div>
 
-      <button id="btn-set-password" style="background-color: #1E2942; border: 1px solid var(--border-subtle);" data-i18n="header.password_btn">Contraseña</button>
+      <button id="btn-set-password" style="background-color: var(--btn-bg); border: 1px solid var(--border-subtle);" data-i18n="header.password_btn">Contraseña</button>
       <button id="btn-logout" class="btn-danger" data-i18n="header.logout">Salir</button>
     </div>
 
@@ -643,6 +670,26 @@
           <option value="fr">Français</option>
         </select>
         <button type="submit" class="btn-primary" data-i18n="cfg.save_language">Guardar Idioma</button>
+      </form>
+    </div>
+
+    <!-- Personalización -->
+    <div id="tab-cfg-appearance" class="tab-content card hidden">
+      <form id="form-cfg-appearance">
+        <label data-i18n="cfg.theme_label">Tono de la Interfaz</label>
+        <select id="cfg-theme">
+          <option value="dark" data-i18n="cfg.theme_dark">Oscuro</option>
+          <option value="light" data-i18n="cfg.theme_light">Claro</option>
+        </select>
+
+        <label data-i18n="cfg.background_label">Fondo Personalizado</label>
+        <div id="cfg-background-preview-wrap" class="hidden" style="margin-top: 0.5rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle);">
+          <img id="cfg-background-preview" src="" alt="" style="width: 100%; max-height: 140px; object-fit: cover; display: block;">
+        </div>
+        <input type="file" id="cfg-background-file" accept="image/*" style="margin-top: 0.5rem;">
+        <button type="button" id="btn-clear-background" class="btn-outline" data-i18n="cfg.background_clear">Quitar Fondo</button>
+
+        <button type="submit" class="btn-primary" data-i18n="cfg.save_appearance">Guardar Personalización</button>
       </form>
     </div>
 
@@ -917,11 +964,15 @@
         'emp.error_generate_code': 'Error generando código: {{msg}}', 'emp.no_name': 'Sin nombre',
         'cfg.title': 'Configuración General', 'cfg.subtitle': 'Administra los parámetros de tu salón.', 'cfg.back': 'Configuración',
         'cfg.tab_account': 'Mi Cuenta',
-        'cfg.tab_business': 'Datos Negocio', 'cfg.tab_language': 'Idioma', 'cfg.tab_tax': 'Moneda e Impuestos',
+        'cfg.tab_business': 'Datos Negocio', 'cfg.tab_language': 'Idioma', 'cfg.tab_appearance': 'Personalización', 'cfg.tab_tax': 'Moneda e Impuestos',
         'cfg.tab_payments': 'Métodos de Pago', 'cfg.tab_customers': 'Clientes', 'cfg.tab_services': 'Servicios', 'cfg.tab_activity': 'Registro Actividad',
         'cfg.business_name_label': 'Nombre Comercial', 'cfg.phone_label': 'Teléfono', 'cfg.address_label': 'Dirección',
         'cfg.website_label': 'Sitio Web', 'cfg.logo_label': 'Logotipo del Salón', 'cfg.save_business': 'Guardar Datos del Negocio',
         'cfg.language_label': 'Idioma de la interfaz', 'cfg.save_language': 'Guardar Idioma', 'cfg.language_saved': 'Idioma guardado.',
+        'cfg.theme_label': 'Tono de la Interfaz', 'cfg.theme_dark': 'Oscuro', 'cfg.theme_light': 'Claro',
+        'cfg.background_label': 'Fondo Personalizado', 'cfg.background_clear': 'Quitar Fondo',
+        'cfg.save_appearance': 'Guardar Personalización', 'cfg.appearance_saved': 'Personalización guardada.',
+        'cfg.background_upload_error': 'Error subiendo el fondo: {{msg}}',
         'cfg.currency_label': 'Símbolo de Moneda', 'cfg.tax_enabled_label': '¿Tu negocio aplica impuestos?',
         'cfg.tax_pct_label': 'Porcentaje de Impuesto (%)', 'cfg.tax_mode_label': 'Modo del Impuesto',
         'cfg.tax_mode_included': 'Precios ya incluyen impuesto', 'cfg.tax_mode_added': 'Se suma al vender',
@@ -934,7 +985,7 @@
         'act.invite_generated': 'Generó un código de invitación para empleado', 'act.role_updated': 'Actualizó el cargo de un empleado a "{{title}}"',
         'act.service_created': 'Creó el servicio "{{name}}"', 'act.service_edited': 'Editó el servicio "{{name}}"',
         'act.appt_created': 'Creó una cita de "{{service}}" para el {{when}}', 'act.appt_status_updated': 'Actualizó una cita a estado "{{status}}"',
-        'act.business_updated': 'Actualizó los datos del negocio', 'act.tax_updated': 'Actualizó moneda e impuestos',
+        'act.business_updated': 'Actualizó los datos del negocio', 'act.appearance_updated': 'Actualizó la personalización (tono/fondo)', 'act.tax_updated': 'Actualizó moneda e impuestos',
         'act.payments_updated': 'Actualizó métodos de pago', 'act.invoice_generated': 'Generó la factura {{number}}'
       },
       en: {
@@ -1029,11 +1080,15 @@
         'emp.error_generate_code': 'Error generating code: {{msg}}', 'emp.no_name': 'No name',
         'cfg.title': 'General Settings', 'cfg.subtitle': "Manage your salon's settings.", 'cfg.back': 'Settings',
         'cfg.tab_account': 'My Account',
-        'cfg.tab_business': 'Business Info', 'cfg.tab_language': 'Language', 'cfg.tab_tax': 'Currency & Taxes',
+        'cfg.tab_business': 'Business Info', 'cfg.tab_language': 'Language', 'cfg.tab_appearance': 'Personalization', 'cfg.tab_tax': 'Currency & Taxes',
         'cfg.tab_payments': 'Payment Methods', 'cfg.tab_customers': 'Customers', 'cfg.tab_services': 'Services', 'cfg.tab_activity': 'Activity Log',
         'cfg.business_name_label': 'Business Name', 'cfg.phone_label': 'Phone', 'cfg.address_label': 'Address',
         'cfg.website_label': 'Website', 'cfg.logo_label': 'Salon Logo', 'cfg.save_business': 'Save Business Info',
         'cfg.language_label': 'Interface Language', 'cfg.save_language': 'Save Language', 'cfg.language_saved': 'Language saved.',
+        'cfg.theme_label': 'Interface Theme', 'cfg.theme_dark': 'Dark', 'cfg.theme_light': 'Light',
+        'cfg.background_label': 'Custom Background', 'cfg.background_clear': 'Remove Background',
+        'cfg.save_appearance': 'Save Personalization', 'cfg.appearance_saved': 'Personalization saved.',
+        'cfg.background_upload_error': 'Error uploading background: {{msg}}',
         'cfg.currency_label': 'Currency Symbol', 'cfg.tax_enabled_label': 'Does your business charge tax?',
         'cfg.tax_pct_label': 'Tax Percentage (%)', 'cfg.tax_mode_label': 'Tax Mode',
         'cfg.tax_mode_included': 'Prices already include tax', 'cfg.tax_mode_added': 'Added at sale',
@@ -1046,7 +1101,7 @@
         'act.invite_generated': 'Generated an employee invitation code', 'act.role_updated': 'Updated an employee\'s position to "{{title}}"',
         'act.service_created': 'Created the service "{{name}}"', 'act.service_edited': 'Edited the service "{{name}}"',
         'act.appt_created': 'Created a "{{service}}" appointment for {{when}}', 'act.appt_status_updated': 'Updated an appointment to status "{{status}}"',
-        'act.business_updated': 'Updated business info', 'act.tax_updated': 'Updated currency and taxes',
+        'act.business_updated': 'Updated business info', 'act.appearance_updated': 'Updated personalization (theme/background)', 'act.tax_updated': 'Updated currency and taxes',
         'act.payments_updated': 'Updated payment methods', 'act.invoice_generated': 'Generated invoice {{number}}'
       },
       fr: {
@@ -1141,11 +1196,15 @@
         'emp.error_generate_code': "Erreur lors de la génération du code : {{msg}}", 'emp.no_name': 'Sans nom',
         'cfg.title': 'Paramètres Généraux', 'cfg.subtitle': 'Gérez les paramètres de votre salon.', 'cfg.back': 'Paramètres',
         'cfg.tab_account': 'Mon Compte',
-        'cfg.tab_business': 'Infos Entreprise', 'cfg.tab_language': 'Langue', 'cfg.tab_tax': 'Devise et Taxes',
+        'cfg.tab_business': 'Infos Entreprise', 'cfg.tab_language': 'Langue', 'cfg.tab_appearance': 'Personnalisation', 'cfg.tab_tax': 'Devise et Taxes',
         'cfg.tab_payments': 'Modes de Paiement', 'cfg.tab_customers': 'Clients', 'cfg.tab_services': 'Services', 'cfg.tab_activity': "Journal d'Activité",
         'cfg.business_name_label': 'Nom Commercial', 'cfg.phone_label': 'Téléphone', 'cfg.address_label': 'Adresse',
         'cfg.website_label': 'Site Web', 'cfg.logo_label': 'Logo du Salon', 'cfg.save_business': "Enregistrer les Infos de l'Entreprise",
         'cfg.language_label': "Langue de l'interface", 'cfg.save_language': 'Enregistrer la Langue', 'cfg.language_saved': 'Langue enregistrée.',
+        'cfg.theme_label': "Tonalité de l'Interface", 'cfg.theme_dark': 'Sombre', 'cfg.theme_light': 'Claire',
+        'cfg.background_label': 'Fond Personnalisé', 'cfg.background_clear': 'Retirer le Fond',
+        'cfg.save_appearance': 'Enregistrer la Personnalisation', 'cfg.appearance_saved': 'Personnalisation enregistrée.',
+        'cfg.background_upload_error': 'Erreur lors du téléversement du fond : {{msg}}',
         'cfg.currency_label': 'Symbole de Devise', 'cfg.tax_enabled_label': 'Votre entreprise applique-t-elle des taxes ?',
         'cfg.tax_pct_label': 'Pourcentage de Taxe (%)', 'cfg.tax_mode_label': 'Mode de Taxe',
         'cfg.tax_mode_included': 'Les prix incluent déjà la taxe', 'cfg.tax_mode_added': 'Ajoutée à la vente',
@@ -1158,7 +1217,7 @@
         'act.invite_generated': "A généré un code d'invitation pour un employé", 'act.role_updated': 'A mis à jour le poste d\'un employé à "{{title}}"',
         'act.service_created': 'A créé le service "{{name}}"', 'act.service_edited': 'A modifié le service "{{name}}"',
         'act.appt_created': 'A créé un rendez-vous "{{service}}" pour le {{when}}', 'act.appt_status_updated': 'A mis à jour un rendez-vous au statut "{{status}}"',
-        'act.business_updated': "A mis à jour les infos de l'entreprise", 'act.tax_updated': 'A mis à jour la devise et les taxes',
+        'act.business_updated': "A mis à jour les infos de l'entreprise", 'act.appearance_updated': 'A mis à jour la personnalisation (tonalité/fond)', 'act.tax_updated': 'A mis à jour la devise et les taxes',
         'act.payments_updated': 'A mis à jour les modes de paiement', 'act.invoice_generated': 'A généré la facture {{number}}'
       }
     };
@@ -1411,6 +1470,7 @@
 
         currentBusinessData = bData;
         if (currentBusinessData?.language) setLanguage(currentBusinessData.language);
+        applyAppearance();
 
         // Ocultar Pantalla Login
         document.getElementById('auth-screen').classList.add('auth-exit');
@@ -1535,6 +1595,16 @@
         document.getElementById('header-logo-img').src = currentBusinessData.logo_url;
         document.getElementById('cfg-logo-preview').src = currentBusinessData.logo_url;
       }
+    }
+
+    // Aplica el tono (claro/oscuro) y el fondo personalizado del negocio a
+    // toda la web. Se llama al cargar los datos del negocio y al guardar
+    // cambios en Configuración > Personalización.
+    function applyAppearance() {
+      document.body.classList.toggle('theme-light', currentBusinessData?.theme === 'light');
+      document.body.style.backgroundImage = currentBusinessData?.background_url
+        ? `url("${currentBusinessData.background_url}")`
+        : '';
     }
 
     // Muestra el correo y, si el usuario entró con Google, su nombre y
@@ -2303,6 +2373,17 @@
       if (b.logo_url) document.getElementById('cfg-logo-preview').src = b.logo_url;
 
       document.getElementById('cfg-language').value = b.language || currentLang;
+
+      document.getElementById('cfg-theme').value = b.theme || 'dark';
+      const bgPreview = document.getElementById('cfg-background-preview');
+      const bgWrap = document.getElementById('cfg-background-preview-wrap');
+      if (b.background_url) {
+        bgPreview.src = b.background_url;
+        bgWrap.classList.remove('hidden');
+      } else {
+        bgPreview.src = '';
+        bgWrap.classList.add('hidden');
+      }
     }
 
     document.getElementById('form-cfg-business').addEventListener('submit', async (e) => {
@@ -2351,6 +2432,47 @@
       setLanguage(lang);
       alert(t('cfg.language_saved'));
     });
+
+    document.getElementById('form-cfg-appearance').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let backgroundUrl = currentBusinessData?.background_url || null;
+
+      const fileInput = document.getElementById('cfg-background-file');
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${currentBusinessId}/background.${fileExt}`;
+        const { error: uploadErr } = await supabase.storage.from('business-logos').upload(filePath, file, { upsert: true });
+        if (uploadErr) return alert(t('cfg.background_upload_error', { msg: uploadErr.message }));
+        const { data: pub } = supabase.storage.from('business-logos').getPublicUrl(filePath);
+        backgroundUrl = `${pub.publicUrl}?t=${Date.now()}`;
+      }
+
+      const updates = {
+        theme: document.getElementById('cfg-theme').value,
+        background_url: backgroundUrl,
+        updated_at: new Date()
+      };
+
+      const { error } = await supabase.from('businesses').update(updates).eq('id', currentBusinessId);
+      if (error) return alert(t('cfg.error_generic', { msg: error.message }));
+
+      currentBusinessData = { ...currentBusinessData, ...updates };
+      applyAppearance();
+      loadSettingsIntoForm();
+      await logActivity(t('act.appearance_updated'));
+      alert(t('cfg.appearance_saved'));
+    });
+
+    document.getElementById('btn-clear-background').onclick = async () => {
+      document.getElementById('cfg-background-file').value = '';
+      const { error } = await supabase.from('businesses').update({ background_url: null, updated_at: new Date() }).eq('id', currentBusinessId);
+      if (error) return alert(t('cfg.error_generic', { msg: error.message }));
+      currentBusinessData = { ...currentBusinessData, background_url: null };
+      applyAppearance();
+      loadSettingsIntoForm();
+      await logActivity(t('act.appearance_updated'));
+    };
 
     document.getElementById('form-cfg-tax').addEventListener('submit', async (e) => {
       e.preventDefault();

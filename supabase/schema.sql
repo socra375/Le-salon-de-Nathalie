@@ -351,6 +351,11 @@ alter table businesses add column if not exists language text default 'es';
 -- el nombre es obligatorio en la factura, pero no exige estar en Clientes.
 alter table invoices add column if not exists customer_name text;
 
+-- Personalización visual del negocio: tono de la interfaz ('dark' | 'light')
+-- y URL de un fondo personalizado (subido al bucket business-logos).
+alter table businesses add column if not exists theme text default 'dark';
+alter table businesses add column if not exists background_url text;
+
 -- ============================================================
 -- FIN DEL SCRIPT
 -- Recuerda: en el HTML, reemplaza SUPABASE_URL y SUPABASE_ANON_KEY
