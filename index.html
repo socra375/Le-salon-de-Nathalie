@@ -291,10 +291,6 @@
       </div>
     </div>
   </div>
-  <div>
-    <button id="btn-set-password" style="width: auto; padding: 0.35rem 0.8rem; margin: 0 0.25rem 0 0; font-size: 0.85rem; background-color: #1E2942; border: 1px solid var(--border-subtle);" data-i18n="header.password_btn">Contraseña</button>
-    <button id="btn-logout" class="btn-danger" style="width: auto; padding: 0.35rem 0.8rem; margin: 0; font-size: 0.85rem;" data-i18n="header.logout">Salir</button>
-  </div>
 </header>
 
   <main class="main-content">
@@ -575,6 +571,14 @@
 
     <div id="settings-list-view">
       <div class="settings-list">
+        <button class="settings-row" data-tab="tab-cfg-account">
+          <span class="settings-icon" id="account-row-icon" style="background:#8E8E93; overflow:hidden; padding:0;">
+            <img id="account-row-avatar" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
+            <span id="account-row-icon-fallback">👤</span>
+          </span>
+          <span class="settings-row-label" data-i18n="cfg.tab_account">Mi Cuenta</span>
+          <span class="settings-chevron">›</span>
+        </button>
         <button class="settings-row" data-tab="tab-cfg-business">
           <span class="settings-icon" style="background:#64D2FF">🏢</span>
           <span class="settings-row-label" data-i18n="cfg.tab_business">Datos Negocio</span>
@@ -615,6 +619,23 @@
 
     <div id="settings-detail-view" class="hidden">
       <button id="btn-settings-back" class="btn-settings-back">‹ <span data-i18n="cfg.back">Configuración</span></button>
+
+    <!-- Mi Cuenta -->
+    <div id="tab-cfg-account" class="tab-content card hidden">
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: #232B42; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; overflow: hidden; flex-shrink: 0;">
+          <img id="account-avatar" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+          <span id="account-avatar-fallback">👤</span>
+        </div>
+        <div style="min-width: 0;">
+          <div id="account-name" style="font-weight: 600; font-size: 1.05rem; overflow-wrap: anywhere;"></div>
+          <div id="account-email" style="color: var(--text-muted); font-size: 0.9rem; overflow-wrap: anywhere;"></div>
+        </div>
+      </div>
+
+      <button id="btn-set-password" style="background-color: #1E2942; border: 1px solid var(--border-subtle);" data-i18n="header.password_btn">Contraseña</button>
+      <button id="btn-logout" class="btn-danger" data-i18n="header.logout">Salir</button>
+    </div>
 
     <!-- Datos del Negocio -->
     <div id="tab-cfg-business" class="tab-content card hidden">
@@ -929,6 +950,7 @@
         'emp.role_employee': 'Empleado', 'emp.position_placeholder': 'Ej: Estilista',
         'emp.error_generate_code': 'Error generando código: {{msg}}', 'emp.no_name': 'Sin nombre',
         'cfg.title': 'Configuración General', 'cfg.subtitle': 'Administra los parámetros de tu salón.', 'cfg.back': 'Configuración',
+        'cfg.tab_account': 'Mi Cuenta',
         'cfg.tab_business': 'Datos Negocio', 'cfg.tab_language': 'Idioma', 'cfg.tab_tax': 'Moneda e Impuestos',
         'cfg.tab_payments': 'Métodos de Pago', 'cfg.tab_customers': 'Clientes', 'cfg.tab_services': 'Servicios', 'cfg.tab_activity': 'Registro Actividad',
         'cfg.business_name_label': 'Nombre Comercial', 'cfg.legal_name_label': 'Nombre Legal / Razón Social',
@@ -1048,6 +1070,7 @@
         'emp.role_employee': 'Employee', 'emp.position_placeholder': 'e.g. Stylist',
         'emp.error_generate_code': 'Error generating code: {{msg}}', 'emp.no_name': 'No name',
         'cfg.title': 'General Settings', 'cfg.subtitle': "Manage your salon's settings.", 'cfg.back': 'Settings',
+        'cfg.tab_account': 'My Account',
         'cfg.tab_business': 'Business Info', 'cfg.tab_language': 'Language', 'cfg.tab_tax': 'Currency & Taxes',
         'cfg.tab_payments': 'Payment Methods', 'cfg.tab_customers': 'Customers', 'cfg.tab_services': 'Services', 'cfg.tab_activity': 'Activity Log',
         'cfg.business_name_label': 'Business Name', 'cfg.legal_name_label': 'Legal Name / Business Entity',
@@ -1167,6 +1190,7 @@
         'emp.role_employee': 'Employé', 'emp.position_placeholder': 'Ex : Coiffeur/euse',
         'emp.error_generate_code': "Erreur lors de la génération du code : {{msg}}", 'emp.no_name': 'Sans nom',
         'cfg.title': 'Paramètres Généraux', 'cfg.subtitle': 'Gérez les paramètres de votre salon.', 'cfg.back': 'Paramètres',
+        'cfg.tab_account': 'Mon Compte',
         'cfg.tab_business': 'Infos Entreprise', 'cfg.tab_language': 'Langue', 'cfg.tab_tax': 'Devise et Taxes',
         'cfg.tab_payments': 'Modes de Paiement', 'cfg.tab_customers': 'Clients', 'cfg.tab_services': 'Services', 'cfg.tab_activity': "Journal d'Activité",
         'cfg.business_name_label': 'Nom Commercial', 'cfg.legal_name_label': 'Raison Sociale',
@@ -1555,6 +1579,7 @@
         initAppointments();
         initInvoices();
         applyLogoToHeader();
+        loadAccountInfo();
         modulesInitialized = true;
       }
     }
@@ -1564,6 +1589,38 @@
         document.getElementById('header-logo-img').src = currentBusinessData.logo_url;
         document.getElementById('cfg-logo-preview').src = currentBusinessData.logo_url;
       }
+    }
+
+    // Muestra el correo y, si el usuario entró con Google, su nombre y
+    // foto de perfil en "Mi Cuenta" (fila de Configuración y su detalle).
+    async function loadAccountInfo() {
+      const { data } = await supabase.auth.getUser();
+      const user = data?.user;
+      if (!user) return;
+
+      const meta = user.user_metadata || {};
+      const avatarUrl = meta.avatar_url || meta.picture || '';
+      const name = meta.full_name || meta.name || '';
+      const email = user.email || '';
+
+      [['account-row-avatar', 'account-row-icon-fallback'], ['account-avatar', 'account-avatar-fallback']].forEach(([imgId, fallbackId]) => {
+        const img = document.getElementById(imgId);
+        const fallback = document.getElementById(fallbackId);
+        if (!img) return;
+        if (avatarUrl) {
+          img.src = avatarUrl;
+          img.style.display = 'block';
+          if (fallback) fallback.style.display = 'none';
+        } else {
+          img.style.display = 'none';
+          if (fallback) fallback.style.display = '';
+        }
+      });
+
+      const nameEl = document.getElementById('account-name');
+      nameEl.textContent = name;
+      nameEl.style.display = name ? '' : 'none';
+      document.getElementById('account-email').textContent = email;
     }
 
     // -------------------------------------------------------------
