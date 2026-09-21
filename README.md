@@ -1,4 +1,4 @@
-# Gestión Salón
+# Gestión Empresarial
 
 Variante de "Gestión PYME" adaptada para salones de belleza, peluquerías, barberías y spas: agenda de citas y catálogo de servicios sobre la misma base de autenticación, roles, clientes y configuración. No incluye Ventas ni Inventario de productos: el negocio de esta app es 100% por servicios.
 
