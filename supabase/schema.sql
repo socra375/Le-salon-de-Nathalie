@@ -356,6 +356,15 @@ alter table invoices add column if not exists customer_name text;
 alter table businesses add column if not exists theme text default 'dark';
 alter table businesses add column if not exists background_url text;
 
+-- Una cita puede incluir varios servicios. service_ids guarda la lista
+-- completa (el primero se replica en service_id para compatibilidad con
+-- las citas antiguas) y appointments.price guarda la suma de los precios.
+alter table appointments add column if not exists service_ids jsonb;
+
+-- Método de pago elegido al completar la cita: 'efectivo' | 'transferencia'
+-- | 'tarjeta' | 'credito'
+alter table invoices add column if not exists payment_method text;
+
 -- ============================================================
 -- FIN DEL SCRIPT
 -- Recuerda: en el HTML, reemplaza SUPABASE_URL y SUPABASE_ANON_KEY

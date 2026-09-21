@@ -438,8 +438,8 @@
           <input type="text" id="appt-walkin-name" placeholder="Ej: María Pérez">
         </div>
 
-        <label data-i18n="appt.service_label">Servicio</label>
-        <select id="appt-service" required></select>
+        <label data-i18n="appt.services_label">Servicios (puedes elegir varios)</label>
+        <div id="appt-services-list" class="checklist-box"></div>
         <div id="appt-service-info" class="service-info-box"></div>
 
         <label data-i18n="appt.specialist_label">Especialista</label>
@@ -529,7 +529,7 @@
       <div class="card table-responsive">
         <h3 data-i18n="inv.history_title">Historial de Facturas</h3>
         <table>
-          <thead><tr><th data-i18n="inv.th_number">N° Factura</th><th data-i18n="inv.th_date">Fecha</th><th data-i18n="inv.th_total">Total</th><th data-i18n="inv.th_action">Acción</th></tr></thead>
+          <thead><tr><th data-i18n="inv.th_number">N° Factura</th><th data-i18n="inv.th_date">Fecha</th><th data-i18n="inv.th_payment">Pago</th><th data-i18n="inv.th_total">Total</th><th data-i18n="inv.th_action">Acción</th></tr></thead>
           <tbody id="invoices-table-body"></tbody>
         </table>
       </div>
@@ -827,6 +827,16 @@
     <button id="btn-close-password" style="background: transparent;" data-i18n="common.cancel">Cancelar</button>
   </div>
 
+  <!-- Método de pago: se pide antes de completar la cita y facturarla -->
+  <div id="modal-payment-method" class="card hidden" style="position: fixed; top: 12%; left: 5%; right: 5%; z-index: 260;">
+    <h3 data-i18n="pay.title">Método de Pago</h3>
+    <p style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="pay.body">Indica cómo pagó el cliente antes de completar el servicio.</p>
+    <div id="pay-method-list" class="checklist-box"></div>
+    <div id="pay-method-summary" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;"></div>
+    <button id="btn-confirm-payment" class="btn-primary" data-i18n="pay.confirm">Confirmar y Completar</button>
+    <button id="btn-cancel-payment" style="background: transparent;" data-i18n="common.cancel">Cancelar</button>
+  </div>
+
   <nav id="app-nav" class="bottom-nav hidden">
     <button class="nav-item active nav-admin-only" data-target="sec-dashboard" data-i18n="nav.dashboard">Dashboard</button>
     <button class="nav-item nav-admin-only" data-target="sec-appointments" data-i18n="nav.agenda">Agenda</button>
@@ -901,7 +911,7 @@
         'appt.title': 'Agenda de Citas', 'appt.subtitle': 'Crea, revisa y actualiza las citas de tus clientes.',
         'appt.date_label': 'Fecha', 'appt.today_btn': 'Hoy', 'appt.new_btn': '+ Nueva Cita', 'appt.form_title': 'Registrar Cita',
         'appt.customer_label': 'Cliente', 'appt.customer_walkin_opt': '-- Walk-in / Sin cliente registrado --',
-        'appt.walkin_name_label': 'Nombre del Cliente (Walk-in, opcional)', 'appt.service_label': 'Servicio',
+        'appt.walkin_name_label': 'Nombre del Cliente (Walk-in, opcional)', 'appt.services_label': 'Servicios (puedes elegir varios)',
         'appt.specialist_label': 'Especialista', 'appt.date_field': 'Fecha', 'appt.time_field': 'Hora',
         'appt.notes_label': 'Notas (alergias, preferencias, etc.)', 'appt.save': 'Guardar Cita',
         'appt.list_title_today': 'Citas de hoy', 'appt.list_title_date': 'Citas del {{date}}',
@@ -914,7 +924,11 @@
         'appt.walkin_fallback': 'Walk-in', 'appt.select_valid_service': 'Selecciona un servicio válido.',
         'appt.select_specialist': 'Selecciona un especialista.', 'appt.invalid_datetime': 'Fecha u hora inválida.',
         'appt.error_create': 'Error al crear la cita: {{msg}}', 'appt.error_update': 'Error al actualizar la cita: {{msg}}',
-        'appt.service_info': 'Duración: {{dur}} min | Precio: {{price}}',
+        'appt.services_info': '{{n}} servicio(s) | Duración: {{dur}} min | Total: {{price}}', 'appt.no_services': 'No hay servicios activos. Crea uno en Configuración > Servicios.',
+        'pay.title': 'Método de Pago', 'pay.body': 'Indica cómo pagó el cliente antes de completar el servicio.', 'pay.confirm': 'Confirmar y Completar',
+        'pay.cash': 'Efectivo', 'pay.transfer': 'Transferencia', 'pay.card': 'Tarjeta', 'pay.credit': 'Crédito (fiado)',
+        'pay.summary': '{{client}} — {{services}} | Total: {{total}}', 'pay.select_required': 'Selecciona un método de pago.',
+        'pay.credit_needs_customer': 'El crédito (fiado) requiere un cliente registrado. Registra al cliente o elige otro método de pago.',
         'appt.you_admin': 'Tú (Administrador/a)', 'appt.employee_unnamed': 'Empleado sin nombre', 'appt.specialist_fallback': 'Especialista',
         'appt.walkin_notes_prefix': 'Cliente walk-in',
         'svc.subtitle': 'Define los servicios que ofrece tu salón, su duración y quién puede realizarlos.',
@@ -946,11 +960,11 @@
         'cust.payment_error': 'Error al registrar abono: {{msg}}', 'cust.payment_success': 'Abono registrado correctamente.',
         'credit.status_pendiente': 'PENDIENTE', 'credit.status_parcial': 'PARCIAL', 'credit.status_pagado': 'PAGADO',
         'inv.title': 'Facturas', 'inv.auto_hint': 'La factura se genera automáticamente al completar un servicio en la Agenda.',
-        'inv.history_title': 'Historial de Facturas', 'inv.th_number': 'N° Factura', 'inv.th_date': 'Fecha', 'inv.th_total': 'Total', 'inv.th_action': 'Acción',
+        'inv.history_title': 'Historial de Facturas', 'inv.th_number': 'N° Factura', 'inv.th_date': 'Fecha', 'inv.th_payment': 'Pago', 'inv.th_total': 'Total', 'inv.th_action': 'Acción',
         'inv.view': 'Ver',
         'inv.error_generate': 'Error al generar factura: {{msg}}', 'inv.walkin': 'Walk-in', 'inv.service_fallback': 'Servicio',
         'pdf.title': 'Factura', 'pdf.subtitle': 'COMPROBANTE DE SERVICIO', 'pdf.invoice_no': 'FACTURA NO.', 'pdf.date': 'FECHA',
-        'pdf.client': 'CLIENTE', 'pdf.address': 'DOMICILIO', 'pdf.email': 'E-MAIL', 'pdf.phone': 'TEL.',
+        'pdf.client': 'CLIENTE', 'pdf.address': 'DOMICILIO', 'pdf.email': 'E-MAIL', 'pdf.phone': 'TEL.', 'pdf.payment_method': 'FORMA DE PAGO',
         'pdf.quantity': 'CANTIDAD', 'pdf.description': 'DESCRIPCIÓN', 'pdf.unit_price': 'VALOR UNITARIO', 'pdf.amount': 'IMPORTE',
         'pdf.subtotal': 'SUBTOTAL', 'pdf.tax': 'IMPUESTO', 'pdf.total': 'TOTAL', 'pdf.specialist_prefix': 'Especialista',
         'pdf.address_footer': 'Dirección', 'pdf.phone_footer': 'Teléfono', 'pdf.website_footer': 'Sitio Web',
@@ -1020,7 +1034,7 @@
         'appt.title': 'Appointment Schedule', 'appt.subtitle': "Create, review and update your clients' appointments.",
         'appt.date_label': 'Date', 'appt.today_btn': 'Today', 'appt.new_btn': '+ New Appointment', 'appt.form_title': 'Book Appointment',
         'appt.customer_label': 'Customer', 'appt.customer_walkin_opt': '-- Walk-in / No registered customer --',
-        'appt.walkin_name_label': 'Customer Name (Walk-in, optional)', 'appt.service_label': 'Service',
+        'appt.walkin_name_label': 'Customer Name (Walk-in, optional)', 'appt.services_label': 'Services (you can pick several)',
         'appt.specialist_label': 'Specialist', 'appt.date_field': 'Date', 'appt.time_field': 'Time',
         'appt.notes_label': 'Notes (allergies, preferences, etc.)', 'appt.save': 'Save Appointment',
         'appt.list_title_today': "Today's appointments", 'appt.list_title_date': 'Appointments for {{date}}',
@@ -1033,7 +1047,11 @@
         'appt.walkin_fallback': 'Walk-in', 'appt.select_valid_service': 'Select a valid service.',
         'appt.select_specialist': 'Select a specialist.', 'appt.invalid_datetime': 'Invalid date or time.',
         'appt.error_create': 'Error creating appointment: {{msg}}', 'appt.error_update': 'Error updating appointment: {{msg}}',
-        'appt.service_info': 'Duration: {{dur}} min | Price: {{price}}',
+        'appt.services_info': '{{n}} service(s) | Duration: {{dur}} min | Total: {{price}}', 'appt.no_services': 'No active services. Create one in Settings > Services.',
+        'pay.title': 'Payment Method', 'pay.body': 'Select how the customer paid before completing the service.', 'pay.confirm': 'Confirm and Complete',
+        'pay.cash': 'Cash', 'pay.transfer': 'Bank Transfer', 'pay.card': 'Card', 'pay.credit': 'Credit (tab)',
+        'pay.summary': '{{client}} — {{services}} | Total: {{total}}', 'pay.select_required': 'Select a payment method.',
+        'pay.credit_needs_customer': 'Credit requires a registered customer. Register the customer or choose another payment method.',
         'appt.you_admin': 'You (Admin)', 'appt.employee_unnamed': 'Unnamed employee', 'appt.specialist_fallback': 'Specialist',
         'appt.walkin_notes_prefix': 'Walk-in customer',
         'svc.subtitle': 'Define the services your salon offers, their duration, and who can perform them.',
@@ -1065,11 +1083,11 @@
         'cust.payment_error': 'Error recording payment: {{msg}}', 'cust.payment_success': 'Payment recorded successfully.',
         'credit.status_pendiente': 'PENDING', 'credit.status_parcial': 'PARTIAL', 'credit.status_pagado': 'PAID',
         'inv.title': 'Invoices', 'inv.auto_hint': 'The invoice is generated automatically when a service is completed in the Agenda.',
-        'inv.history_title': 'Invoice History', 'inv.th_number': 'Invoice No.', 'inv.th_date': 'Date', 'inv.th_total': 'Total', 'inv.th_action': 'Action',
+        'inv.history_title': 'Invoice History', 'inv.th_number': 'Invoice No.', 'inv.th_date': 'Date', 'inv.th_payment': 'Payment', 'inv.th_total': 'Total', 'inv.th_action': 'Action',
         'inv.view': 'View',
         'inv.error_generate': 'Error generating invoice: {{msg}}', 'inv.walkin': 'Walk-in', 'inv.service_fallback': 'Service',
         'pdf.title': 'Invoice', 'pdf.subtitle': 'SERVICE RECEIPT', 'pdf.invoice_no': 'INVOICE NO.', 'pdf.date': 'DATE',
-        'pdf.client': 'CUSTOMER', 'pdf.address': 'ADDRESS', 'pdf.email': 'E-MAIL', 'pdf.phone': 'PHONE',
+        'pdf.client': 'CUSTOMER', 'pdf.address': 'ADDRESS', 'pdf.email': 'E-MAIL', 'pdf.phone': 'PHONE', 'pdf.payment_method': 'PAYMENT METHOD',
         'pdf.quantity': 'QTY', 'pdf.description': 'DESCRIPTION', 'pdf.unit_price': 'UNIT PRICE', 'pdf.amount': 'AMOUNT',
         'pdf.subtotal': 'SUBTOTAL', 'pdf.tax': 'TAX', 'pdf.total': 'TOTAL', 'pdf.specialist_prefix': 'Specialist',
         'pdf.address_footer': 'Address', 'pdf.phone_footer': 'Phone', 'pdf.website_footer': 'Website',
@@ -1139,7 +1157,7 @@
         'appt.title': 'Agenda des Rendez-vous', 'appt.subtitle': 'Créez, consultez et mettez à jour les rendez-vous de vos clients.',
         'appt.date_label': 'Date', 'appt.today_btn': "Aujourd'hui", 'appt.new_btn': '+ Nouveau Rendez-vous', 'appt.form_title': 'Enregistrer un Rendez-vous',
         'appt.customer_label': 'Client', 'appt.customer_walkin_opt': '-- Sans rendez-vous / Client non enregistré --',
-        'appt.walkin_name_label': 'Nom du Client (sans rendez-vous, facultatif)', 'appt.service_label': 'Service',
+        'appt.walkin_name_label': 'Nom du Client (sans rendez-vous, facultatif)', 'appt.services_label': 'Services (vous pouvez en choisir plusieurs)',
         'appt.specialist_label': 'Spécialiste', 'appt.date_field': 'Date', 'appt.time_field': 'Heure',
         'appt.notes_label': 'Notes (allergies, préférences, etc.)', 'appt.save': 'Enregistrer le Rendez-vous',
         'appt.list_title_today': "Rendez-vous d'aujourd'hui", 'appt.list_title_date': 'Rendez-vous du {{date}}',
@@ -1152,7 +1170,11 @@
         'appt.walkin_fallback': 'Sans rendez-vous', 'appt.select_valid_service': 'Sélectionnez un service valide.',
         'appt.select_specialist': 'Sélectionnez un spécialiste.', 'appt.invalid_datetime': 'Date ou heure invalide.',
         'appt.error_create': 'Erreur lors de la création du rendez-vous : {{msg}}', 'appt.error_update': 'Erreur lors de la mise à jour du rendez-vous : {{msg}}',
-        'appt.service_info': 'Durée : {{dur}} min | Prix : {{price}}',
+        'appt.services_info': '{{n}} service(s) | Durée : {{dur}} min | Total : {{price}}', 'appt.no_services': 'Aucun service actif. Créez-en un dans Configuration > Services.',
+        'pay.title': 'Mode de Paiement', 'pay.body': 'Indiquez comment le client a payé avant de terminer le service.', 'pay.confirm': 'Confirmer et Terminer',
+        'pay.cash': 'Espèces', 'pay.transfer': 'Virement', 'pay.card': 'Carte', 'pay.credit': 'Crédit (ardoise)',
+        'pay.summary': '{{client}} — {{services}} | Total : {{total}}', 'pay.select_required': 'Sélectionnez un mode de paiement.',
+        'pay.credit_needs_customer': 'Le crédit exige un client enregistré. Enregistrez le client ou choisissez un autre mode de paiement.',
         'appt.you_admin': 'Vous (Administrateur/trice)', 'appt.employee_unnamed': 'Employé sans nom', 'appt.specialist_fallback': 'Spécialiste',
         'appt.walkin_notes_prefix': 'Client sans rendez-vous',
         'svc.subtitle': 'Définissez les services offerts par votre salon, leur durée et qui peut les réaliser.',
@@ -1184,11 +1206,11 @@
         'cust.payment_error': "Erreur lors de l'enregistrement du paiement : {{msg}}", 'cust.payment_success': 'Paiement enregistré avec succès.',
         'credit.status_pendiente': 'EN ATTENTE', 'credit.status_parcial': 'PARTIEL', 'credit.status_pagado': 'PAYÉ',
         'inv.title': 'Factures', 'inv.auto_hint': 'La facture est générée automatiquement lorsqu\'un service est terminé dans l\'Agenda.',
-        'inv.history_title': 'Historique des Factures', 'inv.th_number': 'N° Facture', 'inv.th_date': 'Date', 'inv.th_total': 'Total', 'inv.th_action': 'Action',
+        'inv.history_title': 'Historique des Factures', 'inv.th_number': 'N° Facture', 'inv.th_date': 'Date', 'inv.th_payment': 'Paiement', 'inv.th_total': 'Total', 'inv.th_action': 'Action',
         'inv.view': 'Voir',
         'inv.error_generate': 'Erreur lors de la génération de la facture : {{msg}}', 'inv.walkin': 'Sans rendez-vous', 'inv.service_fallback': 'Service',
         'pdf.title': 'Facture', 'pdf.subtitle': 'REÇU DE SERVICE', 'pdf.invoice_no': 'FACTURE N°', 'pdf.date': 'DATE',
-        'pdf.client': 'CLIENT', 'pdf.address': 'ADRESSE', 'pdf.email': 'E-MAIL', 'pdf.phone': 'TÉL.',
+        'pdf.client': 'CLIENT', 'pdf.address': 'ADRESSE', 'pdf.email': 'E-MAIL', 'pdf.phone': 'TÉL.', 'pdf.payment_method': 'MODE DE PAIEMENT',
         'pdf.quantity': 'QTÉ', 'pdf.description': 'DESCRIPTION', 'pdf.unit_price': 'PRIX UNITAIRE', 'pdf.amount': 'MONTANT',
         'pdf.subtotal': 'SOUS-TOTAL', 'pdf.tax': 'TAXE', 'pdf.total': 'TOTAL', 'pdf.specialist_prefix': 'Spécialiste',
         'pdf.address_footer': 'Adresse', 'pdf.phone_footer': 'Téléphone', 'pdf.website_footer': 'Site Web',
@@ -1254,6 +1276,7 @@
       renderServicesTable();
       renderAppointmentsForSelectedDate();
       renderTodayAppointmentsWidget();
+      populateApptServiceSelect();
       loadEmployeesList();
       if (!document.getElementById('tab-cfg-activity').classList.contains('hidden')) loadActivityLog();
     }
@@ -1737,11 +1760,10 @@
       document.getElementById('cust-history-empty-hint').classList.toggle('hidden', history.length > 0);
 
       history.forEach(a => {
-        const svc = servicesSnapshot.find(s => s.id === a.service_id);
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${fmtDateTime(a.start_at)}</td>
-          <td>${svc ? svc.name : 'N/A'}</td>
+          <td>${apptServicesLabel(a)}</td>
           <td>${specialistLabel(a.employee_id)}</td>
           <td><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span></td>
         `;
@@ -1752,7 +1774,7 @@
       const serviceCounts = {};
       const specialistCounts = {};
       history.forEach(a => {
-        serviceCounts[a.service_id] = (serviceCounts[a.service_id] || 0) + 1;
+        apptServiceIds(a).forEach(sid => { serviceCounts[sid] = (serviceCounts[sid] || 0) + 1; });
         specialistCounts[a.employee_id] = (specialistCounts[a.employee_id] || 0) + 1;
       });
       const topServiceId = Object.keys(serviceCounts).sort((a, b) => serviceCounts[b] - serviceCounts[a])[0];
@@ -2078,14 +2100,13 @@
         else walkinContainer.classList.remove('expanded');
       });
 
-      document.getElementById('appt-service').addEventListener('change', updateApptServiceInfo);
       populateApptSpecialistSelect();
 
       form.onsubmit = async (e) => {
         e.preventDefault();
-        const serviceId = document.getElementById('appt-service').value;
-        const service = servicesSnapshot.find(s => s.id === serviceId);
-        if (!service) return alert(t('appt.select_valid_service'));
+        const serviceIds = getSelectedApptServiceIds();
+        const services = serviceIds.map(id => servicesSnapshot.find(s => s.id === id)).filter(Boolean);
+        if (services.length === 0) return alert(t('appt.select_valid_service'));
 
         const specialistId = document.getElementById('appt-specialist').value;
         if (!specialistId) return alert(t('appt.select_specialist'));
@@ -2094,7 +2115,10 @@
         const timeVal = document.getElementById('appt-input-time').value;
         const startAt = new Date(`${dateVal}T${timeVal}`);
         if (isNaN(startAt.getTime())) return alert(t('appt.invalid_datetime'));
-        const endAt = new Date(startAt.getTime() + service.duration_minutes * 60000);
+        // La cita ocupa la suma de las duraciones y cuesta la suma de los precios
+        const totalMinutes = services.reduce((acc, s) => acc + (s.duration_minutes || 0), 0);
+        const totalPrice = services.reduce((acc, s) => acc + parseFloat(s.price || 0), 0);
+        const endAt = new Date(startAt.getTime() + totalMinutes * 60000);
 
         const customerId = document.getElementById('appt-customer').value || null;
         const walkinName = document.getElementById('appt-walkin-name').value.trim();
@@ -2107,17 +2131,18 @@
           business_id: currentBusinessId,
           customer_id: customerId,
           employee_id: specialistId,
-          service_id: serviceId,
+          service_id: serviceIds[0],
+          service_ids: serviceIds,
           start_at: startAt.toISOString(),
           end_at: endAt.toISOString(),
           status: 'pendiente',
-          price: service.price,
+          price: totalPrice,
           notes: notes
         }]);
 
         if (error) return alert(t('appt.error_create', { msg: error.message }));
 
-        await logActivity(t('act.appt_created', { service: service.name, when: fmtDateTime(startAt) }));
+        await logActivity(t('act.appt_created', { service: services.map(s => s.name).join(' + '), when: fmtDateTime(startAt) }));
         form.classList.add('hidden');
         datePicker.value = dateVal;
         await loadAppointments();
@@ -2143,15 +2168,42 @@
       return t('appt.walkin_fallback');
     }
 
+    // Ids de los servicios marcados en el formulario de cita (en el orden
+    // en que aparecen en la lista).
+    function getSelectedApptServiceIds() {
+      return Array.from(document.querySelectorAll('#appt-services-list input[type="checkbox"]:checked')).map(cb => cb.value);
+    }
+
+    // Servicios de una cita ya guardada. Soporta citas con varios servicios
+    // (service_ids) y las antiguas de un solo servicio (service_id).
+    function apptServiceIds(appt) {
+      if (Array.isArray(appt.service_ids) && appt.service_ids.length > 0) return appt.service_ids;
+      return appt.service_id ? [appt.service_id] : [];
+    }
+
+    function apptServices(appt) {
+      return apptServiceIds(appt).map(id => servicesSnapshot.find(s => s.id === id)).filter(Boolean);
+    }
+
+    function apptServicesLabel(appt) {
+      const names = apptServices(appt).map(s => s.name);
+      return names.length > 0 ? names.join(' + ') : 'N/A';
+    }
+
     function updateApptServiceInfo() {
-      const serviceId = document.getElementById('appt-service').value;
-      const service = servicesSnapshot.find(s => s.id === serviceId);
+      const services = getSelectedApptServiceIds().map(id => servicesSnapshot.find(s => s.id === id)).filter(Boolean);
       const info = document.getElementById('appt-service-info');
-      if (service) {
-        info.textContent = t('appt.service_info', { dur: service.duration_minutes, price: '$' + parseFloat(service.price).toFixed(2) });
-      } else {
+      if (services.length === 0) {
         info.textContent = '';
+        return;
       }
+      const dur = services.reduce((acc, s) => acc + (s.duration_minutes || 0), 0);
+      const price = services.reduce((acc, s) => acc + parseFloat(s.price || 0), 0);
+      info.textContent = t('appt.services_info', {
+        n: services.length,
+        dur: dur,
+        price: (currentBusinessData?.currency_symbol || '$') + price.toFixed(2)
+      });
     }
 
     function populateApptCustomerSelect() {
@@ -2167,14 +2219,32 @@
     }
 
     function populateApptServiceSelect() {
-      const select = document.getElementById('appt-service');
-      if (!select) return;
-      select.innerHTML = '';
-      servicesSnapshot.filter(s => s.active).forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = `${s.name} (${s.duration_minutes} min - $${parseFloat(s.price).toFixed(2)})`;
-        select.appendChild(opt);
+      const list = document.getElementById('appt-services-list');
+      if (!list) return;
+      const previous = new Set(getSelectedApptServiceIds());
+      list.innerHTML = '';
+      const active = servicesSnapshot.filter(s => s.active);
+      if (active.length === 0) {
+        list.innerHTML = `<div class="empty-hint">${t('appt.no_services')}</div>`;
+        updateApptServiceInfo();
+        return;
+      }
+      const curr = currentBusinessData?.currency_symbol || '$';
+      active.forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'checklist-item';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = s.id;
+        cb.id = `appt-svc-${s.id}`;
+        cb.checked = previous.has(s.id);
+        cb.addEventListener('change', updateApptServiceInfo);
+        const label = document.createElement('label');
+        label.setAttribute('for', cb.id);
+        label.textContent = `${s.name} (${s.duration_minutes} min - ${curr}${parseFloat(s.price).toFixed(2)})`;
+        row.appendChild(cb);
+        row.appendChild(label);
+        list.appendChild(row);
       });
       updateApptServiceInfo();
     }
@@ -2201,8 +2271,7 @@
 
     function appointmentRevenue(appt) {
       if (appt.price != null) return parseFloat(appt.price);
-      const svc = servicesSnapshot.find(s => s.id === appt.service_id);
-      return svc ? parseFloat(svc.price) : 0;
+      return apptServices(appt).reduce((acc, s) => acc + parseFloat(s.price || 0), 0);
     }
 
     function renderAppointmentsForSelectedDate() {
@@ -2217,14 +2286,13 @@
       document.getElementById('appt-empty-hint').classList.toggle('hidden', dayAppointments.length > 0);
 
       dayAppointments.forEach(a => {
-        const svc = servicesSnapshot.find(s => s.id === a.service_id);
         const clientName = getAppointmentClientName(a);
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${fmtTime(a.start_at)}</td>
           <td>${clientName}</td>
-          <td>${svc ? svc.name : 'N/A'}</td>
+          <td>${apptServicesLabel(a)}</td>
           <td>${specialistLabel(a.employee_id)}</td>
           <td><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span></td>
           <td id="appt-actions-${a.id}"></td>
@@ -2263,26 +2331,109 @@
       }
     }
 
+    // Métodos de pago disponibles. La clave es lo que se guarda en
+    // invoices.payment_method; la etiqueta se traduce al idioma activo.
+    const PAYMENT_METHODS = [
+      { key: 'efectivo', i18n: 'pay.cash' },
+      { key: 'transferencia', i18n: 'pay.transfer' },
+      { key: 'tarjeta', i18n: 'pay.card' },
+      { key: 'credito', i18n: 'pay.credit' }
+    ];
+
+    function paymentMethodLabel(key) {
+      const m = PAYMENT_METHODS.find(p => p.key === key);
+      return m ? t(m.i18n) : (key || '—');
+    }
+
+    // Solo los métodos habilitados en Configuración > Métodos de Pago.
+    function enabledPaymentMethods() {
+      const pm = currentBusinessData?.payment_methods || {};
+      const enabled = PAYMENT_METHODS.filter(m => pm[m.key] !== false);
+      return enabled.length > 0 ? enabled : PAYMENT_METHODS;
+    }
+
+    // Pide el método de pago antes de completar/facturar la cita.
+    // Resuelve con la clave elegida, o con null si se cancela.
+    function askPaymentMethod(appt) {
+      return new Promise(resolve => {
+        const modal = document.getElementById('modal-payment-method');
+        const list = document.getElementById('pay-method-list');
+        list.innerHTML = '';
+        enabledPaymentMethods().forEach((m, i) => {
+          const row = document.createElement('div');
+          row.className = 'checklist-item';
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'pay-method';
+          radio.value = m.key;
+          radio.id = `pay-opt-${m.key}`;
+          radio.checked = i === 0;
+          const label = document.createElement('label');
+          label.setAttribute('for', radio.id);
+          label.textContent = t(m.i18n);
+          row.appendChild(radio);
+          row.appendChild(label);
+          list.appendChild(row);
+        });
+
+        const curr = currentBusinessData?.currency_symbol || '$';
+        document.getElementById('pay-method-summary').textContent = t('pay.summary', {
+          client: getAppointmentClientName(appt),
+          services: apptServicesLabel(appt),
+          total: curr + appointmentRevenue(appt).toFixed(2)
+        });
+
+        const confirmBtn = document.getElementById('btn-confirm-payment');
+        const cancelBtn = document.getElementById('btn-cancel-payment');
+        const close = (value) => {
+          modal.classList.add('hidden');
+          confirmBtn.onclick = null;
+          cancelBtn.onclick = null;
+          resolve(value);
+        };
+        confirmBtn.onclick = () => {
+          const selected = list.querySelector('input[name="pay-method"]:checked');
+          if (!selected) return alert(t('pay.select_required'));
+          // El fiado necesita un cliente registrado al que asignarle la deuda
+          if (selected.value === 'credito' && !appt.customer_id) return alert(t('pay.credit_needs_customer'));
+          close(selected.value);
+        };
+        cancelBtn.onclick = () => close(null);
+        modal.classList.remove('hidden');
+      });
+    }
+
     // Reintenta la facturación de una cita completada que, por algún motivo,
     // no se facturó automáticamente (usa el mismo flujo que la auto-factura).
     async function invoiceAppointmentManually(appt) {
-      const { error } = await createInvoiceForAppointment(appt, appt.customer_id || null, getAppointmentClientName(appt), 'Efectivo');
+      const paymentMethod = await askPaymentMethod(appt);
+      if (!paymentMethod) return;
+      const { error } = await createInvoiceForAppointment(appt, appt.customer_id || null, getAppointmentClientName(appt), paymentMethod);
       if (error) return alert(t('inv.error_generate', { msg: error.message }));
       await loadAppointments();
     }
 
     async function updateAppointmentStatus(id, newStatus, label) {
-      if (!confirm(t('appt.confirm_status', { label }))) return;
       const appt = appointmentsSnapshot.find(a => a.id === id);
+
+      // Al completar el servicio se pide el método de pago: la factura se
+      // genera automáticamente con él, usando el nombre del cliente
+      // registrado o, si es walk-in, el escrito al agendar la cita.
+      let paymentMethod = null;
+      if (newStatus === 'completada') {
+        if (!appt) return;
+        paymentMethod = await askPaymentMethod(appt);
+        if (!paymentMethod) return;
+      } else if (!confirm(t('appt.confirm_status', { label }))) {
+        return;
+      }
+
       const { error } = await supabase.from('appointments').update({ status: newStatus }).eq('id', id);
       if (error) return alert(t('appt.error_update', { msg: error.message }));
       await logActivity(t('act.appt_status_updated', { status: apptStatusLabel(newStatus) }));
 
-      // Al completar el servicio, la factura se genera automáticamente
-      // usando el nombre del cliente registrado o, si es walk-in, el
-      // nombre escrito al agendar la cita (no requiere estar registrado).
-      if (newStatus === 'completada' && appt) {
-        const { error: invError } = await createInvoiceForAppointment(appt, appt.customer_id || null, getAppointmentClientName(appt), 'Efectivo');
+      if (paymentMethod && appt) {
+        const { error: invError } = await createInvoiceForAppointment(appt, appt.customer_id || null, getAppointmentClientName(appt), paymentMethod);
         if (invError) alert(t('inv.error_generate', { msg: invError.message }));
       }
 
@@ -2305,11 +2456,10 @@
       }
 
       todayAppointments.slice(0, 6).forEach(a => {
-        const svc = servicesSnapshot.find(s => s.id === a.service_id);
         const clientName = getAppointmentClientName(a);
         const li = document.createElement('li');
         li.style.cssText = 'padding: 0.4rem 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.85rem; display: flex; justify-content: space-between;';
-        li.innerHTML = `<span>${fmtTime(a.start_at)} — ${clientName} (${svc ? svc.name : 'N/A'})</span><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span>`;
+        li.innerHTML = `<span>${fmtTime(a.start_at)} — ${clientName} (${apptServicesLabel(a)})</span><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span>`;
         list.appendChild(li);
       });
     }
@@ -2580,6 +2730,7 @@
         customer_id: customerId || null,
         customer_name: customerName,
         invoice_number: invoiceNumber,
+        payment_method: paymentMethod,
         subtotal: subtotal,
         tax_amount: taxAmount,
         total: total
@@ -2587,7 +2738,7 @@
 
       if (error) return { error };
 
-      if (paymentMethod === 'Crédito' && customerId) {
+      if (paymentMethod === 'credito' && customerId) {
         await supabase.from('customer_credits').insert([{
           business_id: currentBusinessId,
           customer_id: customerId,
@@ -2619,6 +2770,7 @@
           tr.innerHTML = `
             <td>${inv.invoice_number}</td>
             <td>${fmtDate(inv.created_at)}</td>
+            <td>${paymentMethodLabel(inv.payment_method)}</td>
             <td class="font-numeric">$${parseFloat(inv.total).toFixed(2)}</td>
             <td><button class="btn-re-pdf" data-id="${inv.id}" style="padding:0.2rem 0.5rem; margin:0; font-size:0.8rem;">${t('inv.view')}</button></td>
           `;
@@ -2662,7 +2814,7 @@
       const b = currentBusinessData || {};
       const curr = b.currency_symbol || '$';
       const appt = appointmentsSnapshot.find(a => a.id === invoice.appointment_id);
-      const svc = appt ? servicesSnapshot.find(s => s.id === appt.service_id) : null;
+      const apptSvcs = appt ? apptServices(appt) : [];
       const customer = customersSnapshot.find(c => c.id === invoice.customer_id);
       const pageW = 210;
       const marginL = 14, marginR = 196;
@@ -2707,6 +2859,7 @@
       drawRow(t('pdf.client'), invoice.customer_name || customer?.name || 'N/A', null, null);
       drawRow(t('pdf.address'), customer?.address || '', null, null);
       drawRow(t('pdf.email'), customer?.email || '', t('pdf.phone'), customer?.phone || '');
+      drawRow(t('pdf.payment_method'), paymentMethodLabel(invoice.payment_method), null, null);
       y += 4;
 
       // --- Tabla de servicio ---
@@ -2730,18 +2883,25 @@
       doc.setTextColor(0, 0, 0);
       y += rowH;
 
-      const descripcion = `${svc ? svc.name : t('inv.service_fallback')}${appt ? ' — ' + t('pdf.specialist_prefix') + ': ' + specialistLabel(appt.employee_id) : ''}`;
-      const unitPrice = appt ? appointmentRevenue(appt) : parseFloat(invoice.total);
-      const rowVals = ['1', descripcion, `${curr}${unitPrice.toFixed(2)}`, `${curr}${unitPrice.toFixed(2)}`];
-      cx = marginL;
+      // Una línea por servicio de la cita (la cita puede tener varios).
+      const specialistSuffix = appt ? ' — ' + t('pdf.specialist_prefix') + ': ' + specialistLabel(appt.employee_id) : '';
+      const lines = apptSvcs.length > 0
+        ? apptSvcs.map(s => ({ desc: s.name + specialistSuffix, price: parseFloat(s.price || 0) }))
+        : [{ desc: t('inv.service_fallback') + specialistSuffix, price: appt ? appointmentRevenue(appt) : parseFloat(invoice.total) }];
+
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.rect(marginL, y, tableW, rowH);
-      cols.forEach((col, i) => {
-        doc.text(String(rowVals[i]).substring(0, 45), cx + 3, y + rowH / 2 + 1.5);
-        cx += tableW * col.w;
+      lines.forEach(line => {
+        const rowVals = ['1', line.desc, `${curr}${line.price.toFixed(2)}`, `${curr}${line.price.toFixed(2)}`];
+        cx = marginL;
+        doc.rect(marginL, y, tableW, rowH);
+        cols.forEach((col, i) => {
+          doc.text(String(rowVals[i]).substring(0, 45), cx + 3, y + rowH / 2 + 1.5);
+          cx += tableW * col.w;
+        });
+        y += rowH;
       });
-      y += rowH + 4;
+      y += 4;
 
       // --- Totales ---
       const totalsW = 70;
