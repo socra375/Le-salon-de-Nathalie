@@ -245,7 +245,13 @@ create policy "update_own_business" on businesses for update using (id = auth.ui
 
 alter table business_members enable row level security;
 create policy "select_team" on business_members for select using (business_id = get_current_business_id());
-create policy "admin_insert_members" on business_members for insert with check (business_id = auth.uid());
+-- Solo puedes afiliarte a TI MISMO y solo a tu propio negocio. Sin la
+-- condición sobre user_id, cualquiera podría afiliar a otro dueño a su
+-- negocio: get_current_business_id() devolvería el negocio del atacante
+-- y la víctima entraría al salón equivocado al iniciar sesión.
+-- A los empleados los afilia redeem_invite_code (security definer).
+create policy "admin_insert_members" on business_members for insert
+  with check (business_id = auth.uid() and user_id = auth.uid());
 create policy "admin_update_members" on business_members for update using (business_id = auth.uid());
 create policy "admin_delete_members" on business_members for delete using (business_id = auth.uid());
 

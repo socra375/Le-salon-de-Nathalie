@@ -59,3 +59,14 @@ where table_schema = 'public'
     (table_name = 'invoices'     and column_name = 'payment_method')
   )
 order by table_name, column_name;
+
+-- ============================================================
+-- SEGURIDAD — corrige un agujero en las políticas de acceso
+-- ============================================================
+-- Sin esto, cualquiera con una cuenta podía afiliar a OTRO dueño de
+-- salón a su propio negocio. La víctima entraba al salón del atacante
+-- al iniciar sesión, perdía el acceso al suyo y los datos que
+-- registrara caían en el negocio ajeno.
+drop policy if exists "admin_insert_members" on business_members;
+create policy "admin_insert_members" on business_members for insert
+  with check (business_id = auth.uid() and user_id = auth.uid());

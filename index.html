@@ -1275,6 +1275,14 @@
       if (!document.getElementById('tab-cfg-activity').classList.contains('hidden')) loadActivityLog();
     }
 
+    // Escapa texto antes de insertarlo como HTML. Sin esto, un nombre de
+    // cliente, servicio o empleado que contenga etiquetas se ejecutaría como
+    // código en el navegador de quien abra la pantalla.
+    const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => HTML_ESCAPES[ch]);
+    }
+
     function fmtDate(d) { return new Date(d).toLocaleDateString(LOCALE_MAP[currentLang] || 'es-ES'); }
     function fmtDateTime(d) { return new Date(d).toLocaleString(LOCALE_MAP[currentLang] || 'es-ES'); }
     function fmtTime(d) { return new Date(d).toLocaleTimeString(LOCALE_MAP[currentLang] || 'es-ES', { hour: '2-digit', minute: '2-digit' }); }
@@ -1729,8 +1737,8 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${c.name}</td>
-          <td>${c.phone || 'N/A'}</td>
+          <td>${escapeHtml(c.name)}</td>
+          <td>${escapeHtml(c.phone || 'N/A')}</td>
           <td class="font-numeric" style="color: ${pendingTotal > 0 ? 'var(--accent-expense)' : 'var(--accent-profit)'}">$${pendingTotal.toFixed(2)}</td>
           <td><button class="btn-account" data-id="${c.id}" style="padding: 0.2rem 0.5rem; margin:0; font-size:0.8rem;">${t('cust.view_account')}</button></td>
         `;
@@ -1762,8 +1770,8 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${fmtDateTime(a.start_at)}</td>
-          <td>${apptServicesLabel(a)}</td>
-          <td>${specialistLabel(a.employee_id)}</td>
+          <td>${escapeHtml(apptServicesLabel(a))}</td>
+          <td>${escapeHtml(specialistLabel(a.employee_id))}</td>
           <td><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span></td>
         `;
         historyBody.appendChild(tr);
@@ -1893,8 +1901,8 @@
         data.forEach(m => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${m.employee_name || t('emp.no_name')}</td>
-            <td><input type="text" class="input-role-title" data-id="${m.id}" value="${m.role_title || ''}" placeholder="${t('emp.position_placeholder')}" style="margin:0; padding:0.3rem;"></td>
+            <td>${escapeHtml(m.employee_name || t('emp.no_name'))}</td>
+            <td><input type="text" class="input-role-title" data-id="${m.id}" value="${escapeHtml(m.role_title || '')}" placeholder="${t('emp.position_placeholder')}" style="margin:0; padding:0.3rem;"></td>
             <td><span class="badge-status status-pagado">${t('emp.role_employee')}</span></td>
             <td>${fmtDate(m.created_at)}</td>
           `;
@@ -1985,7 +1993,7 @@
         const div = document.createElement('div');
         div.className = 'checklist-item';
         const checked = selectedIds.includes(opt.id) ? 'checked' : '';
-        div.innerHTML = `<input type="checkbox" class="svc-specialist-check" id="svc-spec-${opt.id}" value="${opt.id}" ${checked}><label for="svc-spec-${opt.id}">${opt.label}</label>`;
+        div.innerHTML = `<input type="checkbox" class="svc-specialist-check" id="svc-spec-${opt.id}" value="${opt.id}" ${checked}><label for="svc-spec-${opt.id}">${escapeHtml(opt.label)}</label>`;
         container.appendChild(div);
       });
     }
@@ -2023,8 +2031,8 @@
       servicesSnapshot.forEach(s => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${s.name}</td>
-          <td>${s.category || 'N/A'}</td>
+          <td>${escapeHtml(s.name)}</td>
+          <td>${escapeHtml(s.category || 'N/A')}</td>
           <td>${s.duration_minutes} min</td>
           <td class="font-numeric">$${parseFloat(s.price).toFixed(2)}</td>
           <td><span class="badge-status ${s.active ? 'status-pagado' : 'status-cancelada'}">${s.active ? t('svc.status_active') : t('svc.status_inactive')}</span></td>
@@ -2282,9 +2290,9 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${fmtTime(a.start_at)}</td>
-          <td>${clientName}</td>
-          <td>${apptServicesLabel(a)}</td>
-          <td>${specialistLabel(a.employee_id)}</td>
+          <td>${escapeHtml(clientName)}</td>
+          <td>${escapeHtml(apptServicesLabel(a))}</td>
+          <td>${escapeHtml(specialistLabel(a.employee_id))}</td>
           <td><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span></td>
           <td id="appt-actions-${a.id}"></td>
         `;
@@ -2450,7 +2458,7 @@
         const clientName = getAppointmentClientName(a);
         const li = document.createElement('li');
         li.style.cssText = 'padding: 0.4rem 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.85rem; display: flex; justify-content: space-between;';
-        li.innerHTML = `<span>${fmtTime(a.start_at)} — ${clientName} (${apptServicesLabel(a)})</span><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span>`;
+        li.innerHTML = `<span>${fmtTime(a.start_at)} — ${escapeHtml(clientName)} (${escapeHtml(apptServicesLabel(a))})</span><span class="badge-status status-${a.status}">${apptStatusLabel(a.status)}</span>`;
         list.appendChild(li);
       });
     }
@@ -2533,7 +2541,7 @@
       if (data) {
         data.forEach(log => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${log.user_id ? log.user_id.substring(0,8) : t('common.system')}</td><td>${log.action}</td><td>${fmtDateTime(log.created_at)}</td>`;
+          tr.innerHTML = `<td>${log.user_id ? log.user_id.substring(0,8) : t('common.system')}</td><td>${escapeHtml(log.action)}</td><td>${fmtDateTime(log.created_at)}</td>`;
           tbody.appendChild(tr);
         });
       }
@@ -2777,7 +2785,7 @@
         data.forEach(inv => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${inv.invoice_number}</td>
+            <td>${escapeHtml(inv.invoice_number)}</td>
             <td>${fmtDate(inv.created_at)}</td>
             <td>${paymentMethodLabel(inv.payment_method)}</td>
             <td class="font-numeric">$${parseFloat(inv.total).toFixed(2)}</td>
