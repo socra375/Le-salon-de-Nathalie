@@ -402,7 +402,7 @@
         <div class="card hero-metric card-stagger">
           <span style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="dash.income_title">Ingresos por Servicios Completados</span>
           <div id="dash-net-profit" class="val-large font-numeric" style="color: var(--accent-profit); font-size: 2.2rem; margin: 0.4rem 0;">$0.00</div>
-          <span style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="dash.income_hint">Suma de citas marcadas como "completada" en el período seleccionado.</span>
+          <span style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="dash.income_hint">Dinero cobrado por las citas completadas del período. Lo vendido a crédito entra aquí solo cuando el cliente paga.</span>
         </div>
 
         <!-- Métrica Cuentas por Cobrar -->
@@ -872,6 +872,7 @@
     let specialistServicesSnapshot = [];
     let appointmentsSnapshot = [];
     let invoicedAppointmentIds = new Set();
+    let invoicesSnapshot = [];
 
     // -------------------------------------------------------------
     // 2b. IDIOMA / TRADUCCIONES (es / en / fr)
@@ -907,7 +908,7 @@
         'dash.period_today': 'Hoy', 'dash.period_week': 'Esta Semana', 'dash.period_month': 'Este Mes',
         'dash.appts_today_title': 'Citas de Hoy', 'dash.no_appts_today': 'No hay citas programadas para hoy.',
         'dash.income_title': 'Ingresos por Servicios Completados',
-        'dash.income_hint': 'Suma de citas marcadas como "completada" en el período seleccionado.',
+        'dash.income_hint': 'Dinero cobrado por las citas completadas del período. Lo vendido a crédito entra aquí solo cuando el cliente paga.',
         'dash.receivables_title': 'Cuentas por Cobrar (Créditos)', 'dash.receivables_hint': 'Saldo pendiente total clientes',
         'dash.appt_count': '{{n}} cita', 'dash.appt_count_plural': '{{n}} citas',
         'appt.title': 'Agenda de Citas', 'appt.subtitle': 'Crea, revisa y actualiza las citas de tus clientes.',
@@ -1030,7 +1031,7 @@
         'dash.period_today': 'Today', 'dash.period_week': 'This Week', 'dash.period_month': 'This Month',
         'dash.appts_today_title': "Today's Appointments", 'dash.no_appts_today': 'No appointments scheduled for today.',
         'dash.income_title': 'Revenue from Completed Services',
-        'dash.income_hint': 'Sum of appointments marked "completed" in the selected period.',
+        'dash.income_hint': 'Money collected from completed appointments in the period. Credit sales count here only once the customer pays.',
         'dash.receivables_title': 'Accounts Receivable (Credit)', 'dash.receivables_hint': 'Total outstanding customer balance',
         'dash.appt_count': '{{n}} appointment', 'dash.appt_count_plural': '{{n}} appointments',
         'appt.title': 'Appointment Schedule', 'appt.subtitle': "Create, review and update your clients' appointments.",
@@ -1153,7 +1154,7 @@
         'dash.period_today': "Aujourd'hui", 'dash.period_week': 'Cette Semaine', 'dash.period_month': 'Ce Mois',
         'dash.appts_today_title': "Rendez-vous d'aujourd'hui", 'dash.no_appts_today': "Aucun rendez-vous prévu aujourd'hui.",
         'dash.income_title': 'Revenus des Services Terminés',
-        'dash.income_hint': 'Somme des rendez-vous marqués « terminé » pour la période sélectionnée.',
+        'dash.income_hint': 'Argent encaissé pour les rendez-vous terminés de la période. Les ventes à crédit ne comptent ici qu\'une fois le client payé.',
         'dash.receivables_title': 'Comptes Clients (Crédit)', 'dash.receivables_hint': 'Solde client total en attente',
         'dash.appt_count': '{{n}} rendez-vous', 'dash.appt_count_plural': '{{n}} rendez-vous',
         'appt.title': 'Agenda des Rendez-vous', 'appt.subtitle': 'Créez, consultez et mettez à jour les rendez-vous de vos clients.',
@@ -2475,6 +2476,17 @@
     // -------------------------------------------------------------
     // 10. DASHBOARD FINANCIERO Y CÁLCULOS
     // -------------------------------------------------------------
+    // Dinero realmente cobrado por una cita. Una venta a crédito (fiado) no
+    // es ingreso hasta que el cliente paga: mientras tanto vive en "Cuentas
+    // por Cobrar". Solo suma como ingreso la parte ya abonada, así el mismo
+    // dinero nunca se cuenta dos veces.
+    function collectedRevenue(appt) {
+      const invoice = invoicesSnapshot.find(inv => inv.appointment_id === appt.id);
+      if (!invoice || invoice.payment_method !== 'credito') return appointmentRevenue(appt);
+      const credit = creditsSnapshot.find(cr => cr.invoice_id === invoice.id);
+      return credit ? parseFloat(credit.amount_paid || 0) : 0;
+    }
+
     function calculateFinancialDashboard() {
       const now = new Date();
       const completed = appointmentsSnapshot.filter(a => a.status === 'completada');
@@ -2492,7 +2504,7 @@
         }
       });
 
-      const netProfit = filteredAppointments.reduce((acc, a) => acc + appointmentRevenue(a), 0);
+      const netProfit = filteredAppointments.reduce((acc, a) => acc + collectedRevenue(a), 0);
 
       const totalReceivables = creditsSnapshot.filter(cr => cr.status !== 'pagado')
         .reduce((acc, cr) => acc + (parseFloat(cr.amount) - parseFloat(cr.amount_paid)), 0);
@@ -2770,8 +2782,11 @@
 
     async function loadInvoicesList() {
       const { data } = await supabase.from('invoices').select('*').eq('business_id', currentBusinessId).order('created_at', { ascending: false });
-      invoicedAppointmentIds = new Set((data || []).filter(inv => inv.appointment_id).map(inv => inv.appointment_id));
+      invoicesSnapshot = data || [];
+      invoicedAppointmentIds = new Set(invoicesSnapshot.filter(inv => inv.appointment_id).map(inv => inv.appointment_id));
       renderAppointmentsForSelectedDate();
+      // El método de pago de cada factura decide qué entra como ingreso
+      calculateFinancialDashboard();
 
       const tbody = document.getElementById('invoices-table-body');
       if (!tbody) return;
