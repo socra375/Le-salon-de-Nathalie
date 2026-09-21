@@ -22,7 +22,8 @@
   }">
   <meta name="theme-color" content="#141B2E">
 
-  <link rel="icon" type="image/png" href="favicon-512.png">
+  <!-- Ícono incrustado: no depende de ningún archivo subido al repositorio -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1120'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%E2%9C%82%3C/text%3E%3C/svg%3E">
 
   <!-- Supabase JS v2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -304,7 +305,8 @@
 
 <header id="app-header" class="hidden">
   <div style="display: flex; align-items: center; gap: 0.6rem;">
-    <img id="header-logo-img" src="logo-header.png" alt="Logo" style="width: 32px; height: 32px; border-radius: 6px; object-fit: cover;">
+    <!-- Oculto hasta que el negocio suba su logo (applyLogoToHeader lo muestra) -->
+    <img id="header-logo-img" alt="Logo" style="display: none; width: 32px; height: 32px; border-radius: 6px; object-fit: cover;">
     <div>
       <h2 id="business-display-name" style="font-size: 1.1rem; line-height: 1.1;">Mi Salón</h2>
       <div style="display: flex; align-items: center; gap: 0.4rem;">
@@ -654,7 +656,7 @@
         <input type="text" id="cfg-website" placeholder="Ej: www.salonnathalie.com">
         <label data-i18n="cfg.logo_label">Logotipo del Salón</label>
         <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
-          <img id="cfg-logo-preview" src="logo-header.png" style="width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--border-subtle); object-fit: cover;">
+          <img id="cfg-logo-preview" alt="" style="visibility: hidden; width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--border-subtle); object-fit: cover;">
           <input type="file" id="cfg-logo-file" accept="image/*" style="margin-top: 0;">
         </div>
         <button type="submit" class="btn-primary" data-i18n="cfg.save_business">Guardar Datos del Negocio</button>
@@ -1620,8 +1622,14 @@
 
     function applyLogoToHeader() {
       if (currentBusinessData?.logo_url) {
-        document.getElementById('header-logo-img').src = currentBusinessData.logo_url;
-        document.getElementById('cfg-logo-preview').src = currentBusinessData.logo_url;
+        // Se vuelven a mostrar: pueden haberse ocultado al no existir el
+        // marcador de posición antes de que el negocio subiera su logo.
+        const header = document.getElementById('header-logo-img');
+        header.src = currentBusinessData.logo_url;
+        header.style.display = '';
+        const preview = document.getElementById('cfg-logo-preview');
+        preview.src = currentBusinessData.logo_url;
+        preview.style.visibility = '';
       }
     }
 
@@ -2563,7 +2571,11 @@
       document.getElementById('cfg-pm-tarjeta').checked = pm.tarjeta !== false;
       document.getElementById('cfg-pm-credito').checked = pm.credito !== false;
 
-      if (b.logo_url) document.getElementById('cfg-logo-preview').src = b.logo_url;
+      if (b.logo_url) {
+        const preview = document.getElementById('cfg-logo-preview');
+        preview.src = b.logo_url;
+        preview.style.visibility = '';
+      }
 
       document.getElementById('cfg-language').value = b.language || currentLang;
 
