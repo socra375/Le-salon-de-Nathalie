@@ -491,9 +491,6 @@
         </div>
         <p id="cust-history-empty-hint" class="empty-hint hidden" data-i18n="cust.history_empty">Este cliente aún no tiene citas registradas.</p>
 
-        <label data-i18n="cust.notes_label">Notas (alergias a productos, preferencias de tono, etc.)</label>
-        <textarea id="cust-notes-input" placeholder="Opcional"></textarea>
-        <button id="btn-save-cust-notes" class="btn-agenda" data-i18n="cust.save_notes">Guardar Notas</button>
       </div>
 
       <h4 data-i18n="cust.credits_title">Créditos Activos / Historial</h4>
@@ -954,8 +951,6 @@
         'cust.last_visit': 'Última visita:', 'cust.top_service': 'Servicio más frecuente:', 'cust.top_specialist': 'Especialista preferido:',
         'cust.no_record': 'Sin registro', 'cust.th_date': 'Fecha', 'cust.th_service': 'Servicio', 'cust.th_specialist': 'Especialista', 'cust.th_status': 'Estado',
         'cust.history_empty': 'Este cliente aún no tiene citas registradas.',
-        'cust.notes_label': 'Notas (alergias a productos, preferencias de tono, etc.)', 'cust.save_notes': 'Guardar Notas',
-        'cust.notes_saved': 'Notas guardadas.', 'cust.notes_error': 'Error al guardar notas: {{msg}}',
         'cust.credits_title': 'Créditos Activos / Historial', 'cust.th_amount': 'Monto', 'cust.th_paid': 'Abonado',
         'cust.payment_form_title': 'Registrar Abono', 'cust.select_credit': 'Seleccionar Crédito Pendiente',
         'cust.amount_to_pay': 'Monto a Abonar ($)', 'cust.process_payment': 'Procesar Abono', 'cust.close': 'Cerrar',
@@ -1077,8 +1072,6 @@
         'cust.last_visit': 'Last visit:', 'cust.top_service': 'Most frequent service:', 'cust.top_specialist': 'Preferred specialist:',
         'cust.no_record': 'No record', 'cust.th_date': 'Date', 'cust.th_service': 'Service', 'cust.th_specialist': 'Specialist', 'cust.th_status': 'Status',
         'cust.history_empty': 'This customer has no appointments yet.',
-        'cust.notes_label': 'Notes (product allergies, tone preferences, etc.)', 'cust.save_notes': 'Save Notes',
-        'cust.notes_saved': 'Notes saved.', 'cust.notes_error': 'Error saving notes: {{msg}}',
         'cust.credits_title': 'Active Credits / History', 'cust.th_amount': 'Amount', 'cust.th_paid': 'Paid',
         'cust.payment_form_title': 'Record Payment', 'cust.select_credit': 'Select Pending Credit',
         'cust.amount_to_pay': 'Amount to Pay ($)', 'cust.process_payment': 'Process Payment', 'cust.close': 'Close',
@@ -1200,8 +1193,6 @@
         'cust.last_visit': 'Dernière visite :', 'cust.top_service': 'Service le plus fréquent :', 'cust.top_specialist': 'Spécialiste préféré :',
         'cust.no_record': 'Aucun enregistrement', 'cust.th_date': 'Date', 'cust.th_service': 'Service', 'cust.th_specialist': 'Spécialiste', 'cust.th_status': 'Statut',
         'cust.history_empty': "Ce client n'a pas encore de rendez-vous enregistré.",
-        'cust.notes_label': 'Notes (allergies aux produits, préférences de teinte, etc.)', 'cust.save_notes': 'Enregistrer les Notes',
-        'cust.notes_saved': 'Notes enregistrées.', 'cust.notes_error': "Erreur lors de l'enregistrement des notes : {{msg}}",
         'cust.credits_title': 'Crédits Actifs / Historique', 'cust.th_amount': 'Montant', 'cust.th_paid': 'Payé',
         'cust.payment_form_title': 'Enregistrer un Paiement', 'cust.select_credit': 'Sélectionner un Crédit en Attente',
         'cust.amount_to_pay': 'Montant à Payer ($)', 'cust.process_payment': 'Traiter le Paiement', 'cust.close': 'Fermer',
@@ -1757,7 +1748,6 @@
 
       document.getElementById('account-customer-name').textContent = t('cust.account_title', { name: customer.name });
       document.getElementById('account-customer-phone').textContent = t('cust.phone_prefix', { phone: customer.phone || 'N/A' });
-      document.getElementById('cust-notes-input').value = customer.notes || '';
 
       // --- Historial de citas del cliente (5.5) ---
       const history = appointmentsSnapshot
@@ -1795,14 +1785,6 @@
         <div><strong>${t('cust.top_service')}</strong> ${topService ? topService.name : t('cust.no_record')}</div>
         <div><strong>${t('cust.top_specialist')}</strong> ${topSpecialistId ? specialistLabel(topSpecialistId) : t('cust.no_record')}</div>
       `;
-
-      document.getElementById('btn-save-cust-notes').onclick = async () => {
-        const notes = document.getElementById('cust-notes-input').value;
-        const { error } = await supabase.from('customers').update({ notes }).eq('id', customerId);
-        if (error) return alert(t('cust.notes_error', { msg: error.message }));
-        customer.notes = notes;
-        alert(t('cust.notes_saved'));
-      };
 
       // --- Créditos ---
       const clientCredits = creditsSnapshot.filter(cr => cr.customer_id === customerId);
