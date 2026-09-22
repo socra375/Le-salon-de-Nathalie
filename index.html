@@ -831,6 +831,12 @@
     <h3 data-i18n="pay.title">Método de Pago</h3>
     <p style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="pay.body">Indica cómo pagó el cliente antes de completar el servicio.</p>
     <div id="pay-method-list" class="checklist-box"></div>
+    <div id="pay-credit-customer-picker" class="hidden" style="margin-top: 0.5rem;">
+      <label for="pay-credit-customer-select" style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;" data-i18n="pay.credit_link_label">Esta cita no está vinculada a un cliente registrado. Selecciona uno para poder fiar:</label>
+      <select id="pay-credit-customer-select">
+        <option value="" data-i18n="pay.credit_link_placeholder">-- Selecciona un cliente registrado --</option>
+      </select>
+    </div>
     <div id="pay-method-summary" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;"></div>
     <button id="btn-confirm-payment" class="btn-primary" data-i18n="pay.confirm">Confirmar y Completar</button>
     <button id="btn-cancel-payment" style="background: transparent;" data-i18n="common.cancel">Cancelar</button>
@@ -929,6 +935,8 @@
         'pay.cash': 'Efectivo', 'pay.transfer': 'Transferencia', 'pay.card': 'Tarjeta', 'pay.credit': 'Crédito (fiado)',
         'pay.summary': '{{client}} — {{services}} | Total: {{total}}', 'pay.select_required': 'Selecciona un método de pago.',
         'pay.credit_needs_customer': 'El crédito (fiado) requiere un cliente registrado. Registra al cliente o elige otro método de pago.',
+        'pay.credit_link_label': 'Esta cita no está vinculada a un cliente registrado. Selecciona uno para poder fiar:',
+        'pay.credit_link_placeholder': '-- Selecciona un cliente registrado --',
         'appt.you_admin': 'Tú (Administrador/a)', 'appt.employee_unnamed': 'Empleado sin nombre', 'appt.specialist_fallback': 'Especialista',
         'appt.walkin_notes_prefix': 'Cliente walk-in',
         'svc.subtitle': 'Define los servicios que ofrece tu salón, su duración y quién puede realizarlos.',
@@ -1050,6 +1058,8 @@
         'pay.cash': 'Cash', 'pay.transfer': 'Bank Transfer', 'pay.card': 'Card', 'pay.credit': 'Credit (tab)',
         'pay.summary': '{{client}} — {{services}} | Total: {{total}}', 'pay.select_required': 'Select a payment method.',
         'pay.credit_needs_customer': 'Credit requires a registered customer. Register the customer or choose another payment method.',
+        'pay.credit_link_label': "This appointment isn't linked to a registered customer. Select one to allow credit:",
+        'pay.credit_link_placeholder': '-- Select a registered customer --',
         'appt.you_admin': 'You (Admin)', 'appt.employee_unnamed': 'Unnamed employee', 'appt.specialist_fallback': 'Specialist',
         'appt.walkin_notes_prefix': 'Walk-in customer',
         'svc.subtitle': 'Define the services your salon offers, their duration, and who can perform them.',
@@ -1171,6 +1181,8 @@
         'pay.cash': 'Espèces', 'pay.transfer': 'Virement', 'pay.card': 'Carte', 'pay.credit': 'Crédit (ardoise)',
         'pay.summary': '{{client}} — {{services}} | Total : {{total}}', 'pay.select_required': 'Sélectionnez un mode de paiement.',
         'pay.credit_needs_customer': 'Le crédit exige un client enregistré. Enregistrez le client ou choisissez un autre mode de paiement.',
+        'pay.credit_link_label': "Ce rendez-vous n'est lié à aucun client enregistré. Sélectionnez-en un pour permettre le crédit :",
+        'pay.credit_link_placeholder': '-- Sélectionnez un client enregistré --',
         'appt.you_admin': 'Vous (Administrateur/trice)', 'appt.employee_unnamed': 'Employé sans nom', 'appt.specialist_fallback': 'Spécialiste',
         'appt.walkin_notes_prefix': 'Client sans rendez-vous',
         'svc.subtitle': 'Définissez les services offerts par votre salon, leur durée et qui peut les réaliser.',
@@ -2382,6 +2394,36 @@
           total: curr + appointmentRevenue(appt).toFixed(2)
         });
 
+        // Si la cita se agendó como walk-in (sin customer_id), pero el
+        // negocio quiere fiarla, dejamos enlazar aquí mismo un cliente
+        // ya registrado en vez de bloquear con un alert. Esto arregla el
+        // caso de "cliente registrado pero cita no enlazada a él".
+        const creditPicker = document.getElementById('pay-credit-customer-picker');
+        const creditSelect = document.getElementById('pay-credit-customer-select');
+        const canLinkCustomer = !appt.customer_id;
+
+        if (canLinkCustomer) {
+          const options = customersSnapshot
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`)
+            .join('');
+          creditSelect.innerHTML = `<option value="">${t('pay.credit_link_placeholder')}</option>${options}`;
+          creditSelect.value = '';
+        } else {
+          creditSelect.innerHTML = '';
+        }
+
+        const refreshCreditPickerVisibility = () => {
+          const chosen = list.querySelector('input[name="pay-method"]:checked');
+          const needsLink = canLinkCustomer && chosen && chosen.value === 'credito';
+          creditPicker.classList.toggle('hidden', !needsLink);
+        };
+        list.querySelectorAll('input[name="pay-method"]').forEach(r => {
+          r.addEventListener('change', refreshCreditPickerVisibility);
+        });
+        refreshCreditPickerVisibility();
+
         const confirmBtn = document.getElementById('btn-confirm-payment');
         const cancelBtn = document.getElementById('btn-cancel-payment');
         const close = (value) => {
@@ -2390,11 +2432,26 @@
           cancelBtn.onclick = null;
           resolve(value);
         };
-        confirmBtn.onclick = () => {
+        confirmBtn.onclick = async () => {
           const selected = list.querySelector('input[name="pay-method"]:checked');
           if (!selected) return alert(t('pay.select_required'));
-          // El fiado necesita un cliente registrado al que asignarle la deuda
-          if (selected.value === 'credito' && !appt.customer_id) return alert(t('pay.credit_needs_customer'));
+
+          // El fiado necesita un cliente registrado al que asignarle la deuda.
+          if (selected.value === 'credito' && !appt.customer_id) {
+            const linkedId = creditSelect.value;
+            if (!linkedId) return alert(t('pay.credit_needs_customer'));
+
+            // Enlazamos la cita al cliente elegido de forma permanente,
+            // para que quede registrado para el futuro (historial, próximas
+            // citas de este mismo cliente, etc.) y no solo para esta factura.
+            const { error } = await supabase.from('appointments').update({ customer_id: linkedId }).eq('id', appt.id);
+            if (error) return alert(t('appt.error_update', { msg: error.message }));
+
+            appt.customer_id = linkedId;
+            const apptInSnapshot = appointmentsSnapshot.find(a => a.id === appt.id);
+            if (apptInSnapshot) apptInSnapshot.customer_id = linkedId;
+          }
+
           close(selected.value);
         };
         cancelBtn.onclick = () => close(null);
