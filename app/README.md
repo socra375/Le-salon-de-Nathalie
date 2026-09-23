@@ -161,8 +161,42 @@ Clientes, Agenda, Facturas/PDF, Dashboard, Configuración y Empleados.
 - Pruebas: `tests/unit/stores/`, `tests/unit/actions/auth.test.ts`,
   `tests/unit/components/auth/*.test.ts` (con `@testing-library/svelte`).
 
+## Fase 5 (en curso) — Servicios
+
+Segunda sección de la Fase 5, mapeada llamada por llamada contra
+`initServices`/`renderServicesTable`/`deleteService` del `index.html`
+legado (sección "8. CATÁLOGO DE SERVICIOS").
+
+- `src/lib/stores/services.ts`: `services`/`specialistServices`
+  (`writable`) -- solo estado, igual que el resto de los stores.
+- `src/lib/actions/services.ts`: `loadServices`, `loadSpecialistOptions`
+  (el admin del negocio siempre aparece como especialista disponible,
+  igual que `getSpecialistOptions()` del legado), `saveService`
+  (borra-e-inserta los especialistas habilitados del servicio, dos pasos
+  de negocio) y `removeService` (si el borrado choca con una llave
+  foránea -- código Postgres `23503`, porque el servicio tiene citas o
+  facturas asociadas -- devuelve `{ status: 'blocked' }` en vez de
+  lanzar, para que la UI sugiera desactivarlo en su lugar).
+- `src/lib/components/services/`: `ServiceForm` (alta/edición, con el
+  checklist de especialistas) y `ServicesScreen` (tabla + orquesta abrir
+  el formulario y borrar). La confirmación de borrado es un diálogo
+  inline (`role="alertdialog"`) en vez del `confirm()` nativo del
+  legado -- mismo criterio de accesibilidad que ya se usó en Auth
+  (traducido, anunciado a lectores de pantalla, no bloqueante del hilo
+  de JS).
+- Las categorías del `<select>` guardan el mismo valor en español que
+  hoy usa la base de datos (`Cabello`, `Uñas`, ...) y solo se traduce la
+  etiqueta visible -- igual que el legado, para no romper datos ya
+  guardados con otro idioma activo.
+- `App.svelte` ya muestra `ServicesScreen` tras iniciar sesión, solo para
+  administradores (Servicios vive bajo Configuración, que en el legado
+  es una sección admin-only oculta por completo a empleados).
+- Pruebas: `tests/unit/stores/services.test.ts`,
+  `tests/unit/actions/services.test.ts`,
+  `tests/unit/components/services/*.test.ts`.
+
 ## Qué NO hay todavía
 
 Sin paridad funcional completa con el `index.html` legado: de la Fase 5
-falta Servicios, Clientes, Agenda, Facturas/PDF, Dashboard, Configuración
-y Empleados.
+falta Clientes, Agenda, Facturas/PDF, Dashboard, Configuración (el resto
+de sus pestañas) y Empleados.
