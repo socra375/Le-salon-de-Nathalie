@@ -3,11 +3,19 @@
   import { t, locale } from './lib/stores/locale';
   import { isLocale } from './lib/i18n';
   import { supabase, isSupabaseConfigured } from './lib/api/client';
-  import { currentBusiness, currentUserRole, isAuthenticated, needsOnboarding, resetSession } from './lib/stores/session';
+  import {
+    currentBusiness,
+    currentUserRole,
+    isAuthenticated,
+    isAdmin,
+    needsOnboarding,
+    resetSession,
+  } from './lib/stores/session';
   import { readPendingInviteFromUrl, resolveSessionAfterLogin, type PendingInvite } from './lib/actions/auth';
   import AuthScreen from './lib/components/auth/AuthScreen.svelte';
   import OnboardingScreen from './lib/components/auth/OnboardingScreen.svelte';
   import ForcedPasswordModal from './lib/components/auth/ForcedPasswordModal.svelte';
+  import ServicesScreen from './lib/components/services/ServicesScreen.svelte';
 
   let ready = $state(false);
   let resolving = $state(false);
@@ -90,6 +98,11 @@
       Sesión iniciada como <strong>{$currentUserRole === 'admin' ? $t('header.role_admin') : $t('header.role_employee')}</strong>
       de <strong>{$currentBusiness?.name ?? 'Mi Salón'}</strong>.
     </p>
-    <p>El resto de la interfaz (Agenda, Servicios, Clientes, Facturas...) llega en las próximas fases.</p>
+    {#if $isAdmin}
+      <!-- Servicios es admin-only en el legado (la sección de Configuración
+           entera queda oculta para empleados, misma regla que hoy). -->
+      <ServicesScreen />
+    {/if}
+    <p>El resto de la interfaz (Agenda, Clientes, Facturas, Dashboard, Configuración, Empleados) llega en las próximas fases.</p>
   </main>
 {/if}
