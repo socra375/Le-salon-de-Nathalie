@@ -68,8 +68,25 @@ con estado en memoria, no con `history.pushState`) y esta reescritura
 mantiene el mismo modelo — así el problema no existe, en vez de mitigarlo
 con el parche habitual de un `404.html` que redirige.
 
+## Capa de datos (`src/lib/api/`)
+
+Fase 3 del plan: un archivo por tabla (`businesses.ts`, `services.ts`,
+`appointments.ts`, ...), cada uno con funciones tipadas y pequeñas que
+envuelven exactamente las llamadas `supabase.from(...)` que el
+`index.html` legado ya hace hoy — mapeadas call por call, no adivinadas.
+`client.ts` reexporta el cliente único; `errors.ts` normaliza cualquier
+`{ data, error }` de PostgREST en un `ApiError` con el mensaje original en
+`cause`, reemplazando el patrón repetido `alert(t('...error', { msg:
+error.message }))` del legado — la traducción y el mostrarlo en pantalla
+son cosa de la UI (Fase 5), no de esta capa.
+
+Cada función tiene su prueba en `tests/unit/api/*.test.ts`, mockeando el
+cliente con el helper de `tests/unit/support/supabaseMock.ts` — sin red
+real. Nada de esto se usa todavía desde ningún componente; eso empieza en
+la Fase 5.
+
 ## Qué NO hay todavía
 
-Sin capa de datos, sin componentes reales, sin paridad funcional con el
-`index.html` legado — eso es trabajo de las Fases 3 a 6. Esta fase es
-únicamente el andamiaje: build, tipos, entorno y CI en verde.
+Sin componentes reales, sin paridad funcional con el `index.html` legado —
+eso es trabajo de las Fases 4 a 6. Las Fases 2-3 son andamiaje y datos:
+build, tipos, entorno, capa de datos y CI en verde.

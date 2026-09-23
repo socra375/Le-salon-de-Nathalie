@@ -10,6 +10,6 @@
     "skipLibCheck": true,
     "types": ["vite/client", "vitest/globals"]
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte", "vite.config.ts", "vitest-setup.ts"],
+  "include": ["src/**/*.ts", "src/**/*.svelte", "tests/unit/**/*.ts", "vite.config.ts", "vitest-setup.ts"],
   "exclude": ["tests/e2e/**/*"]
 }
