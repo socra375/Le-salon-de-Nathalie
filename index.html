@@ -1348,6 +1348,27 @@
       });
     });
 
+    // Si el dashboard se deja abierto de un día para otro (o de una semana
+    // para otra) sin recargar la página, "Hoy"/"Esta Semana" se quedaban
+    // calculados con la fecha de la última vez que se cargaron datos —
+    // parecía que "hoy" seguía mostrando la cuenta de ayer. Revisamos cada
+    // minuto y también al volver a la pestaña, y si cambió el día
+    // recalculamos solos.
+    let lastKnownDayStr = toDateInputValue(new Date());
+    function refreshDashboardIfDayChanged() {
+      if (!modulesInitialized) return;
+      const todayStr = toDateInputValue(new Date());
+      if (todayStr !== lastKnownDayStr) {
+        lastKnownDayStr = todayStr;
+        calculateFinancialDashboard();
+        renderTodayAppointmentsWidget();
+      }
+    }
+    setInterval(refreshDashboardIfDayChanged, 60000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') refreshDashboardIfDayChanged();
+    });
+
     // Mostrar campo de nombre completo si hay código de invitación
     document.getElementById('auth-invite-code').addEventListener('input', (e) => {
       const container = document.getElementById('invite-fullname-container');
@@ -2539,13 +2560,22 @@
       const completed = appointmentsSnapshot.filter(a => a.status === 'completada');
       let filteredAppointments = [];
 
+      // Semana calendario (lunes a domingo), con el mismo criterio de
+      // "fecha civil" que ya usa "Este Mes" — antes esto era una ventana
+      // móvil de "últimos 7 días desde ahora mismo", que no es lo mismo
+      // que "Esta Semana" (el botón lo dice, el cálculo hacía otra cosa)
+      // y además daba un total distinto según la hora del día en que se
+      // mirara el dashboard.
+      const dayOfWeek = (now.getDay() + 6) % 7; // 0 = lunes ... 6 = domingo
+      const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
+      const weekEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 7);
+
       completed.forEach(a => {
         const d = new Date(a.start_at);
         if (activePeriod === 'today') {
           if (d.toDateString() === now.toDateString()) filteredAppointments.push(a);
         } else if (activePeriod === 'week') {
-          const diffDays = Math.ceil(Math.abs(now - d) / (1000 * 60 * 60 * 24));
-          if (diffDays <= 7) filteredAppointments.push(a);
+          if (d >= weekStart && d < weekEnd) filteredAppointments.push(a);
         } else if (activePeriod === 'month') {
           if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) filteredAppointments.push(a);
         }
