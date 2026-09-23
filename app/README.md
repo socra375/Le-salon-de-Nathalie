@@ -85,6 +85,46 @@ cliente con el helper de `tests/unit/support/supabaseMock.ts` — sin red
 real. Nada de esto se usa todavía desde ningún componente; eso empieza en
 la Fase 5.
 
+## i18n y utilidades puras (`src/lib/i18n/`, `src/lib/utils/`)
+
+Fase 4 del plan. Las 292 claves de traducción del `index.html` legado,
+extraídas tal cual a `src/lib/i18n/{es,en,fr}.json` (español es la
+referencia: todas las demás se validan contra ella en
+`tests/unit/i18n/i18n.test.ts` — un idioma con una clave de más o de menos
+falla la prueba). `src/lib/i18n/index.ts` expone un `t(locale, key, vars)`
+tipado (autocompletado de claves incluido) con el mismo comportamiento que
+la `t()` del legado: interpola `{{var}}` y cae a español si la clave no
+existe en el idioma pedido.
+
+**Se agregaron 3 idiomas nuevos** a pedido explícito del usuario para esta
+fase: `pt.json` (portugués), `de.json` (alemán) e `it.json` (italiano) —
+292 claves cada uno, traducidas para esta migración (no vienen del
+`index.html` legado, que solo tiene es/en/fr). Por ahora viven únicamente
+en esta reescritura (`app/`); el `index.html` de producción no se tocó,
+así que estos 3 idiomas nuevos no están disponibles todavía para los
+clientes reales del salón — eso requeriría además backportearlos al
+legado, algo que no se hizo aquí para no desviarse del alcance de la Fase 4.
+
+`src/lib/utils/`: funciones puras extraídas del legado, ahora recibiendo
+por parámetro lo que antes leían de una variable global (`locale`,
+snapshots de servicios/facturas/créditos) — así son comprobables sin
+montar ningún estado de la app:
+- `html.ts` — `escapeHtml`. En los componentes Svelte de las próximas
+  fases esto no hace falta (`{expresión}` ya escapa solo); se conserva
+  para los pocos lugares que sigan construyendo HTML/texto crudo a mano
+  (el PDF).
+- `format.ts` — `fmtDate`/`fmtDateTime`/`fmtTime`, con el locale como
+  parámetro.
+- `dates.ts` — `toDateInputValue`, semana/mes calendario (la lógica
+  detrás del bug de "Esta Semana" que se corrigió en el legado).
+- `labels.ts` — `apptStatusLabel`/`creditStatusLabel`, con un mapa
+  `satisfies Record<string, TranslationKey>` en vez de concatenar strings
+  a mano (`'appt.status_' + status`), que TypeScript no revisaba.
+- `payments.ts` — catálogo de métodos de pago y cuáles están habilitados.
+- `appointments.ts` — `apptServices*`/`appointmentRevenue`/
+  `collectedRevenue` (esta última es la que corrigió el bug de contar el
+  crédito dos veces).
+
 ## Qué NO hay todavía
 
 Sin componentes reales, sin paridad funcional con el `index.html` legado —
