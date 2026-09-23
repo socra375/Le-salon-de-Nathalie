@@ -3,4 +3,4 @@
 // ../supabase/client) — así las pruebas mockean un solo punto y el día que
 // haga falta envolver el cliente (logging, retries, lo que sea) es un
 // cambio en un solo lugar.
-export { supabase } from '../supabase/client';
+export { supabase, isSupabaseConfigured } from '../supabase/client';

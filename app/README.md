@@ -99,11 +99,10 @@ existe en el idioma pedido.
 **Se agregaron 3 idiomas nuevos** a pedido explícito del usuario para esta
 fase: `pt.json` (portugués), `de.json` (alemán) e `it.json` (italiano) —
 292 claves cada uno, traducidas para esta migración (no vienen del
-`index.html` legado, que solo tiene es/en/fr). Por ahora viven únicamente
-en esta reescritura (`app/`); el `index.html` de producción no se tocó,
-así que estos 3 idiomas nuevos no están disponibles todavía para los
-clientes reales del salón — eso requeriría además backportearlos al
-legado, algo que no se hizo aquí para no desviarse del alcance de la Fase 4.
+`index.html` legado, que solo tenía es/en/fr). Después, a pedido del
+usuario, también se backportearon al `index.html` de producción — ver el
+commit "Agregar portugués, alemán e italiano a la interfaz en producción"
+— así que hoy los 6 idiomas existen en ambos lados (legado y reescritura).
 
 `src/lib/utils/`: funciones puras extraídas del legado, ahora recibiendo
 por parámetro lo que antes leían de una variable global (`locale`,
@@ -125,8 +124,45 @@ montar ningún estado de la app:
   `collectedRevenue` (esta última es la que corrigió el bug de contar el
   crédito dos veces).
 
+## Fase 5 (en curso) — componentes Svelte + stores: Auth/Onboarding
+
+Primera sección de la Fase 5, siguiendo el orden del plan (Auth/Onboarding
+es la base de la que depende todo lo demás). Todavía faltan Servicios,
+Clientes, Agenda, Facturas/PDF, Dashboard, Configuración y Empleados.
+
+- `src/lib/stores/session.ts`: `currentUserId`/`currentBusinessId`/
+  `currentUserRole`/`currentBusiness` (`writable`) + `isAuthenticated`/
+  `isAdmin`/`needsOnboarding` (`derived`) — solo estado, nada de lógica,
+  siguiendo la regla de stores del plan.
+- `src/lib/stores/locale.ts`: el idioma activo (persistido en
+  `localStorage`, igual que el legado) y `t` como store derivado —
+  `$t('clave', vars)` reactivo en cualquier componente.
+- `src/lib/actions/auth.ts`: la orquestación de más de un paso (iniciar
+  sesión o registrarse con el mismo formulario, canjear una invitación
+  pendiente de la URL, resolver a qué negocio pertenece el usuario y con
+  qué rol, completar el onboarding, forzar una contraseña) — usa los
+  stores y la capa de datos de la Fase 3, nunca al revés.
+- `src/lib/components/auth/`: `AuthScreen`, `OnboardingScreen`,
+  `ForcedPasswordModal` — sin `alert()` nativo (mensajes traducidos y
+  anunciados con `role="alert"`/`role="status"`, más accesible y con
+  idioma correcto que el diálogo nativo del navegador); accesibilidad
+  integrada desde el inicio (Fase 6 del plan), no como pasada final.
+- `src/lib/supabase/client.ts` cambió de fallar al *importarlo* sin
+  configurar a fallar al *usarlo* (`isSupabaseConfigured` + un cliente que
+  revienta recién en el primer uso) — así `App.svelte` puede mostrar una
+  pantalla de "falta configuración" en vez de una página en blanco.
+- Mejora incidental sobre el legado (no un cambio de comportamiento que
+  alguien dependiera de él): al guardar el onboarding, el store se
+  actualiza con los datos recién guardados en vez de quedar desactualizado
+  hasta la próxima carga; y los campos de validación manual (nombre del
+  negocio, nombre completo del empleado) ya no llevan además `required`
+  nativo, que antes bloqueaba el envío del formulario antes de que el
+  mensaje traducido llegara a mostrarse.
+- Pruebas: `tests/unit/stores/`, `tests/unit/actions/auth.test.ts`,
+  `tests/unit/components/auth/*.test.ts` (con `@testing-library/svelte`).
+
 ## Qué NO hay todavía
 
-Sin componentes reales, sin paridad funcional con el `index.html` legado —
-eso es trabajo de las Fases 4 a 6. Las Fases 2-3 son andamiaje y datos:
-build, tipos, entorno, capa de datos y CI en verde.
+Sin paridad funcional completa con el `index.html` legado: de la Fase 5
+falta Servicios, Clientes, Agenda, Facturas/PDF, Dashboard, Configuración
+y Empleados.

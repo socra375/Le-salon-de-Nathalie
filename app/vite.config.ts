@@ -14,6 +14,10 @@ const BASE = '/gestor-empresarial/';
 export default defineConfig({
   base: BASE,
   plugins: [svelte()],
+  // Sin esto, Vitest resuelve los componentes .svelte a su build de
+  // servidor (SSR) en vez del de navegador -- @testing-library/svelte
+  // necesita el de navegador para poder montar el componente en jsdom.
+  resolve: process.env.VITEST ? { conditions: ['browser'] } : undefined,
   test: {
     environment: 'jsdom',
     include: ['tests/unit/**/*.test.ts'],
