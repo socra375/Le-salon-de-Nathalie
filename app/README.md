@@ -195,8 +195,48 @@ legado (sección "8. CATÁLOGO DE SERVICIOS").
   `tests/unit/actions/services.test.ts`,
   `tests/unit/components/services/*.test.ts`.
 
+## Fase 5 (en curso) — Clientes
+
+Tercera sección de la Fase 5, mapeada contra `initCustomersAndCredits`/
+`openCustomerAccountModal` del `index.html` legado (sección "5. CLIENTES,
+CRÉDITOS E HISTORIAL DE VISITAS"). A diferencia de Servicios, el legado
+nunca tuvo edición ni borrado de clientes -- solo alta y consulta -- así
+que esta sección tampoco los tiene.
+
+- `src/lib/stores/customers.ts`: `customers`/`customerCredits`
+  (`writable`). `src/lib/stores/appointments.ts`: `appointments`
+  (`writable`) -- Clientes lo necesita para el historial de cada cuenta
+  (misma dependencia cruzada que ya existía en el legado, donde
+  `appointmentsSnapshot` está cargado globalmente para cuando se abre
+  esta pantalla); Agenda, en su propia sección, lo hará crecer con la
+  orquestación de crear/actualizar citas.
+- `src/lib/actions/customers.ts`: `loadCustomers`, `loadCredits`,
+  `registerCustomer` (alta + recarga) y `payCredit` -- el abono de un
+  crédito, que decide si el estado pasa a `parcial` o `pagado` según si
+  lo abonado ya cubre el total (dos pasos de negocio: leer el crédito
+  actual y decidir el estado nuevo antes de guardar).
+  `src/lib/actions/appointments.ts`: `loadAppointments`, mínimo por ahora
+  -- Agenda lo va a ampliar en su propia sección.
+- `src/lib/utils/customerAccount.ts`: `summarizeCustomerHistory` (última
+  visita, servicio y especialista más frecuentes -- misma lógica que
+  `openCustomerAccountModal` del legado, extraída para poder probarla
+  sin montar ningún componente) y `pendingCreditTotal`.
+- `src/lib/components/customers/`: `CustomersScreen` (alta + tabla con
+  saldo pendiente por cliente) y `CustomerAccountModal` (historial de
+  citas, créditos y el formulario de abono). El formulario de abono solo
+  se muestra si el cliente tiene algún crédito pendiente -- el legado
+  siempre lo mostraba, incluso con el `<select>` de créditos vacío,
+  volviéndolo un formulario imposible de enviar; ocultarlo es una mejora
+  incidental, no un cambio de comportamiento del que algo dependiera.
+- `App.svelte` ya muestra `CustomersScreen` junto a `ServicesScreen`,
+  también solo para administradores.
+- Pruebas: `tests/unit/stores/customers.test.ts`,
+  `tests/unit/utils/customerAccount.test.ts`,
+  `tests/unit/actions/{customers,appointments}.test.ts`,
+  `tests/unit/components/customers/*.test.ts`.
+
 ## Qué NO hay todavía
 
 Sin paridad funcional completa con el `index.html` legado: de la Fase 5
-falta Clientes, Agenda, Facturas/PDF, Dashboard, Configuración (el resto
-de sus pestañas) y Empleados.
+falta Agenda, Facturas/PDF, Dashboard, Configuración (el resto de sus
+pestañas) y Empleados.

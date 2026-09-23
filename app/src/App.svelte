@@ -16,6 +16,7 @@
   import OnboardingScreen from './lib/components/auth/OnboardingScreen.svelte';
   import ForcedPasswordModal from './lib/components/auth/ForcedPasswordModal.svelte';
   import ServicesScreen from './lib/components/services/ServicesScreen.svelte';
+  import CustomersScreen from './lib/components/customers/CustomersScreen.svelte';
 
   let ready = $state(false);
   let resolving = $state(false);
@@ -99,10 +100,12 @@
       de <strong>{$currentBusiness?.name ?? 'Mi Salón'}</strong>.
     </p>
     {#if $isAdmin}
-      <!-- Servicios es admin-only en el legado (la sección de Configuración
-           entera queda oculta para empleados, misma regla que hoy). -->
+      <!-- Servicios y Clientes son admin-only en el legado (la sección de
+           Configuración entera queda oculta para empleados, misma regla
+           que hoy). -->
       <ServicesScreen />
+      <CustomersScreen />
     {/if}
-    <p>El resto de la interfaz (Agenda, Clientes, Facturas, Dashboard, Configuración, Empleados) llega en las próximas fases.</p>
+    <p>El resto de la interfaz (Agenda, Facturas, Dashboard, Configuración, Empleados) llega en las próximas fases.</p>
   </main>
 {/if}
