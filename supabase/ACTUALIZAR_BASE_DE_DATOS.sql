@@ -108,23 +108,36 @@ create policy "admin_update_customers" on customers for update using (business_i
 drop policy if exists "admin_delete_customers" on customers;
 create policy "admin_delete_customers" on customers for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
-drop policy if exists "members_all_products" on products;
-create policy "select_products" on products for select using (business_id = get_current_business_id());
-drop policy if exists "admin_insert_products" on products;
-create policy "admin_insert_products" on products for insert with check (business_id = get_current_business_id() and is_current_business_admin());
-drop policy if exists "admin_update_products" on products;
-create policy "admin_update_products" on products for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
-drop policy if exists "admin_delete_products" on products;
-create policy "admin_delete_products" on products for delete using (business_id = get_current_business_id() and is_current_business_admin());
+-- products/sales son restos de un módulo ya eliminado del frontend; en
+-- algunas instalaciones (como esta) esas tablas nunca llegaron a crearse,
+-- así que cada bloque se salta solo si la tabla no existe.
+do $$
+begin
+  if to_regclass('public.products') is not null then
+    execute 'drop policy if exists "members_all_products" on products';
+    execute 'create policy "select_products" on products for select using (business_id = get_current_business_id())';
+    execute 'drop policy if exists "admin_insert_products" on products';
+    execute 'create policy "admin_insert_products" on products for insert with check (business_id = get_current_business_id() and is_current_business_admin())';
+    execute 'drop policy if exists "admin_update_products" on products';
+    execute 'create policy "admin_update_products" on products for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin())';
+    execute 'drop policy if exists "admin_delete_products" on products';
+    execute 'create policy "admin_delete_products" on products for delete using (business_id = get_current_business_id() and is_current_business_admin())';
+  end if;
+end $$;
 
-drop policy if exists "members_all_sales" on sales;
-create policy "select_sales" on sales for select using (business_id = get_current_business_id());
-drop policy if exists "admin_insert_sales" on sales;
-create policy "admin_insert_sales" on sales for insert with check (business_id = get_current_business_id() and is_current_business_admin());
-drop policy if exists "admin_update_sales" on sales;
-create policy "admin_update_sales" on sales for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
-drop policy if exists "admin_delete_sales" on sales;
-create policy "admin_delete_sales" on sales for delete using (business_id = get_current_business_id() and is_current_business_admin());
+do $$
+begin
+  if to_regclass('public.sales') is not null then
+    execute 'drop policy if exists "members_all_sales" on sales';
+    execute 'create policy "select_sales" on sales for select using (business_id = get_current_business_id())';
+    execute 'drop policy if exists "admin_insert_sales" on sales';
+    execute 'create policy "admin_insert_sales" on sales for insert with check (business_id = get_current_business_id() and is_current_business_admin())';
+    execute 'drop policy if exists "admin_update_sales" on sales';
+    execute 'create policy "admin_update_sales" on sales for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin())';
+    execute 'drop policy if exists "admin_delete_sales" on sales';
+    execute 'create policy "admin_delete_sales" on sales for delete using (business_id = get_current_business_id() and is_current_business_admin())';
+  end if;
+end $$;
 
 drop policy if exists "members_all_credits" on customer_credits;
 create policy "select_credits" on customer_credits for select using (business_id = get_current_business_id());
@@ -228,3 +241,5 @@ from pg_policy p
 join pg_class c on c.oid = p.polrelid
 where c.relname in ('customers','products','sales','customer_credits','invoices','services','specialist_services','appointments')
 order by c.relname, operacion;
+-- Nota: si products/sales no existen en tu base, simplemente no aparecerán
+-- en este listado (no es un error).

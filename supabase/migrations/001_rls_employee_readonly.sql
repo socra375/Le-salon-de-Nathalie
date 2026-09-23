@@ -52,25 +52,35 @@ create policy "admin_update_customers" on customers for update using (business_i
 drop policy if exists "admin_delete_customers" on customers;
 create policy "admin_delete_customers" on customers for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
--- --- products (vestigio, ya sin uso en el frontend) ---
-drop policy if exists "members_all_products" on products;
-create policy "select_products" on products for select using (business_id = get_current_business_id());
-drop policy if exists "admin_insert_products" on products;
-create policy "admin_insert_products" on products for insert with check (business_id = get_current_business_id() and is_current_business_admin());
-drop policy if exists "admin_update_products" on products;
-create policy "admin_update_products" on products for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
-drop policy if exists "admin_delete_products" on products;
-create policy "admin_delete_products" on products for delete using (business_id = get_current_business_id() and is_current_business_admin());
+-- --- products (vestigio, ya sin uso en el frontend; se salta si la tabla no existe) ---
+do $$
+begin
+  if to_regclass('public.products') is not null then
+    execute 'drop policy if exists "members_all_products" on products';
+    execute 'create policy "select_products" on products for select using (business_id = get_current_business_id())';
+    execute 'drop policy if exists "admin_insert_products" on products';
+    execute 'create policy "admin_insert_products" on products for insert with check (business_id = get_current_business_id() and is_current_business_admin())';
+    execute 'drop policy if exists "admin_update_products" on products';
+    execute 'create policy "admin_update_products" on products for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin())';
+    execute 'drop policy if exists "admin_delete_products" on products';
+    execute 'create policy "admin_delete_products" on products for delete using (business_id = get_current_business_id() and is_current_business_admin())';
+  end if;
+end $$;
 
--- --- sales (vestigio, ya sin uso en el frontend) ---
-drop policy if exists "members_all_sales" on sales;
-create policy "select_sales" on sales for select using (business_id = get_current_business_id());
-drop policy if exists "admin_insert_sales" on sales;
-create policy "admin_insert_sales" on sales for insert with check (business_id = get_current_business_id() and is_current_business_admin());
-drop policy if exists "admin_update_sales" on sales;
-create policy "admin_update_sales" on sales for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
-drop policy if exists "admin_delete_sales" on sales;
-create policy "admin_delete_sales" on sales for delete using (business_id = get_current_business_id() and is_current_business_admin());
+-- --- sales (vestigio, ya sin uso en el frontend; se salta si la tabla no existe) ---
+do $$
+begin
+  if to_regclass('public.sales') is not null then
+    execute 'drop policy if exists "members_all_sales" on sales';
+    execute 'create policy "select_sales" on sales for select using (business_id = get_current_business_id())';
+    execute 'drop policy if exists "admin_insert_sales" on sales';
+    execute 'create policy "admin_insert_sales" on sales for insert with check (business_id = get_current_business_id() and is_current_business_admin())';
+    execute 'drop policy if exists "admin_update_sales" on sales';
+    execute 'create policy "admin_update_sales" on sales for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin())';
+    execute 'drop policy if exists "admin_delete_sales" on sales';
+    execute 'create policy "admin_delete_sales" on sales for delete using (business_id = get_current_business_id() and is_current_business_admin())';
+  end if;
+end $$;
 
 -- --- customer_credits ---
 drop policy if exists "members_all_credits" on customer_credits;
