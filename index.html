@@ -27,8 +27,7 @@
 
   <!-- Supabase JS v2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Chart.js y jsPDF -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- jsPDF (Chart.js se quitó: no hay ni un solo "new Chart(" en toda la app) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
@@ -546,6 +545,7 @@
           <span style="font-size: 0.8rem; color: var(--text-muted);" data-i18n="emp.code_generated">Código generado:</span>
           <h2 id="lbl-generated-code" style="color: var(--accent-profit); letter-spacing: 2px;"></h2>
           <button id="btn-copy-code" style="width: auto; padding: 0.3rem 0.8rem; font-size: 0.8rem;" data-i18n="emp.copy_code">Copiar Código</button>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;" data-i18n="emp.code_expiry_hint">Válido por 72 horas.</p>
         </div>
       </div>
 
@@ -977,6 +977,7 @@
         'emp.title': 'Gestión de Empleados', 'emp.invite_title': 'Invitar Empleado',
         'emp.invite_hint': 'Genera un código de acceso único para registrar nuevos estilistas/empleados.',
         'emp.generate_code': 'Generar Código de Invitación', 'emp.code_generated': 'Código generado:', 'emp.copy_code': 'Copiar Código',
+        'emp.code_expiry_hint': 'Válido por 72 horas.',
         'emp.copied': 'Código copiado al portapapeles.', 'emp.list_title': 'Lista de Empleados Actuales',
         'emp.th_name': 'Nombre', 'emp.th_position': 'Cargo', 'emp.th_role': 'Rol Permisos', 'emp.th_added': 'Agregado',
         'emp.role_employee': 'Empleado', 'emp.position_placeholder': 'Ej: Estilista',
@@ -1100,6 +1101,7 @@
         'emp.title': 'Employee Management', 'emp.invite_title': 'Invite Employee',
         'emp.invite_hint': 'Generate a unique access code to register new stylists/employees.',
         'emp.generate_code': 'Generate Invitation Code', 'emp.code_generated': 'Generated code:', 'emp.copy_code': 'Copy Code',
+        'emp.code_expiry_hint': 'Valid for 72 hours.',
         'emp.copied': 'Code copied to clipboard.', 'emp.list_title': 'Current Employee List',
         'emp.th_name': 'Name', 'emp.th_position': 'Position', 'emp.th_role': 'Permission Role', 'emp.th_added': 'Added',
         'emp.role_employee': 'Employee', 'emp.position_placeholder': 'e.g. Stylist',
@@ -1223,6 +1225,7 @@
         'emp.title': 'Gestion des Employés', 'emp.invite_title': 'Inviter un Employé',
         'emp.invite_hint': "Générez un code d'accès unique pour enregistrer de nouveaux coiffeurs/employés.",
         'emp.generate_code': "Générer un Code d'Invitation", 'emp.code_generated': 'Code généré :', 'emp.copy_code': 'Copier le Code',
+        'emp.code_expiry_hint': 'Valide 72 heures.',
         'emp.copied': 'Code copié dans le presse-papiers.', 'emp.list_title': 'Liste des Employés Actuels',
         'emp.th_name': 'Nom', 'emp.th_position': 'Poste', 'emp.th_role': 'Rôle des Permissions', 'emp.th_added': 'Ajouté',
         'emp.role_employee': 'Employé', 'emp.position_placeholder': 'Ex : Coiffeur/euse',
@@ -1823,7 +1826,7 @@
 
       document.getElementById('cust-history-summary').innerHTML = `
         <div><strong>${t('cust.last_visit')}</strong> ${lastVisit ? fmtDate(lastVisit.start_at) : t('cust.no_record')}</div>
-        <div><strong>${t('cust.top_service')}</strong> ${topService ? topService.name : t('cust.no_record')}</div>
+        <div><strong>${t('cust.top_service')}</strong> ${topService ? escapeHtml(topService.name) : t('cust.no_record')}</div>
         <div><strong>${t('cust.top_specialist')}</strong> ${topSpecialistId ? specialistLabel(topSpecialistId) : t('cust.no_record')}</div>
       `;
 
@@ -1896,9 +1899,22 @@
     // -------------------------------------------------------------
     // 7. GESTIÓN DE EMPLEADOS (ADMIN)
     // -------------------------------------------------------------
+    // Genera un código de invitación con crypto.getRandomValues (no
+    // Math.random, que no es apto para nada que funcione como secreto) y
+    // 10 caracteres de un alfabeto sin ambigüedades (sin 0/O ni 1/I/L), para
+    // que además de aleatorio de verdad sea fácil de leer y transcribir.
+    function generateInviteCode() {
+      const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+      const bytes = new Uint8Array(10);
+      crypto.getRandomValues(bytes);
+      let code = 'EMP';
+      for (let i = 0; i < bytes.length; i++) code += alphabet[bytes[i] % alphabet.length];
+      return code;
+    }
+
     function initEmployeeManagement() {
       document.getElementById('btn-generate-invite').onclick = async () => {
-        const code = 'EMP' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const code = generateInviteCode();
         const { error } = await supabase.from('employee_invites').insert([{
           business_id: currentBusinessId,
           code: code

@@ -1,86 +1,29 @@
 -- ============================================================
--- ACTUALIZAR LA BASE DE DATOS
+-- 001 — RLS: el empleado pasa a ser de solo lectura de verdad
 -- ============================================================
--- Copia TODO este archivo y pégalo en:
---   Supabase > tu proyecto > SQL Editor > New query > Run
+-- Qué cambia: 8 tablas (customers, services, specialist_services,
+-- appointments, invoices, customer_credits, products, sales) tenían una
+-- sola política "for all" que daba a CUALQUIER miembro del negocio
+-- (admin o empleado) los mismos permisos de lectura Y escritura. La
+-- pantalla de "solo lectura" para el rol employee era solo apariencia
+-- del frontend — nada la respaldaba en la base de datos: un empleado
+-- podía crear, modificar o borrar cualquier cosa por la API.
 --
--- Es seguro ejecutarlo las veces que haga falta: cada línea usa
--- "if not exists", así que no borra nada ni duplica columnas.
--- Si una columna ya existe, simplemente la salta.
+-- Por qué: alinear la base de datos con lo que la interfaz ya promete.
+-- products/sales ya no los usa el frontend (vestigios del módulo de
+-- Ventas/Inventario eliminado), pero seguían abiertos por API igual que
+-- el resto — se cierran también, por consistencia y porque siguen siendo
+-- una superficie de ataque aunque nadie los muestre en pantalla.
+--
+-- Antes de aplicar: backup desde Supabase → Database → Backups.
+-- Después de aplicar: correr supabase/PRUEBA_RLS.sql para confirmar.
 -- ============================================================
 
--- Sitio web del negocio (pie de la factura)
-alter table businesses add column if not exists website text;
-
--- Domicilio y e-mail del cliente (encabezado de la factura)
-alter table customers add column if not exists address text;
-alter table customers add column if not exists email text;
-
--- Precio del servicio al momento de la cita (para el dashboard
--- e historial, aunque el precio del servicio cambie después)
-alter table appointments add column if not exists price numeric;
-
--- Las facturas se generan desde una cita completada
-alter table invoices add column if not exists appointment_id uuid references appointments(id);
-
--- Los créditos ("fiado") se generan desde una factura de servicio
-alter table customer_credits add column if not exists invoice_id uuid references invoices(id);
-
-create index if not exists idx_invoices_appointment on invoices(appointment_id);
-
--- Idioma de la interfaz para este negocio: 'es' | 'en' | 'fr'
-alter table businesses add column if not exists language text default 'es';
-
--- Nombre del cliente en la factura (también para walk-ins sin registrar)
-alter table invoices add column if not exists customer_name text;
-
--- Personalización: tono de la interfaz ('dark' | 'light') y fondo propio
-alter table businesses add column if not exists theme text default 'dark';
-alter table businesses add column if not exists background_url text;
-
--- Una cita puede incluir varios servicios
-alter table appointments add column if not exists service_ids jsonb;
-
--- Método de pago: 'efectivo' | 'transferencia' | 'tarjeta' | 'credito'
-alter table invoices add column if not exists payment_method text;
-
--- ============================================================
--- COMPROBACIÓN
--- ============================================================
--- Al terminar, esta consulta debe devolver 4 filas. Si las ves,
--- todo quedó listo y la web funcionará sin errores de columna.
-
-select table_name, column_name
-from information_schema.columns
-where table_schema = 'public'
-  and (
-    (table_name = 'businesses'   and column_name in ('theme', 'background_url')) or
-    (table_name = 'appointments' and column_name = 'service_ids')               or
-    (table_name = 'invoices'     and column_name = 'payment_method')
-  )
-order by table_name, column_name;
-
--- ============================================================
--- SEGURIDAD — corrige un agujero en las políticas de acceso
--- ============================================================
--- Sin esto, cualquiera con una cuenta podía afiliar a OTRO dueño de
--- salón a su propio negocio. La víctima entraba al salón del atacante
--- al iniciar sesión, perdía el acceso al suyo y los datos que
--- registrara caían en el negocio ajeno.
-drop policy if exists "admin_insert_members" on business_members;
-create policy "admin_insert_members" on business_members for insert
-  with check (business_id = auth.uid() and user_id = auth.uid());
-
--- ============================================================
--- MIGRACIÓN 001 — el empleado pasa a ser de solo lectura de verdad
--- ============================================================
--- Antes, 8 tablas tenían una sola política "for all" que daba a
--- cualquier miembro (admin O empleado) los mismos permisos de lectura
--- Y escritura. La pantalla de "solo lectura" del empleado era solo
--- apariencia del frontend. Detalle completo y consulta de verificación
--- en supabase/migrations/001_rls_employee_readonly.sql — antes de
--- correr esto, backup desde Supabase → Database → Backups.
-
+-- --- Función helper: ¿el usuario actual es admin de su negocio? ---
+-- Se reconocen dos formas de ser admin porque hoy el dueño nunca tiene
+-- fila en business_members (su propio auth.uid() ES el business_id); la
+-- condición sobre business_members.role deja abierto el camino a varios
+-- admins por negocio en el futuro sin tocar esta función de nuevo.
 create or replace function public.is_current_business_admin()
 returns boolean
 language sql
@@ -99,6 +42,7 @@ $$;
 
 grant execute on function public.is_current_business_admin() to authenticated;
 
+-- --- customers ---
 drop policy if exists "members_all_customers" on customers;
 create policy "select_customers" on customers for select using (business_id = get_current_business_id());
 drop policy if exists "admin_insert_customers" on customers;
@@ -108,6 +52,7 @@ create policy "admin_update_customers" on customers for update using (business_i
 drop policy if exists "admin_delete_customers" on customers;
 create policy "admin_delete_customers" on customers for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
+-- --- products (vestigio, ya sin uso en el frontend) ---
 drop policy if exists "members_all_products" on products;
 create policy "select_products" on products for select using (business_id = get_current_business_id());
 drop policy if exists "admin_insert_products" on products;
@@ -117,6 +62,7 @@ create policy "admin_update_products" on products for update using (business_id 
 drop policy if exists "admin_delete_products" on products;
 create policy "admin_delete_products" on products for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
+-- --- sales (vestigio, ya sin uso en el frontend) ---
 drop policy if exists "members_all_sales" on sales;
 create policy "select_sales" on sales for select using (business_id = get_current_business_id());
 drop policy if exists "admin_insert_sales" on sales;
@@ -126,6 +72,7 @@ create policy "admin_update_sales" on sales for update using (business_id = get_
 drop policy if exists "admin_delete_sales" on sales;
 create policy "admin_delete_sales" on sales for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
+-- --- customer_credits ---
 drop policy if exists "members_all_credits" on customer_credits;
 create policy "select_credits" on customer_credits for select using (business_id = get_current_business_id());
 drop policy if exists "admin_insert_credits" on customer_credits;
@@ -135,6 +82,7 @@ create policy "admin_update_credits" on customer_credits for update using (busin
 drop policy if exists "admin_delete_credits" on customer_credits;
 create policy "admin_delete_credits" on customer_credits for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
+-- --- invoices ---
 drop policy if exists "members_all_invoices" on invoices;
 create policy "select_invoices" on invoices for select using (business_id = get_current_business_id());
 drop policy if exists "admin_insert_invoices" on invoices;
@@ -144,10 +92,12 @@ create policy "admin_update_invoices" on invoices for update using (business_id 
 drop policy if exists "admin_delete_invoices" on invoices;
 create policy "admin_delete_invoices" on invoices for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
+-- --- activity_log (el SELECT no cambia: ambos roles pueden leer la bitácora) ---
 drop policy if exists "members_insert_activity" on activity_log;
 drop policy if exists "admin_insert_activity" on activity_log;
 create policy "admin_insert_activity" on activity_log for insert with check (business_id = get_current_business_id() and is_current_business_admin());
 
+-- --- services ---
 drop policy if exists "members_all_services" on services;
 create policy "select_services" on services for select using (business_id = get_current_business_id());
 drop policy if exists "admin_insert_services" on services;
@@ -157,6 +107,7 @@ create policy "admin_update_services" on services for update using (business_id 
 drop policy if exists "admin_delete_services" on services;
 create policy "admin_delete_services" on services for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
+-- --- specialist_services ---
 drop policy if exists "members_all_specserv" on specialist_services;
 create policy "select_specserv" on specialist_services for select using (business_id = get_current_business_id());
 drop policy if exists "admin_insert_specserv" on specialist_services;
@@ -166,6 +117,7 @@ create policy "admin_update_specserv" on specialist_services for update using (b
 drop policy if exists "admin_delete_specserv" on specialist_services;
 create policy "admin_delete_specserv" on specialist_services for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
+-- --- appointments ---
 drop policy if exists "members_all_appointments" on appointments;
 create policy "select_appointments" on appointments for select using (business_id = get_current_business_id());
 drop policy if exists "admin_insert_appointments" on appointments;
@@ -176,54 +128,45 @@ drop policy if exists "admin_delete_appointments" on appointments;
 create policy "admin_delete_appointments" on appointments for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 -- ============================================================
--- MIGRACIÓN 002 — códigos de invitación con vigencia de 72 horas
+-- ROLLBACK — si algo se rompe, pegar este bloque para volver atrás
 -- ============================================================
-alter table employee_invites add column if not exists expires_at timestamptz default (now() + interval '72 hours');
-
-create or replace function public.redeem_invite_code(input_code text, input_employee_name text)
-returns uuid
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  v_business_id uuid;
-  v_expires_at timestamptz;
-begin
-  select business_id, expires_at into v_business_id, v_expires_at
-  from employee_invites
-  where code = input_code and used = false
-  limit 1;
-
-  if v_business_id is null then
-    raise exception 'Código de invitación inválido o ya utilizado';
-  end if;
-
-  if v_expires_at is not null and v_expires_at <= now() then
-    raise exception 'El código de invitación venció. Pide al administrador que genere uno nuevo';
-  end if;
-
-  insert into business_members (business_id, user_id, role, employee_name)
-  values (v_business_id, auth.uid(), 'employee', input_employee_name)
-  on conflict (business_id, user_id) do nothing;
-
-  update employee_invites
-    set used = true, used_by = auth.uid(), used_at = now()
-    where code = input_code;
-
-  return v_business_id;
-end;
-$$;
-
-grant execute on function public.redeem_invite_code(text, text) to authenticated;
+-- do $$ begin
+--   drop policy if exists "select_customers" on customers; drop policy if exists "admin_insert_customers" on customers; drop policy if exists "admin_update_customers" on customers; drop policy if exists "admin_delete_customers" on customers;
+--   create policy "members_all_customers" on customers for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+--   drop policy if exists "select_products" on products; drop policy if exists "admin_insert_products" on products; drop policy if exists "admin_update_products" on products; drop policy if exists "admin_delete_products" on products;
+--   create policy "members_all_products" on products for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+--   drop policy if exists "select_sales" on sales; drop policy if exists "admin_insert_sales" on sales; drop policy if exists "admin_update_sales" on sales; drop policy if exists "admin_delete_sales" on sales;
+--   create policy "members_all_sales" on sales for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+--   drop policy if exists "select_credits" on customer_credits; drop policy if exists "admin_insert_credits" on customer_credits; drop policy if exists "admin_update_credits" on customer_credits; drop policy if exists "admin_delete_credits" on customer_credits;
+--   create policy "members_all_credits" on customer_credits for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+--   drop policy if exists "select_invoices" on invoices; drop policy if exists "admin_insert_invoices" on invoices; drop policy if exists "admin_update_invoices" on invoices; drop policy if exists "admin_delete_invoices" on invoices;
+--   create policy "members_all_invoices" on invoices for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+--   drop policy if exists "admin_insert_activity" on activity_log;
+--   create policy "members_insert_activity" on activity_log for insert with check (business_id = get_current_business_id());
+--   drop policy if exists "select_services" on services; drop policy if exists "admin_insert_services" on services; drop policy if exists "admin_update_services" on services; drop policy if exists "admin_delete_services" on services;
+--   create policy "members_all_services" on services for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+--   drop policy if exists "select_specserv" on specialist_services; drop policy if exists "admin_insert_specserv" on specialist_services; drop policy if exists "admin_update_specserv" on specialist_services; drop policy if exists "admin_delete_specserv" on specialist_services;
+--   create policy "members_all_specserv" on specialist_services for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+--   drop policy if exists "select_appointments" on appointments; drop policy if exists "admin_insert_appointments" on appointments; drop policy if exists "admin_update_appointments" on appointments; drop policy if exists "admin_delete_appointments" on appointments;
+--   create policy "members_all_appointments" on appointments for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+-- end $$;
 
 -- ============================================================
--- COMPROBACIÓN FINAL — debe devolver 8 tablas × 4 políticas cada una
+-- VERIFICACIÓN — cada una de las 8 tablas debe mostrar exactamente 4
+-- políticas: select_X (r), admin_insert_X (a), admin_update_X (w),
+-- admin_delete_X (d). Si falta alguna fila o sobra "members_all_X",
+-- algo no se aplicó bien.
 -- ============================================================
 select
   c.relname as tabla,
   p.polname as politica,
-  case p.polcmd when 'r' then 'select' when 'a' then 'insert' when 'w' then 'update' when 'd' then 'delete' else p.polcmd::text end as operacion
+  case p.polcmd
+    when 'r' then 'select'
+    when 'a' then 'insert'
+    when 'w' then 'update'
+    when 'd' then 'delete'
+    else p.polcmd::text
+  end as operacion
 from pg_policy p
 join pg_class c on c.oid = p.polrelid
 where c.relname in ('customers','products','sales','customer_credits','invoices','services','specialist_services','appointments')
