@@ -22,6 +22,10 @@ insert into _t values ('aaaaaaaa-0000-4000-8000-000000000001',
                        'bbbbbbbb-0000-4000-8000-000000000002');
 
 create temporary table _r (n int generated always as identity, prueba text, veredicto text) on commit drop;
+-- El script más adelante cambia de rol a "authenticated" para simular a los
+-- usuarios de prueba; sin este permiso, esas simulaciones no pueden anotar
+-- su resultado en _r y la prueba entera falla con "permission denied".
+grant insert on _r to authenticated;
 
 -- ------------------------------------------------------------
 -- BLOQUE 1 — ¿Hay alguna tabla sin RLS? (la más grave de todas:

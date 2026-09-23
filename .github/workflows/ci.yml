@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  # Suite de la Fase 1, contra el index.html legado que sigue sirviendo
+  # producción. No tiene ninguna dependencia de app/.
+  legacy-e2e:
+    name: Suite legada (index.html)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar navegadores de Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Correr la suite e2e legada
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legacy-e2e-report
+          path: playwright-report/
+          retention-days: 7
+
+  # Andamiaje de la Fase 2 (Vite + TypeScript + Svelte), aislado en app/.
+  # Sin ningún paso de deploy todavía — eso es de la Fase 7.
+  app:
+    name: app/ (build, tipos, unitarias, e2e)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar navegadores de Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Tipos (svelte-check)
+        run: npm run check
+
+      - name: Pruebas unitarias (Vitest)
+        run: npm run test:unit
+
+      - name: Build de producción
+        run: npm run build
+
+      - name: Prueba del base path bajo GitHub Pages (Playwright + vite preview)
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: app-e2e-report
+          path: app/playwright-report/
+          retention-days: 7

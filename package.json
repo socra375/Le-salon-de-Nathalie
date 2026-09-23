@@ -1,0 +1,16 @@
+{
+  "name": "gestion-salon",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Arnés de pruebas end-to-end (Playwright) para Gestión Salón. La app en sí sigue siendo el index.html estático de la raíz, servido tal cual por GitHub Pages sin ningún paso de build.",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "http-server": "^14.1.1"
+  }
+}

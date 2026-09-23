@@ -1,0 +1,31 @@
+import type { Locale } from '../i18n';
+
+/**
+ * Igual que las fmt* del index.html legado, pero reciben el `locale` como
+ * parámetro en vez de leer `currentLang` de un global — así son puras y
+ * comprobables sin montar ningún estado de la app.
+ */
+export const LOCALE_MAP: Record<Locale, string> = {
+  es: 'es-ES',
+  en: 'en-US',
+  fr: 'fr-FR',
+  pt: 'pt-BR',
+  de: 'de-DE',
+  it: 'it-IT',
+};
+
+function toDate(value: Date | string): Date {
+  return value instanceof Date ? value : new Date(value);
+}
+
+export function fmtDate(value: Date | string, locale: Locale): string {
+  return toDate(value).toLocaleDateString(LOCALE_MAP[locale]);
+}
+
+export function fmtDateTime(value: Date | string, locale: Locale): string {
+  return toDate(value).toLocaleString(LOCALE_MAP[locale]);
+}
+
+export function fmtTime(value: Date | string, locale: Locale): string {
+  return toDate(value).toLocaleTimeString(LOCALE_MAP[locale], { hour: '2-digit', minute: '2-digit' });
+}
