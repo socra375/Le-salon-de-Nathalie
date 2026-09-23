@@ -28,9 +28,13 @@ export default defineConfig({
       : {},
   },
   webServer: {
-    command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
+    // --host 127.0.0.1 explícito: sin esto, `vite preview` resuelve
+    // "localhost" según el sistema, que en algunos runners de CI cae en
+    // IPv6 — el health-check de Playwright contra 127.0.0.1 nunca conecta
+    // y el job entero se cuelga hasta el timeout, sin ningún error claro.
+    command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${PORT} --strictPort`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    timeout: 90_000,
   },
 });
