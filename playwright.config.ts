@@ -17,14 +17,15 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'retain-on-failure',
-    // Este entorno trae Chromium pre-instalado en una ruta fija; se apunta
-    // ahí de forma explícita en vez de dejar que Playwright intente
-    // descargar el suyo (puede no coincidir con la versión de
-    // @playwright/test instalada — no importa, con executablePath no se
-    // valida la revisión esperada).
-    launchOptions: {
-      executablePath: '/opt/pw-browsers/chromium',
-    },
+    // Por defecto, Playwright resuelve su propio Chromium descargado con
+    // `npx playwright install` (lo normal en CI y en la máquina de
+    // cualquier desarrollador). Algunos entornos de desarrollo sandboxed
+    // sin salida de red hacia el CDN de Playwright ya traen un Chromium
+    // pre-instalado en una ruta fija; PLAYWRIGHT_CHROMIUM_PATH permite
+    // apuntar ahí solo en esos casos, sin tocar el comportamiento normal.
+    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
+      : {},
   },
   // Si E2E_BASE_URL ya apunta a un servidor corriendo (p. ej. `vite preview`
   // en una fase posterior), no se levanta ningún http-server propio.
