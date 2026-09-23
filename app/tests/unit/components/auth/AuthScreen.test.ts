@@ -1,0 +1,96 @@
+import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+
+const authActionsMock = vi.hoisted(() => ({
+  signInOrSignUp: vi.fn(),
+  signInWithGoogle: vi.fn(),
+}));
+vi.mock('../../../../src/lib/actions/auth', async () => {
+  const actual = await vi.importActual<typeof import('../../../../src/lib/actions/auth')>(
+    '../../../../src/lib/actions/auth'
+  );
+  return { ...actual, signInOrSignUp: authActionsMock.signInOrSignUp, signInWithGoogle: authActionsMock.signInWithGoogle };
+});
+
+const { default: AuthScreen } = await import('../../../../src/lib/components/auth/AuthScreen.svelte');
+
+afterEach(() => cleanup());
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+describe('AuthScreen', () => {
+  it('muestra el subtítulo y los campos básicos, sin el de nombre completo', () => {
+    render(AuthScreen, { props: { pendingInvite: null } });
+
+    expect(screen.getByLabelText('Correo Electrónico')).toBeTruthy();
+    expect(screen.getByLabelText('Contraseña')).toBeTruthy();
+    expect(screen.queryByLabelText('Tu nombre completo (Obligatorio)')).toBeNull();
+  });
+
+  it('escribir un código de invitación revela el campo de nombre completo', async () => {
+    render(AuthScreen, { props: { pendingInvite: null } });
+
+    const inviteInput = screen.getByLabelText('¿Tienes un código de invitación de tu salón? (Opcional)');
+    await fireEvent.input(inviteInput, { target: { value: 'EMPABC123' } });
+
+    expect(screen.getByLabelText('Tu nombre completo (Obligatorio)')).toBeTruthy();
+  });
+
+  it('con código de invitación precargado (link de invitación), el campo ya aparece expandido', () => {
+    render(AuthScreen, { props: { pendingInvite: { code: 'EMPABC123', employeeName: '' } } });
+    expect(screen.getByLabelText('Tu nombre completo (Obligatorio)')).toBeTruthy();
+  });
+
+  it('si hay código de invitación sin nombre, avisa y no envía el formulario', async () => {
+    render(AuthScreen, { props: { pendingInvite: { code: 'EMPABC123', employeeName: '' } } });
+
+    await fireEvent.input(screen.getByLabelText('Correo Electrónico'), { target: { value: 'ana@test.com' } });
+    await fireEvent.input(screen.getByLabelText('Contraseña'), { target: { value: 'secret123' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Iniciar Sesión / Registrarse' }));
+
+    expect((await screen.findByRole('alert')).textContent).toBe(
+      'Debes escribir tu nombre completo para registrarte con un código de invitación.'
+    );
+    expect(authActionsMock.signInOrSignUp).not.toHaveBeenCalled();
+  });
+
+  it('envía email/password al intentar iniciar sesión', async () => {
+    authActionsMock.signInOrSignUp.mockResolvedValue({ status: 'signed_in' });
+    render(AuthScreen, { props: { pendingInvite: null } });
+
+    await fireEvent.input(screen.getByLabelText('Correo Electrónico'), { target: { value: 'ana@test.com' } });
+    await fireEvent.input(screen.getByLabelText('Contraseña'), { target: { value: 'secret123' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Iniciar Sesión / Registrarse' }));
+
+    expect(authActionsMock.signInOrSignUp).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'ana@test.com', password: 'secret123', invite: null })
+    );
+  });
+
+  it('muestra el mensaje de éxito cuando se envía el correo de registro', async () => {
+    authActionsMock.signInOrSignUp.mockResolvedValue({ status: 'signup_email_sent' });
+    render(AuthScreen, { props: { pendingInvite: null } });
+
+    // Los campos de email/contraseña sí llevan `required` nativo (a
+    // diferencia del de nombre completo): hay que llenarlos o el
+    // navegador bloquea el submit antes de que corra handleSubmit.
+    await fireEvent.input(screen.getByLabelText('Correo Electrónico'), { target: { value: 'ana@test.com' } });
+    await fireEvent.input(screen.getByLabelText('Contraseña'), { target: { value: 'secret123' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Iniciar Sesión / Registrarse' }));
+
+    expect((await screen.findByRole('status')).textContent).toContain('Revisa tu correo');
+  });
+
+  it('muestra el error de autenticación devuelto por la acción', async () => {
+    authActionsMock.signInOrSignUp.mockResolvedValue({ status: 'error', error: { message: 'credenciales inválidas' } });
+    render(AuthScreen, { props: { pendingInvite: null } });
+
+    await fireEvent.input(screen.getByLabelText('Correo Electrónico'), { target: { value: 'ana@test.com' } });
+    await fireEvent.input(screen.getByLabelText('Contraseña'), { target: { value: 'secret123' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Iniciar Sesión / Registrarse' }));
+
+    expect((await screen.findByRole('alert')).textContent).toBe('Error de autenticación: credenciales inválidas');
+  });
+});
