@@ -60,7 +60,10 @@ create table if not exists employee_invites (
   used boolean default false,
   used_by uuid,
   used_at timestamptz,
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  -- Vigencia del código (72h por defecto). El "is null" en redeem_invite_code
+  -- cubre las filas creadas antes de que existiera esta columna.
+  expires_at timestamptz default (now() + interval '72 hours')
 );
 
 create table if not exists customers (
@@ -180,6 +183,31 @@ $$;
 
 grant execute on function public.get_current_business_id() to authenticated;
 
+-- Un empleado (business_members.role = 'employee') es de solo lectura en
+-- todo el negocio; solo el admin (el dueño, o un futuro miembro con
+-- role = 'admin') puede crear, modificar o borrar. Se reconocen dos formas
+-- de ser admin porque hoy el dueño nunca tiene fila en business_members
+-- (su propio auth.uid() ES el business_id) — la condición sobre
+-- business_members.role deja el camino abierto a varios admins por
+-- negocio en el futuro sin tener que tocar esta función de nuevo.
+create or replace function public.is_current_business_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select auth.uid() = get_current_business_id()
+    or exists (
+      select 1 from business_members bm
+      where bm.business_id = get_current_business_id()
+        and bm.user_id = auth.uid()
+        and bm.role = 'admin'
+    );
+$$;
+
+grant execute on function public.is_current_business_admin() to authenticated;
+
 -- ============================================================
 -- 3. ÍNDICES
 -- ============================================================
@@ -206,14 +234,19 @@ set search_path = public
 as $$
 declare
   v_business_id uuid;
+  v_expires_at timestamptz;
 begin
-  select business_id into v_business_id
+  select business_id, expires_at into v_business_id, v_expires_at
   from employee_invites
   where code = input_code and used = false
   limit 1;
 
   if v_business_id is null then
     raise exception 'Código de invitación inválido o ya utilizado';
+  end if;
+
+  if v_expires_at is not null and v_expires_at <= now() then
+    raise exception 'El código de invitación venció. Pide al administrador que genere uno nuevo';
   end if;
 
   insert into business_members (business_id, user_id, role, employee_name)
@@ -264,41 +297,84 @@ alter table employee_invites enable row level security;
 create policy "admin_manage_invites" on employee_invites for all
   using (business_id = auth.uid()) with check (business_id = auth.uid());
 
+-- Un empleado puede LEER todo el negocio; solo el admin puede escribir.
+-- Antes cada una de estas 8 tablas tenía una sola política "for all" que
+-- daba a cualquier miembro (admin o empleado) los mismos permisos de
+-- lectura Y escritura — la pantalla de "solo lectura" para empleados era
+-- solo apariencia del frontend, nada la respaldaba en la base de datos.
+-- products/sales ya no los usa el frontend (son del módulo de
+-- Ventas/Inventario eliminado), pero seguían abiertos por API igual que
+-- el resto — se cierran también por consistencia.
+
 alter table customers enable row level security;
-create policy "members_all_customers" on customers for all
-  using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+drop policy if exists "members_all_customers" on customers;
+-- create policy "members_all_customers" on customers for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "select_customers" on customers for select using (business_id = get_current_business_id());
+create policy "admin_insert_customers" on customers for insert with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_update_customers" on customers for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_delete_customers" on customers for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 alter table products enable row level security;
-create policy "members_all_products" on products for all
-  using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+drop policy if exists "members_all_products" on products;
+-- create policy "members_all_products" on products for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "select_products" on products for select using (business_id = get_current_business_id());
+create policy "admin_insert_products" on products for insert with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_update_products" on products for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_delete_products" on products for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 alter table sales enable row level security;
-create policy "members_all_sales" on sales for all
-  using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+drop policy if exists "members_all_sales" on sales;
+-- create policy "members_all_sales" on sales for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "select_sales" on sales for select using (business_id = get_current_business_id());
+create policy "admin_insert_sales" on sales for insert with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_update_sales" on sales for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_delete_sales" on sales for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 alter table customer_credits enable row level security;
-create policy "members_all_credits" on customer_credits for all
-  using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+drop policy if exists "members_all_credits" on customer_credits;
+-- create policy "members_all_credits" on customer_credits for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "select_credits" on customer_credits for select using (business_id = get_current_business_id());
+create policy "admin_insert_credits" on customer_credits for insert with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_update_credits" on customer_credits for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_delete_credits" on customer_credits for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 alter table invoices enable row level security;
-create policy "members_all_invoices" on invoices for all
-  using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+drop policy if exists "members_all_invoices" on invoices;
+-- create policy "members_all_invoices" on invoices for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "select_invoices" on invoices for select using (business_id = get_current_business_id());
+create policy "admin_insert_invoices" on invoices for insert with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_update_invoices" on invoices for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_delete_invoices" on invoices for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 alter table activity_log enable row level security;
 create policy "members_select_activity" on activity_log for select using (business_id = get_current_business_id());
-create policy "members_insert_activity" on activity_log for insert with check (business_id = get_current_business_id());
+drop policy if exists "members_insert_activity" on activity_log;
+-- create policy "members_insert_activity" on activity_log for insert with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "admin_insert_activity" on activity_log for insert with check (business_id = get_current_business_id() and is_current_business_admin());
 
 alter table services enable row level security;
-create policy "members_all_services" on services for all
-  using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+drop policy if exists "members_all_services" on services;
+-- create policy "members_all_services" on services for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "select_services" on services for select using (business_id = get_current_business_id());
+create policy "admin_insert_services" on services for insert with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_update_services" on services for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_delete_services" on services for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 alter table specialist_services enable row level security;
-create policy "members_all_specserv" on specialist_services for all
-  using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+drop policy if exists "members_all_specserv" on specialist_services;
+-- create policy "members_all_specserv" on specialist_services for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "select_specserv" on specialist_services for select using (business_id = get_current_business_id());
+create policy "admin_insert_specserv" on specialist_services for insert with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_update_specserv" on specialist_services for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_delete_specserv" on specialist_services for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 alter table appointments enable row level security;
-create policy "members_all_appointments" on appointments for all
-  using (business_id = get_current_business_id()) with check (business_id = get_current_business_id());
+drop policy if exists "members_all_appointments" on appointments;
+-- create policy "members_all_appointments" on appointments for all using (business_id = get_current_business_id()) with check (business_id = get_current_business_id()); -- ROLLBACK: política original
+create policy "select_appointments" on appointments for select using (business_id = get_current_business_id());
+create policy "admin_insert_appointments" on appointments for insert with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_update_appointments" on appointments for update using (business_id = get_current_business_id() and is_current_business_admin()) with check (business_id = get_current_business_id() and is_current_business_admin());
+create policy "admin_delete_appointments" on appointments for delete using (business_id = get_current_business_id() and is_current_business_admin());
 
 -- ============================================================
 -- 6. STORAGE — bucket para logos del salón

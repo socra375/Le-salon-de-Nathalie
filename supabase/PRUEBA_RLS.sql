@@ -8,8 +8,10 @@
 -- ROLLBACK. No crea, cambia ni borra nada de tus datos reales.
 --
 -- Qué hace: se hace pasar por dos salones distintos e intenta que
--- uno lea y modifique los datos del otro. Cada línea del resultado
--- dice OK (protegido) o FALLA (agujero de seguridad).
+-- uno lea y modifique los datos del otro; además prueba que un empleado
+-- quede de solo lectura de verdad (migración 001) mientras el admin
+-- sigue pudiendo todo. Cada línea del resultado dice OK (protegido) o
+-- FALLA (agujero de seguridad).
 -- ============================================================
 
 begin;
@@ -120,6 +122,90 @@ exception
   when others then
     insert into _r (prueba, veredicto) values
       ('SECUESTRO: no puedo afiliar a otro usuario a mi negocio', 'OK');
+end $$;
+
+reset role;
+
+-- ------------------------------------------------------------
+-- BLOQUE 3 — El empleado es de solo lectura de verdad (migración 001)
+-- Salón C con un admin (dueño) y un empleado ficticio. Se prueba que el
+-- empleado puede LEER pero no puede crear/modificar/borrar, y que el
+-- admin sigue pudiendo todo.
+-- ------------------------------------------------------------
+
+-- business_members.user_id referencia auth.users de verdad; para simular
+-- un empleado sin depender de una cuenta real, se quita esa referencia
+-- solo dentro de esta transacción (el ROLLBACK final la restaura).
+do $$
+declare v_conname text;
+begin
+  select conname into v_conname
+  from pg_constraint
+  where conrelid = 'business_members'::regclass and contype = 'f' and confrelid = 'auth.users'::regclass;
+  if v_conname is not null then
+    execute format('alter table business_members drop constraint %I', v_conname);
+  end if;
+end $$;
+
+insert into businesses (id, name) values ('cccccccc-0000-4000-8000-000000000003', 'Salón C (prueba)');
+insert into business_members (business_id, user_id, role)
+values ('cccccccc-0000-4000-8000-000000000003', 'dddddddd-0000-4000-8000-000000000004', 'employee');
+insert into services (id, business_id, name, price, duration_minutes, active)
+values ('eeeeeeee-0000-4000-8000-000000000005', 'cccccccc-0000-4000-8000-000000000003', 'Servicio de prueba C', 100, 30, true);
+
+-- Actuamos como el EMPLEADO del salón C
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"dddddddd-0000-4000-8000-000000000004","role":"authenticated"}';
+
+insert into _r (prueba, veredicto) values
+  ('EMPLEADO: puede LEER los servicios de su propio salón',
+   case when (select count(*) from services where id = 'eeeeeeee-0000-4000-8000-000000000005') = 1
+        then 'OK' else 'FALLA — el empleado no puede ni leer su propio negocio' end);
+
+do $$
+begin
+  begin
+    insert into services (business_id, name, price, duration_minutes, active)
+    values ('cccccccc-0000-4000-8000-000000000003', 'Colado por empleado', 1, 1, true);
+    insert into _r (prueba, veredicto) values ('EMPLEADO: no puede CREAR servicios', 'FALLA — un empleado puede insertar');
+  exception when insufficient_privilege or others then
+    insert into _r (prueba, veredicto) values ('EMPLEADO: no puede CREAR servicios', 'OK');
+  end;
+end $$;
+
+do $$
+declare v_afectadas int;
+begin
+  update services set name = 'HACKEADO POR EMPLEADO' where id = 'eeeeeeee-0000-4000-8000-000000000005';
+  get diagnostics v_afectadas = row_count;
+  insert into _r (prueba, veredicto) values
+    ('EMPLEADO: no puede MODIFICAR servicios',
+     case when v_afectadas = 0 then 'OK' else 'FALLA — un empleado puede modificar' end);
+
+  delete from services where id = 'eeeeeeee-0000-4000-8000-000000000005';
+  get diagnostics v_afectadas = row_count;
+  insert into _r (prueba, veredicto) values
+    ('EMPLEADO: no puede BORRAR servicios',
+     case when v_afectadas = 0 then 'OK' else 'FALLA — un empleado puede borrar' end);
+end $$;
+
+-- Ahora actuamos como el ADMIN (dueño) del salón C: debe seguir pudiendo todo.
+set local request.jwt.claims = '{"sub":"cccccccc-0000-4000-8000-000000000003","role":"authenticated"}';
+
+do $$
+declare v_afectadas int;
+begin
+  update services set name = 'Editado por el admin' where id = 'eeeeeeee-0000-4000-8000-000000000005';
+  get diagnostics v_afectadas = row_count;
+  insert into _r (prueba, veredicto) values
+    ('ADMIN: sigue pudiendo MODIFICAR sus servicios (no quedó bloqueado por error)',
+     case when v_afectadas = 1 then 'OK' else 'FALLA — el admin quedó bloqueado sin querer' end);
+
+  delete from services where id = 'eeeeeeee-0000-4000-8000-000000000005';
+  get diagnostics v_afectadas = row_count;
+  insert into _r (prueba, veredicto) values
+    ('ADMIN: sigue pudiendo BORRAR sus servicios (no quedó bloqueado por error)',
+     case when v_afectadas = 1 then 'OK' else 'FALLA — el admin quedó bloqueado sin querer' end);
 end $$;
 
 reset role;
