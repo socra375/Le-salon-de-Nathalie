@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import { t } from '../../stores/locale';
-  import { updateBusinessInfo } from '../../actions/settings';
+  import { updateBusinessInfo, clearBusinessLogo } from '../../actions/settings';
   import type { Tables } from '../../types/database.types';
 
   interface Props {
@@ -35,6 +35,15 @@
       statusMessage = { kind: 'error', text: $t('cfg.error_generic', { msg: err instanceof Error ? err.message : String(err) }) };
     } finally {
       submitting = false;
+    }
+  }
+
+  async function handleClearLogo() {
+    statusMessage = null;
+    try {
+      await clearBusinessLogo(businessId, $t('act.business_updated'));
+    } catch (err) {
+      statusMessage = { kind: 'error', text: $t('cfg.error_generic', { msg: err instanceof Error ? err.message : String(err) }) };
     }
   }
 </script>
@@ -71,6 +80,7 @@
       accept="image/*"
       onchange={(e) => (logoFile = (e.currentTarget as HTMLInputElement).files?.[0] ?? null)}
     />
+    <button type="button" onclick={handleClearLogo}>{$t('cfg.logo_clear')}</button>
   </div>
 
   {#if statusMessage}

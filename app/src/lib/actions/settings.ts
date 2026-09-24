@@ -106,6 +106,13 @@ export async function clearBusinessBackground(businessId: string, activityMessag
   await logActivity({ business_id: businessId, action: activityMessage });
 }
 
+export async function clearBusinessLogo(businessId: string, activityMessage: string): Promise<void> {
+  const patch: TablesUpdate<'businesses'> = { logo_url: null, updated_at: new Date().toISOString() };
+  await updateBusiness(businessId, patch);
+  applyBusinessPatch(patch);
+  await logActivity({ business_id: businessId, action: activityMessage });
+}
+
 export interface UpdateBusinessTaxInput {
   businessId: string;
   currencySymbol: string;

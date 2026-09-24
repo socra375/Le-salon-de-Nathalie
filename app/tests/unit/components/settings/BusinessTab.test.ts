@@ -3,11 +3,11 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
 import type { Tables } from '../../../../src/lib/types/database.types';
 import { expectNoA11yViolations } from '../../support/axe';
 
-const actionsMock = vi.hoisted(() => ({ updateBusinessInfo: vi.fn() }));
+const actionsMock = vi.hoisted(() => ({ updateBusinessInfo: vi.fn(), clearBusinessLogo: vi.fn() }));
 vi.mock('../../../../src/lib/actions/settings', async () => {
   const actual =
     await vi.importActual<typeof import('../../../../src/lib/actions/settings')>('../../../../src/lib/actions/settings');
-  return { ...actual, updateBusinessInfo: actionsMock.updateBusinessInfo };
+  return { ...actual, ...actionsMock };
 });
 
 const { default: BusinessTab } = await import('../../../../src/lib/components/settings/BusinessTab.svelte');
@@ -51,6 +51,15 @@ describe('BusinessTab', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Guardar Datos del Negocio' }));
 
     expect((await screen.findByRole('alert')).textContent).toBe('Error subiendo el logo: bucket lleno');
+  });
+
+  it('"Quitar Logo" llama a clearBusinessLogo', async () => {
+    actionsMock.clearBusinessLogo.mockResolvedValue(undefined);
+    render(BusinessTab, { props: { businessId: 'biz-1', business } });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Quitar Logo' }));
+
+    expect(actionsMock.clearBusinessLogo).toHaveBeenCalledWith('biz-1', expect.any(String));
   });
 
   it('sin violaciones de accesibilidad (axe-core)', async () => {

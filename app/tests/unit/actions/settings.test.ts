@@ -16,6 +16,7 @@ const {
   updateBusinessLanguage,
   updateBusinessAppearance,
   clearBusinessBackground,
+  clearBusinessLogo,
   updateBusinessTax,
   updateBusinessPaymentMethods,
 } = await import('../../../src/lib/actions/settings');
@@ -148,6 +149,21 @@ describe('clearBusinessBackground', () => {
       'biz-1',
       expect.objectContaining({ background_url: null })
     );
+  });
+});
+
+describe('clearBusinessLogo', () => {
+  it('guarda logo_url en null', async () => {
+    businessesApiMock.updateBusiness.mockResolvedValue(undefined);
+    await clearBusinessLogo('biz-1', 'Quitó el logo');
+    expect(businessesApiMock.updateBusiness).toHaveBeenCalledWith(
+      'biz-1',
+      expect.objectContaining({ logo_url: null })
+    );
+    expect(activityLogApiMock.logActivity).toHaveBeenCalledWith({
+      business_id: 'biz-1',
+      action: 'Quitó el logo',
+    });
   });
 });
 

@@ -28,6 +28,12 @@ describe('SettingsScreen', () => {
     expect(screen.getByRole('button', { name: 'Mi Cuenta' }).getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('cambiar a "Cambiar de Plan" muestra el botón de WhatsApp', async () => {
+    render(SettingsScreen);
+    await fireEvent.click(screen.getByRole('button', { name: 'Cambiar de Plan' }));
+    expect(screen.getByRole('button', { name: 'Solicitar cambio por WhatsApp' })).toBeTruthy();
+  });
+
   it('cambiar a "Datos Negocio" muestra ese formulario', async () => {
     render(SettingsScreen);
     await fireEvent.click(screen.getByRole('button', { name: 'Datos Negocio' }));
