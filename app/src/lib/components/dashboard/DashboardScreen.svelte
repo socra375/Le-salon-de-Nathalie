@@ -5,10 +5,11 @@
   import { invoices as invoicesStore } from '../../stores/invoices';
   import { customerCredits as creditsStore, customers as customersStore } from '../../stores/customers';
   import { activePeriod } from '../../stores/dashboard';
-  import { calculateDashboardTotals, todaysAppointments, type DashboardPeriod } from '../../utils/dashboard';
+  import { calculateDashboardTotals, todaysAppointments, last7DaysRevenue, type DashboardPeriod } from '../../utils/dashboard';
   import { apptServicesLabel, getAppointmentClientName } from '../../utils/appointments';
   import { apptStatusLabel, type AppointmentStatus } from '../../utils/labels';
   import { fmtTime } from '../../utils/format';
+  import RevenueChart from './RevenueChart.svelte';
 
   const PERIODS: { key: DashboardPeriod; labelKey: 'dash.period_today' | 'dash.period_week' | 'dash.period_month' }[] = [
     { key: 'today', labelKey: 'dash.period_today' },
@@ -23,6 +24,7 @@
   );
   const todaysList = $derived(todaysAppointments(now, $appointmentsStore));
   const todaysListPreview = $derived(todaysList.slice(0, 6));
+  const chartPoints = $derived(last7DaysRevenue(now, $appointmentsStore, $servicesStore, $invoicesStore, $creditsStore));
 </script>
 
 <section aria-labelledby="dashboard-title">
@@ -74,6 +76,14 @@
       <div class="val-large">${totals.totalReceivables.toFixed(2)}</div>
       <span>{$t('dash.receivables_hint')}</span>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>{$t('dash.chart_title')}</h2>
+      <span>{$t('dash.chart_subtitle')}</span>
+    </div>
+    <RevenueChart points={chartPoints} locale={$locale} />
   </div>
 </section>
 

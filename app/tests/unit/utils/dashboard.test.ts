@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateDashboardTotals, todaysAppointments } from '../../../src/lib/utils/dashboard';
+import { calculateDashboardTotals, todaysAppointments, last7DaysRevenue } from '../../../src/lib/utils/dashboard';
 import type { Tables } from '../../../src/lib/types/database.types';
 
 const services: Tables<'services'>[] = [
@@ -75,5 +75,16 @@ describe('todaysAppointments', () => {
   it('no incluye citas de otro día', () => {
     const yesterday = makeAppt({ id: 'y', start_at: '2026-01-14T09:00:00.000Z' });
     expect(todaysAppointments(now, [yesterday])).toEqual([]);
+  });
+});
+
+describe('last7DaysRevenue', () => {
+  it('devuelve 7 puntos terminando en la fecha de referencia, con el ingreso cobrado de cada día', () => {
+    const today = makeAppt({ id: 'today', start_at: '2026-01-15T09:00:00.000Z', status: 'completada', price: 500 });
+    const points = last7DaysRevenue(now, [today], services, [], []);
+    expect(points).toHaveLength(7);
+    expect(points[6]?.date.toDateString()).toBe(new Date(2026, 0, 15).toDateString());
+    expect(points[6]?.amount).toBe(500);
+    expect(points[0]?.amount).toBe(0);
   });
 });

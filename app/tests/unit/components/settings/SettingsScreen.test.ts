@@ -22,33 +22,43 @@ beforeEach(() => {
 });
 
 describe('SettingsScreen', () => {
-  it('arranca en la pestaña "Mi Cuenta"', async () => {
+  it('arranca en la lista de categorías, sin ninguna abierta', () => {
     render(SettingsScreen);
-    expect(await screen.findByText('ana@example.com')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Mi Cuenta' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Mi Cuenta' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Datos Negocio' })).toBeTruthy();
+    expect(screen.queryByText('ana@example.com')).toBeNull();
   });
 
-  it('cambiar a "Cambiar de Plan" muestra el botón de WhatsApp', async () => {
+  it('entrar a "Mi Cuenta" muestra su contenido y un botón para volver', async () => {
+    render(SettingsScreen);
+    await fireEvent.click(screen.getByRole('button', { name: 'Mi Cuenta' }));
+    expect(await screen.findByText('ana@example.com')).toBeTruthy();
+
+    await fireEvent.click(screen.getByRole('button', { name: /Configuración/ }));
+    expect(screen.getByRole('button', { name: 'Mi Cuenta' })).toBeTruthy();
+    expect(screen.queryByText('ana@example.com')).toBeNull();
+  });
+
+  it('entrar a "Cambiar de Plan" muestra el botón de WhatsApp', async () => {
     render(SettingsScreen);
     await fireEvent.click(screen.getByRole('button', { name: 'Cambiar de Plan' }));
     expect(screen.getByRole('button', { name: 'Solicitar cambio por WhatsApp' })).toBeTruthy();
   });
 
-  it('cambiar a "Datos Negocio" muestra ese formulario', async () => {
+  it('entrar a "Datos Negocio" muestra ese formulario', async () => {
     render(SettingsScreen);
     await fireEvent.click(screen.getByRole('button', { name: 'Datos Negocio' }));
     expect(screen.getByLabelText('Nombre Comercial')).toBeTruthy();
   });
 
-  it('cambiar a "Registro Actividad" carga el log de ese negocio', async () => {
+  it('entrar a "Registro Actividad" carga el log de ese negocio', async () => {
     render(SettingsScreen);
     await fireEvent.click(screen.getByRole('button', { name: 'Registro Actividad' }));
     expect(activityLogActionsMock.loadActivityLog).toHaveBeenCalledWith('biz-1');
   });
 
-  it('sin violaciones de accesibilidad (axe-core) en la pestaña inicial', async () => {
+  it('sin violaciones de accesibilidad (axe-core) en la lista inicial', async () => {
     const { container } = render(SettingsScreen);
-    await screen.findByText('ana@example.com');
     await expectNoA11yViolations(container);
   });
 });
