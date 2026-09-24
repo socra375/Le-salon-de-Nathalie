@@ -5,6 +5,7 @@
   import { apptServicesLabel } from '../../utils/appointments';
   import { apptStatusLabel, creditStatusLabel, type AppointmentStatus, type CreditStatus } from '../../utils/labels';
   import { fmtDate, fmtDateTime } from '../../utils/format';
+  import Modal from '../shared/Modal.svelte';
   import type { SpecialistOption } from '../../actions/services';
   import type { Tables } from '../../types/database.types';
 
@@ -62,16 +63,17 @@
   }
 </script>
 
-<div class="card" role="dialog" aria-modal="true" aria-labelledby="account-title">
+<Modal labelledBy="account-title" {onClose}>
+  <div class="card">
   <div>
-    <h3 id="account-title">{$t('cust.account_title', { name: customer.name })}</h3>
+    <h2 id="account-title">{$t('cust.account_title', { name: customer.name })}</h2>
     <button type="button" onclick={onClose}>{$t('cust.close')}</button>
   </div>
   <p>{$t('cust.phone_prefix', { phone: customer.phone || 'N/A' })}</p>
-  <h2>{$t('cust.pending_title')} ${pendingTotal.toFixed(2)}</h2>
+  <p>{$t('cust.pending_title')} ${pendingTotal.toFixed(2)}</p>
 
   <div class="card">
-    <h4>{$t('cust.history_title')}</h4>
+    <h3>{$t('cust.history_title')}</h3>
     <div>
       <div>
         <strong>{$t('cust.last_visit')}</strong>
@@ -115,7 +117,7 @@
     {/if}
   </div>
 
-  <h4>{$t('cust.credits_title')}</h4>
+  <h3>{$t('cust.credits_title')}</h3>
   <div class="table-responsive">
     <table>
       <thead>
@@ -141,7 +143,7 @@
 
   {#if pendingCredits.length > 0}
     <form onsubmit={handlePayment}>
-      <h4>{$t('cust.payment_form_title')}</h4>
+      <h3>{$t('cust.payment_form_title')}</h3>
 
       <label for="payment-credit-select">{$t('cust.select_credit')}</label>
       <select id="payment-credit-select" bind:value={selectedCreditId} required>
@@ -166,4 +168,5 @@
       <button type="submit" disabled={submitting}>{$t('cust.process_payment')}</button>
     </form>
   {/if}
-</div>
+  </div>
+</Modal>

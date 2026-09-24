@@ -58,7 +58,7 @@
 
 {#if showPasswordForm}
   <form onsubmit={handleSavePassword}>
-    <h3>{$t('pwd.title')}</h3>
+    <h2>{$t('pwd.title')}</h2>
     <p>{$t('pwd.body')}</p>
 
     <label for="input-new-password">{$t('pwd.label')}</label>

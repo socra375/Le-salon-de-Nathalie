@@ -165,7 +165,7 @@
   {/if}
 
   <div class="card table-responsive">
-    <h3>{isToday ? $t('appt.list_title_today') : $t('appt.list_title_date', { date: fmtDate(`${selectedDate}T00:00:00`, $locale) })}</h3>
+    <h2>{isToday ? $t('appt.list_title_today') : $t('appt.list_title_date', { date: fmtDate(`${selectedDate}T00:00:00`, $locale) })}</h2>
 
     {#if dayAppointments.length === 0}
       <p>{$t('appt.empty')}</p>

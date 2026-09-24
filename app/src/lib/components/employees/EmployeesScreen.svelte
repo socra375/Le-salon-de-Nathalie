@@ -48,7 +48,7 @@
   <h1 id="employees-title">{$t('emp.title')}</h1>
 
   <div class="card">
-    <h3>{$t('emp.invite_title')}</h3>
+    <h2>{$t('emp.invite_title')}</h2>
     <p>{$t('emp.invite_hint')}</p>
     <button type="button" disabled={generating} onclick={handleGenerate}>{$t('emp.generate_code')}</button>
 
@@ -59,7 +59,7 @@
     {#if generatedCode}
       <div>
         <span>{$t('emp.code_generated')}</span>
-        <h2>{generatedCode}</h2>
+        <p class="val-large">{generatedCode}</p>
         <button type="button" onclick={handleCopy}>{$t('emp.copy_code')}</button>
         <p>{$t('emp.code_expiry_hint')}</p>
         {#if copyMessage}
@@ -70,7 +70,7 @@
   </div>
 
   <div class="card table-responsive">
-    <h3>{$t('emp.list_title')}</h3>
+    <h2>{$t('emp.list_title')}</h2>
     <table>
       <thead>
         <tr>

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const actionsMock = vi.hoisted(() => ({ saveService: vi.fn() }));
 vi.mock('../../../../src/lib/actions/services', async () => {
@@ -140,5 +141,19 @@ describe('ServiceForm', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
     expect(onCancel).toHaveBeenCalled();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core)', async () => {
+    const { container } = render(ServiceForm, {
+      props: {
+        businessId: 'biz-1',
+        service: null,
+        selectedSpecialistIds: [],
+        specialistOptions,
+        onSaved: vi.fn(),
+        onCancel: vi.fn(),
+      },
+    });
+    await expectNoA11yViolations(container);
   });
 });

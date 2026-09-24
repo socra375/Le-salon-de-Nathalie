@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const authActionsMock = vi.hoisted(() => ({ setForcedPassword: vi.fn() }));
 vi.mock('../../../../src/lib/actions/auth', async () => {
@@ -52,5 +53,10 @@ describe('ForcedPasswordModal', () => {
 
     expect((await screen.findByRole('alert')).textContent).toBe('Error guardando contraseña: sesión expirada');
     expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core)', async () => {
+    const { container } = render(ForcedPasswordModal, { props: { onSaved: vi.fn() } });
+    await expectNoA11yViolations(container);
   });
 });

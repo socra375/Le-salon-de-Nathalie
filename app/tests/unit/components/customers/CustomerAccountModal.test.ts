@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const actionsMock = vi.hoisted(() => ({ payCredit: vi.fn() }));
 vi.mock('../../../../src/lib/actions/customers', async () => {
@@ -119,5 +120,12 @@ describe('CustomerAccountModal', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core), con historial y un crédito pendiente', async () => {
+    const { container } = render(CustomerAccountModal, {
+      props: { customer, credits: [pendingCredit], history: [appt], services, specialistOptions, onClose: vi.fn() },
+    });
+    await expectNoA11yViolations(container);
   });
 });

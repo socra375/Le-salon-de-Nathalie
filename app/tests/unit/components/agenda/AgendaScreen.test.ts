@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const appointmentsActionsMock = vi.hoisted(() => ({ changeAppointmentStatus: vi.fn() }));
 vi.mock('../../../../src/lib/actions/appointments', async () => {
@@ -166,5 +167,16 @@ describe('AgendaScreen', () => {
     await fireEvent.input(screen.getByLabelText('Fecha'), { target: { value: otherDate } });
 
     expect(screen.getByText(/Citas del/)).toBeTruthy();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core), con el formulario y el modal de pago abiertos', async () => {
+    appointments.set([{ ...pendingAppt, status: 'confirmada' }] as never);
+    const { container } = render(AgendaScreen);
+    await screen.findByText('María');
+
+    await fireEvent.click(screen.getByRole('button', { name: '+ Nueva Cita' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Completar' }));
+
+    await expectNoA11yViolations(container);
   });
 });

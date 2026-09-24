@@ -336,9 +336,68 @@ condición que el legado usa para ocultar `nav-btn-employees` a un salón
 individual. Un empleado solo ve el Dashboard de solo lectura, sin barra
 de navegación (misma regla que hoy).
 
-### Qué falta para el corte de producción (fuera de la Fase 5)
-
 Con esto, la Fase 5 completa la paridad funcional con el `index.html`
-legado. Quedan la Fase 6 (accesibilidad -- ya integrada por composición
-en cada componente desde el inicio, no como pasada aparte) formalizada
-con una auditoría explícita, y la Fase 7 (corte a producción) del plan.
+legado.
+
+## Fase 6 — Accesibilidad: la auditoría explícita, no solo la composición
+
+La Fase 5 ya integró accesibilidad por composición en cada componente
+(mensajes traducidos con `role="alert"`/`role="status"` en vez de
+`alert()`/`confirm()` nativos, `label for`↔`id` en cada campo, landmarks
+`<nav aria-label>`/`<main>` en `App.svelte`). Esta fase formaliza lo que
+faltaba: la primitiva compartida de diálogo y una auditoría automática
+real, en vez de confiar en que cada sección lo haya hecho bien a mano.
+
+- `src/lib/components/shared/Modal.svelte`: primitiva de diálogo modal
+  que faltaba desde el plan de la Fase 5. Rol y `aria-modal` correctos
+  (ya existían), más lo que no: el foco queda atrapado adentro
+  (Tab/Shift+Tab no se escapan a la página de atrás), se enfoca el
+  primer elemento interactivo al abrir, Escape cierra el diálogo *solo*
+  si tiene con qué (`onClose` es opcional a propósito -- forzar una
+  contraseña en el onboarding de un salón con equipo no se puede
+  cancelar, igual que el legado), y al cerrarse el foco vuelve a quien
+  lo abrió. `ForcedPasswordModal`, `CustomerAccountModal` y
+  `PaymentMethodModal` ya lo usan en vez de repetir el `role="dialog"` a
+  mano cada uno.
+- **Orden de encabezados corregido en las 7 secciones**: la auditoría
+  encontró que casi todas saltaban de `<h1>` (el título de la sección) a
+  `<h3>` (el título del formulario o sub-tarjeta), sin `<h2>` en el
+  medio -- un defecto real que un lector de pantalla nota (la
+  navegación por encabezados asume que no hay saltos). Se corrigió en
+  `ServiceForm`, `CustomersScreen`, `CustomerAccountModal`,
+  `AppointmentForm`, `AgendaScreen`, `PaymentMethodModal`,
+  `DashboardScreen`, `InvoicesScreen`, `EmployeesScreen` y `AccountTab`.
+  De paso, dos casos donde un `<h2>`/`<h3>` se usaba solo para agrandar
+  un número (el saldo pendiente en la cuenta de un cliente, el código de
+  invitación generado) pasaron a un párrafo normal -- no titulan ninguna
+  sección, así que no son semánticamente encabezados.
+- **Auditoría automática con `axe-core`**, en dos capas:
+  - `tests/unit/support/axe.ts` (`expectNoA11yViolations`): corre
+    `axe-core` directo contra el HTML que monta `@testing-library/svelte`
+    en cada prueba de componente (jsdom no calcula layout real, así que
+    `color-contrast` queda deshabilitada a propósito -- daría falsos
+    positivos/negativos fuera de un navegador real; el resto de las
+    reglas -- roles, nombres accesibles, `label`↔control, orden de
+    encabezados, ARIA bien formado -- sí son fiables ahí). Es justo lo
+    que encontró el problema de encabezados de arriba. Cada uno de los
+    ~20 componentes de pantalla tiene ahora su propia prueba
+    `"sin violaciones de accesibilidad (axe-core)"`.
+  - `tests/e2e/accessibility.spec.ts` con `@axe-core/playwright` (ya era
+    una dependencia declarada desde la Fase 2, sin usar hasta ahora):
+    corre en un navegador real, así que sí evalúa contraste de color y
+    layout. Sin un stub de Supabase en este suite de `app/` (a
+    diferencia del legado en la raíz), la única pantalla alcanzable hoy
+    sin credenciales reales es la de "falta configuración" -- el resto
+    de las pantallas ya quedan cubiertas por la capa de componente de
+    arriba.
+- **Deliberadamente no se construyó** un `FormField.svelte` que el plan
+  original mencionaba (para automatizar `label for`↔`id`): la auditoría
+  de `axe-core` ya confirma que esa asociación está bien en todos los
+  formularios existentes, así que sería una refactorización de
+  deduplicación, no una corrección de un problema real -- se deja para
+  cuando haga falta un formulario nuevo, no antes.
+
+## Qué falta para el corte de producción
+
+Con las Fases 5 y 6 completas, solo queda la Fase 7 (corte a producción)
+del plan.

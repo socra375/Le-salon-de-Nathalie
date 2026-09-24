@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const employeesActionsMock = vi.hoisted(() => ({
   loadEmployees: vi.fn(),
@@ -101,5 +102,15 @@ describe('EmployeesScreen', () => {
     });
     render(EmployeesScreen);
     expect(await screen.findByText('Sin nombre')).toBeTruthy();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core), con el código generado visible', async () => {
+    employeesActionsMock.generateInvite.mockResolvedValue('EMPABC123XY');
+    const { container } = render(EmployeesScreen);
+    await screen.findByText('Ana');
+    await fireEvent.click(screen.getByRole('button', { name: 'Generar Código de Invitación' }));
+    await screen.findByText('EMPABC123XY');
+
+    await expectNoA11yViolations(container);
   });
 });

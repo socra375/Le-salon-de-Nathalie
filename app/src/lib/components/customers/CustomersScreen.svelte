@@ -64,7 +64,7 @@
   <h1 id="customers-title">{$t('cfg.tab_customers')}</h1>
 
   <form class="card" onsubmit={handleSubmit}>
-    <h3>{$t('cust.form_title')}</h3>
+    <h2>{$t('cust.form_title')}</h2>
 
     <div>
       <label for="cust-name">{$t('cust.name_label')}</label>

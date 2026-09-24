@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const actionsMock = vi.hoisted(() => ({ linkAppointmentCustomer: vi.fn() }));
 vi.mock('../../../../src/lib/actions/appointments', async () => {
@@ -174,5 +175,22 @@ describe('PaymentMethodModal', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
     expect(onCancel).toHaveBeenCalled();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core), con el selector de cliente walk-in visible', async () => {
+    const { container } = render(PaymentMethodModal, {
+      props: {
+        appt: makeAppt({ customer_id: null }),
+        clientName: 'Walk-in',
+        services: [corte],
+        customers: [customer],
+        business: null,
+        onConfirm: vi.fn(),
+        onCancel: vi.fn(),
+      },
+    });
+    await fireEvent.click(screen.getByLabelText('Crédito (fiado)'));
+
+    await expectNoA11yViolations(container);
   });
 });

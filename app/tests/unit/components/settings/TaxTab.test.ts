@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const actionsMock = vi.hoisted(() => ({ updateBusinessTax: vi.fn() }));
 vi.mock('../../../../src/lib/actions/settings', async () => {
@@ -46,5 +47,11 @@ describe('TaxTab', () => {
       expect.any(String)
     );
     expect(await screen.findByText('Configuración fiscal guardada.')).toBeTruthy();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core), con el impuesto habilitado', async () => {
+    const { container } = render(TaxTab, { props: { businessId: 'biz-1', business: null } });
+    await fireEvent.click(screen.getByLabelText('¿Tu negocio aplica impuestos?'));
+    await expectNoA11yViolations(container);
   });
 });
