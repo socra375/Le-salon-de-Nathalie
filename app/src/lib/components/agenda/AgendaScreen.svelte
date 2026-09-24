@@ -38,6 +38,15 @@
   );
   const isToday = $derived(selectedDate === toDateInputValue(new Date()));
 
+  /** Agrupación visual por franja horaria, no una regla de negocio: 12:00 es el corte mañana/tarde. */
+  const AGENDA_SECTIONS: { key: 'morning' | 'afternoon'; labelKey: 'appt.section_morning' | 'appt.section_afternoon' }[] = [
+    { key: 'morning', labelKey: 'appt.section_morning' },
+    { key: 'afternoon', labelKey: 'appt.section_afternoon' },
+  ];
+  const morningAppointments = $derived(dayAppointments.filter((a) => new Date(a.start_at).getHours() < 12));
+  const afternoonAppointments = $derived(dayAppointments.filter((a) => new Date(a.start_at).getHours() >= 12));
+  const appointmentsBySection = $derived({ morning: morningAppointments, afternoon: afternoonAppointments });
+
   onMount(() => {
     businessId = get(currentBusinessId);
     if (!businessId) return;
@@ -166,61 +175,60 @@
     <p role="alert">{errorMessage}</p>
   {/if}
 
-  <div class="card table-responsive">
+  <div class="card">
     <h2>{isToday ? $t('appt.list_title_today') : $t('appt.list_title_date', { date: fmtDate(`${selectedDate}T00:00:00`, $locale) })}</h2>
 
     {#if dayAppointments.length === 0}
       <p>{$t('appt.empty')}</p>
     {:else}
-      <table>
-        <thead>
-          <tr>
-            <th>{$t('appt.th_time')}</th>
-            <th>{$t('appt.th_client')}</th>
-            <th>{$t('appt.th_service')}</th>
-            <th>{$t('appt.th_specialist')}</th>
-            <th>{$t('appt.th_status')}</th>
-            <th>{$t('appt.th_actions')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each dayAppointments as appt (appt.id)}
-            <tr>
-              <td>{fmtTime(appt.start_at, $locale)}</td>
-              <td>{clientNameFor(appt)}</td>
-              <td>{apptServicesLabel(appt, $servicesStore)}</td>
-              <td>{specialistLabelFor(appt.employee_id)}</td>
-              <td>{apptStatusLabel(appt.status as AppointmentStatus, $locale)}</td>
-              <td>
-                {#if pendingChange?.apptId === appt.id}
-                  <span role="alertdialog" aria-label={$t('appt.confirm_status', { label: pendingChange.label })}>
-                    {$t('appt.confirm_status', { label: pendingChange.label })}
-                    <button type="button" onclick={confirmStatusChange}>{pendingChange.label}</button>
-                    <button type="button" onclick={() => (pendingChange = null)}>{$t('common.cancel')}</button>
-                  </span>
-                {:else if appt.status === 'pendiente'}
-                  <button type="button" onclick={() => requestStatusChange(appt.id, 'confirmada', $t('appt.btn_confirm'))}>
-                    {$t('appt.btn_confirm')}
-                  </button>
-                  <button type="button" onclick={() => requestStatusChange(appt.id, 'cancelada', $t('appt.btn_cancel'))}>
-                    {$t('appt.btn_cancel')}
-                  </button>
-                {:else if appt.status === 'confirmada'}
-                  <button type="button" onclick={() => startCompleting(appt)}>{$t('appt.btn_complete')}</button>
-                  <button type="button" onclick={() => requestStatusChange(appt.id, 'no_show', $t('appt.btn_noshow'))}>
-                    {$t('appt.btn_noshow')}
-                  </button>
-                  <button type="button" onclick={() => requestStatusChange(appt.id, 'cancelada', $t('appt.btn_cancel'))}>
-                    {$t('appt.btn_cancel')}
-                  </button>
-                {:else if appt.status === 'completada' && !invoicedAppointmentIds.has(appt.id)}
-                  <button type="button" onclick={() => startRetryInvoice(appt)}>{$t('appt.btn_invoice')}</button>
-                {/if}
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+      {#each AGENDA_SECTIONS as section (section.key)}
+        {@const sectionAppointments = appointmentsBySection[section.key]}
+        {#if sectionAppointments.length > 0}
+          <div class="agenda-section">
+            <h3 class="agenda-section-title">{$t(section.labelKey)}</h3>
+            <div class="agenda-cards">
+              {#each sectionAppointments as appt (appt.id)}
+                <article class="appt-card status-{appt.status}">
+                  <div class="appt-card-time">{fmtTime(appt.start_at, $locale)}</div>
+                  <div class="appt-card-body">
+                    <div class="appt-card-main">
+                      <strong>{clientNameFor(appt)}</strong>
+                      <span class="badge-status status-{appt.status}">{apptStatusLabel(appt.status as AppointmentStatus, $locale)}</span>
+                    </div>
+                    <p class="appt-card-details">{apptServicesLabel(appt, $servicesStore)} · {specialistLabelFor(appt.employee_id)}</p>
+                  </div>
+                  <div class="appt-card-actions">
+                    {#if pendingChange?.apptId === appt.id}
+                      <span role="alertdialog" aria-label={$t('appt.confirm_status', { label: pendingChange.label })}>
+                        {$t('appt.confirm_status', { label: pendingChange.label })}
+                        <button type="button" onclick={confirmStatusChange}>{pendingChange.label}</button>
+                        <button type="button" onclick={() => (pendingChange = null)}>{$t('common.cancel')}</button>
+                      </span>
+                    {:else if appt.status === 'pendiente'}
+                      <button type="button" onclick={() => requestStatusChange(appt.id, 'confirmada', $t('appt.btn_confirm'))}>
+                        {$t('appt.btn_confirm')}
+                      </button>
+                      <button type="button" onclick={() => requestStatusChange(appt.id, 'cancelada', $t('appt.btn_cancel'))}>
+                        {$t('appt.btn_cancel')}
+                      </button>
+                    {:else if appt.status === 'confirmada'}
+                      <button type="button" onclick={() => startCompleting(appt)}>{$t('appt.btn_complete')}</button>
+                      <button type="button" onclick={() => requestStatusChange(appt.id, 'no_show', $t('appt.btn_noshow'))}>
+                        {$t('appt.btn_noshow')}
+                      </button>
+                      <button type="button" onclick={() => requestStatusChange(appt.id, 'cancelada', $t('appt.btn_cancel'))}>
+                        {$t('appt.btn_cancel')}
+                      </button>
+                    {:else if appt.status === 'completada' && !invoicedAppointmentIds.has(appt.id)}
+                      <button type="button" onclick={() => startRetryInvoice(appt)}>{$t('appt.btn_invoice')}</button>
+                    {/if}
+                  </div>
+                </article>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      {/each}
     {/if}
   </div>
 
@@ -236,3 +244,104 @@
     />
   {/if}
 </section>
+
+<style>
+  /* Agenda visual por franjas horarias (Mañana/Tarde), con un acento de
+     color por tarjeta igual al de los badges de estado (.status-*) --
+     inspirado en un calendario, sin ser un calendario real: nada de
+     posicionamiento absoluto por hora, solo agrupación y jerarquía visual. */
+  .agenda-section + .agenda-section {
+    margin-top: 1.25rem;
+  }
+
+  .agenda-section-title {
+    font-family: var(--font-grotesk);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin: 0 0 0.6rem;
+  }
+
+  .agenda-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .appt-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-left: 4px solid var(--text-muted);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+  }
+
+  .appt-card.status-pendiente {
+    border-left-color: var(--accent-recommend);
+  }
+
+  .appt-card.status-confirmada {
+    border-left-color: #3b82f6;
+  }
+
+  .appt-card.status-completada {
+    border-left-color: var(--accent-profit);
+  }
+
+  .appt-card.status-cancelada {
+    border-left-color: var(--text-muted);
+  }
+
+  .appt-card.status-no_show {
+    border-left-color: var(--accent-expense);
+  }
+
+  .appt-card-time {
+    font-family: var(--font-grotesk);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-primary);
+    min-width: 3.5rem;
+    flex-shrink: 0;
+  }
+
+  .appt-card-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .appt-card-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .appt-card-details {
+    margin: 0.25rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .appt-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .appt-card-actions button {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.7rem;
+  }
+
+  @media (max-width: 640px) {
+    .appt-card {
+      flex-direction: column;
+    }
+  }
+</style>

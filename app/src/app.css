@@ -262,6 +262,34 @@ td {
   font-size: 0.8rem;
 }
 
+/* Color por estado de cita, igual que el index.html legado
+   (`.status-pendiente`/`.status-confirmada`/etc.) -- reutilizado por el
+   badge y por el acento de color de las tarjetas de Agenda. */
+.badge-status.status-pendiente {
+  background: rgba(245, 185, 66, 0.2);
+  color: var(--accent-recommend);
+}
+
+.badge-status.status-confirmada {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.badge-status.status-completada {
+  background: rgba(0, 217, 163, 0.2);
+  color: var(--accent-profit);
+}
+
+.badge-status.status-cancelada {
+  background: rgba(136, 145, 168, 0.2);
+  color: var(--text-muted);
+}
+
+.badge-status.status-no_show {
+  background: rgba(255, 90, 95, 0.2);
+  color: var(--accent-expense);
+}
+
 .val-large {
   font-size: 1.75rem;
   font-weight: 700;
