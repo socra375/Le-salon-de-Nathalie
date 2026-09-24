@@ -40,37 +40,65 @@
     {/each}
   </div>
 
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h2>{$t('dash.appts_today_title')}</h2>
-      <span>{$t(todaysList.length === 1 ? 'dash.appt_count' : 'dash.appt_count_plural', { n: todaysList.length })}</span>
+  <div class="metrics-grid">
+    <div class="card agenda-metric">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>{$t('dash.appts_today_title')}</h2>
+        <span>{$t(todaysList.length === 1 ? 'dash.appt_count' : 'dash.appt_count_plural', { n: todaysList.length })}</span>
+      </div>
+      {#if todaysListPreview.length === 0}
+        <p>{$t('dash.no_appts_today')}</p>
+      {:else}
+        <ul>
+          {#each todaysListPreview as appt (appt.id)}
+            <li>
+              <span>
+                {fmtTime(appt.start_at, $locale)} — {getAppointmentClientName(appt, $customersStore, $t('appt.walkin_fallback'))}
+                ({apptServicesLabel(appt, $servicesStore)})
+              </span>
+              <span class="badge-status">{apptStatusLabel(appt.status as AppointmentStatus, $locale)}</span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
     </div>
-    {#if todaysListPreview.length === 0}
-      <p>{$t('dash.no_appts_today')}</p>
-    {:else}
-      <ul>
-        {#each todaysListPreview as appt (appt.id)}
-          <li>
-            <span>
-              {fmtTime(appt.start_at, $locale)} — {getAppointmentClientName(appt, $customersStore, $t('appt.walkin_fallback'))}
-              ({apptServicesLabel(appt, $servicesStore)})
-            </span>
-            <span class="badge-status">{apptStatusLabel(appt.status as AppointmentStatus, $locale)}</span>
-          </li>
-        {/each}
-      </ul>
-    {/if}
-  </div>
 
-  <div class="card">
-    <span>{$t('dash.income_title')}</span>
-    <div class="val-large">${totals.netProfit.toFixed(2)}</div>
-    <span>{$t('dash.income_hint')}</span>
-  </div>
+    <div class="card hero-metric">
+      <span>{$t('dash.income_title')}</span>
+      <div class="val-large">${totals.netProfit.toFixed(2)}</div>
+      <span>{$t('dash.income_hint')}</span>
+    </div>
 
-  <div class="card">
-    <span>{$t('dash.receivables_title')}</span>
-    <div class="val-large">${totals.totalReceivables.toFixed(2)}</div>
-    <span>{$t('dash.receivables_hint')}</span>
+    <div class="card receivables-metric">
+      <span>{$t('dash.receivables_title')}</span>
+      <div class="val-large">${totals.totalReceivables.toFixed(2)}</div>
+      <span>{$t('dash.receivables_hint')}</span>
+    </div>
   </div>
 </section>
+
+<style>
+  /* Acentos de color por tarjeta, igual que el diseño original (legado):
+     agenda en violeta, ingresos en verde, cuentas por cobrar en ámbar. */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 640px) {
+    .metrics-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .agenda-metric {
+    grid-column: 1 / -1;
+    border-left: 4px solid var(--accent-agenda);
+  }
+  .hero-metric {
+    grid-column: 1 / -1;
+    border-left: 4px solid var(--accent-profit);
+  }
+  .receivables-metric {
+    border-left: 4px solid var(--accent-recommend);
+  }
+</style>
