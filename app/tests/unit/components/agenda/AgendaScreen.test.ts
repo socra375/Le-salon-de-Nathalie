@@ -103,6 +103,35 @@ describe('AgendaScreen', () => {
     expect(screen.getByText('Citas de hoy')).toBeTruthy();
   });
 
+  it('agrupa las citas en "Mañana" y "Tarde" según la hora', async () => {
+    appointments.set([
+      { ...pendingAppt, id: 'appt-morning', start_at: todayAt(10), notes: 'WALKIN:María' },
+      { ...pendingAppt, id: 'appt-afternoon', start_at: todayAt(16), notes: 'WALKIN:Laura' },
+    ] as never);
+    const { container } = render(AgendaScreen);
+    await screen.findByText('María');
+    await screen.findByText('Laura');
+
+    expect(screen.getByText('Mañana')).toBeTruthy();
+    expect(screen.getByText('Tarde')).toBeTruthy();
+
+    const sections = container.querySelectorAll('.agenda-section');
+    expect(sections).toHaveLength(2);
+    expect(sections[0]?.textContent).toContain('María');
+    expect(sections[0]?.textContent).not.toContain('Laura');
+    expect(sections[1]?.textContent).toContain('Laura');
+    expect(sections[1]?.textContent).not.toContain('María');
+  });
+
+  it('sin citas de tarde, no muestra el encabezado "Tarde"', async () => {
+    appointments.set([pendingAppt] as never);
+    render(AgendaScreen);
+    await screen.findByText('María');
+
+    expect(screen.getByText('Mañana')).toBeTruthy();
+    expect(screen.queryByText('Tarde')).toBeNull();
+  });
+
   it('una cita "pendiente" pide confirmación inline antes de cambiar de estado', async () => {
     appointmentsActionsMock.changeAppointmentStatus.mockResolvedValue(undefined);
     appointments.set([pendingAppt] as never);
