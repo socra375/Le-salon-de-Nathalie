@@ -5,6 +5,8 @@ import {
   apptServicesLabel,
   appointmentRevenue,
   collectedRevenue,
+  buildAppointmentNotes,
+  getAppointmentClientName,
 } from '../../../src/lib/utils/appointments';
 import type { Tables } from '../../../src/lib/types/database.types';
 
@@ -145,5 +147,46 @@ describe('collectedRevenue', () => {
 
   it('sin ninguna factura asociada, usa el ingreso completo de la cita', () => {
     expect(collectedRevenue(baseAppt, services, [], [])).toBe(1500);
+  });
+});
+
+describe('buildAppointmentNotes', () => {
+  it('sin cliente registrado y con nombre walk-in, antepone el marcador', () => {
+    expect(buildAppointmentNotes(false, 'María Pérez', '')).toBe('WALKIN:María Pérez');
+  });
+
+  it('sin cliente registrado, nombre walk-in y notas adicionales, las une con " | "', () => {
+    expect(buildAppointmentNotes(false, 'María Pérez', 'Alergia al amoníaco')).toBe(
+      'WALKIN:María Pérez | Alergia al amoníaco'
+    );
+  });
+
+  it('con cliente registrado, ignora el nombre walk-in aunque tenga texto', () => {
+    expect(buildAppointmentNotes(true, 'María Pérez', 'Nota normal')).toBe('Nota normal');
+  });
+
+  it('sin nombre walk-in ni notas, devuelve null', () => {
+    expect(buildAppointmentNotes(false, '  ', '  ')).toBeNull();
+  });
+});
+
+describe('getAppointmentClientName', () => {
+  const customers: Tables<'customers'>[] = [
+    { id: 'cust-1', business_id: 'biz-1', name: 'Ana', phone: null, notes: null, address: null, email: null, created_at: null },
+  ];
+
+  it('el cliente registrado tiene prioridad sobre cualquier nota walk-in', () => {
+    const appt = makeAppointment({ customer_id: 'cust-1', notes: 'WALKIN:Otro Nombre' });
+    expect(getAppointmentClientName(appt, customers, 'Cliente')).toBe('Ana');
+  });
+
+  it('sin cliente registrado, extrae el nombre de la nota walk-in', () => {
+    const appt = makeAppointment({ customer_id: null, notes: 'WALKIN:María Pérez | Alergia' });
+    expect(getAppointmentClientName(appt, customers, 'Cliente')).toBe('María Pérez');
+  });
+
+  it('sin cliente ni nota walk-in, usa el texto de reserva', () => {
+    const appt = makeAppointment({ customer_id: null, notes: null });
+    expect(getAppointmentClientName(appt, customers, 'Cliente')).toBe('Cliente');
   });
 });

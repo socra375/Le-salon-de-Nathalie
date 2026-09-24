@@ -1,5 +1,45 @@
 import type { Tables } from '../types/database.types';
 
+/**
+ * Marcador fijo (no traducido) para identificar notas de citas walk-in,
+ * independiente del idioma activo al crear o al mostrar la cita -- igual
+ * que el legado.
+ */
+export const WALKIN_NOTE_PREFIX = 'WALKIN:';
+
+/**
+ * El nombre walk-in solo se guarda en la nota cuando la cita no está
+ * enlazada a un cliente registrado -- igual que el legado, que ignora lo
+ * escrito en ese campo si ya hay un `customerId`.
+ */
+export function buildAppointmentNotes(hasCustomer: boolean, walkinName: string, extraNotes: string): string | null {
+  const trimmedExtra = extraNotes.trim();
+  const trimmedWalkin = walkinName.trim();
+  if (!hasCustomer && trimmedWalkin) {
+    return `${WALKIN_NOTE_PREFIX}${trimmedWalkin}${trimmedExtra ? ' | ' + trimmedExtra : ''}`;
+  }
+  return trimmedExtra || null;
+}
+
+/**
+ * Nombre a mostrar/facturar para una cita: el del cliente registrado, o el
+ * nombre walk-in escrito al agendar (sin necesidad de haberlo registrado
+ * antes en Clientes).
+ */
+export function getAppointmentClientName(
+  appt: Pick<Tables<'appointments'>, 'customer_id' | 'notes'>,
+  customers: Tables<'customers'>[],
+  fallbackLabel: string
+): string {
+  const customer = customers.find((c) => c.id === appt.customer_id);
+  if (customer) return customer.name;
+  if (appt.notes && appt.notes.startsWith(WALKIN_NOTE_PREFIX)) {
+    const name = (appt.notes.split('|')[0] ?? '').replace(WALKIN_NOTE_PREFIX, '').trim();
+    if (name) return name;
+  }
+  return fallbackLabel;
+}
+
 type AppointmentServiceFields = Pick<Tables<'appointments'>, 'service_id' | 'service_ids'>;
 
 /**
