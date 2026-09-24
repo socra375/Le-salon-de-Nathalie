@@ -29,8 +29,3 @@ export function fmtDateTime(value: Date | string, locale: Locale): string {
 export function fmtTime(value: Date | string, locale: Locale): string {
   return toDate(value).toLocaleTimeString(LOCALE_MAP[locale], { hour: '2-digit', minute: '2-digit' });
 }
-
-/** Día de la semana abreviado (p. ej. "lun.") -- para las etiquetas del gráfico del dashboard. */
-export function fmtWeekdayShort(value: Date | string, locale: Locale): string {
-  return toDate(value).toLocaleDateString(LOCALE_MAP[locale], { weekday: 'short' });
-}
