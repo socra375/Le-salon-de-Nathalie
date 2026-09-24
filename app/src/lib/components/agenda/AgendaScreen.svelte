@@ -145,11 +145,11 @@
   }
 </script>
 
-<section aria-labelledby="agenda-title">
+<section aria-labelledby="agenda-title" class="agenda-theme">
   <h1 id="agenda-title">{$t('appt.title')}</h1>
   <p>{$t('appt.subtitle')}</p>
 
-  <div class="card">
+  <div class="agenda-toolbar">
     <label for="appt-date-picker">{$t('appt.date_label')}</label>
     <input id="appt-date-picker" type="date" bind:value={selectedDate} />
     <button type="button" onclick={goToToday}>{$t('appt.today_btn')}</button>
@@ -175,11 +175,19 @@
     <p role="alert">{errorMessage}</p>
   {/if}
 
-  <div class="card">
-    <h2>{isToday ? $t('appt.list_title_today') : $t('appt.list_title_date', { date: fmtDate(`${selectedDate}T00:00:00`, $locale) })}</h2>
+  <div class="agenda-list-card">
+    <h2 class="agenda-list-title">{isToday ? $t('appt.list_title_today') : $t('appt.list_title_date', { date: fmtDate(`${selectedDate}T00:00:00`, $locale) })}</h2>
 
     {#if dayAppointments.length === 0}
-      <p>{$t('appt.empty')}</p>
+      <div class="agenda-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
+          <path d="M3.5 9.5h17M8 3v3M16 3v3" />
+          <circle cx="12" cy="14.5" r="2.6" />
+          <path d="M12 13.2v1.3l0.9 0.7" />
+        </svg>
+        <p>{$t('appt.empty')}</p>
+      </div>
     {:else}
       {#each AGENDA_SECTIONS as section (section.key)}
         {@const sectionAppointments = appointmentsBySection[section.key]}
@@ -246,6 +254,87 @@
 </section>
 
 <style>
+  /* Tema "premium" de Agenda (oscuro, dorado, acentos con brillo) --
+     mismos tokens que AppointmentForm.svelte (cada componente Svelte
+     tiene su propio <style> aislado, así que se repiten a propósito). */
+  .agenda-theme {
+    --at-bg: #1c1c1e;
+    --at-border: #35353a;
+    --at-glow: #35c3f0;
+    --at-gold: #d8b878;
+    --at-input-bg: #17171a;
+    --at-text: #f0ece4;
+    --at-muted: #9b9994;
+    --at-teal-1: #1f7a86;
+    --at-teal-2: #0f3d44;
+  }
+
+  .agenda-toolbar,
+  .agenda-list-card {
+    background: linear-gradient(160deg, var(--at-bg), #151517);
+    border: 1px solid var(--at-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .agenda-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+
+  .agenda-toolbar label {
+    color: var(--at-muted);
+    font-size: 0.78rem;
+    width: 100%;
+  }
+
+  .agenda-toolbar input,
+  .agenda-toolbar button {
+    background: var(--at-input-bg);
+    border: 1px solid var(--at-border);
+    color: var(--at-text);
+    border-radius: 10px;
+  }
+
+  .agenda-toolbar button {
+    border-color: var(--at-teal-1);
+    color: #7fd6e0;
+    font-weight: 600;
+  }
+
+  .agenda-list-title {
+    font-family: var(--font-grotesk);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 1rem;
+    color: var(--at-gold);
+    margin: 0 0 1rem;
+  }
+
+  .agenda-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2rem 1rem;
+    color: var(--at-muted);
+  }
+
+  .agenda-empty svg {
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--at-muted);
+    opacity: 0.7;
+  }
+
+  .agenda-empty p {
+    margin: 0;
+  }
+
   /* Agenda visual por franjas horarias (Mañana/Tarde), con un acento de
      color por tarjeta igual al de los badges de estado (.status-*) --
      inspirado en un calendario, sin ser un calendario real: nada de
@@ -259,7 +348,7 @@
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--text-muted);
+    color: var(--at-muted);
     margin: 0 0 0.6rem;
   }
 
@@ -273,9 +362,9 @@
     display: flex;
     align-items: flex-start;
     gap: 1rem;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-subtle);
-    border-left: 4px solid var(--text-muted);
+    background: var(--at-input-bg);
+    border: 1px solid var(--at-border);
+    border-left: 4px solid var(--at-muted);
     border-radius: 10px;
     padding: 0.75rem 1rem;
   }
@@ -304,7 +393,7 @@
     font-family: var(--font-grotesk);
     font-weight: 700;
     font-size: 1rem;
-    color: var(--text-primary);
+    color: var(--at-text);
     min-width: 3.5rem;
     flex-shrink: 0;
   }
@@ -321,9 +410,13 @@
     gap: 0.5rem;
   }
 
+  .appt-card-main strong {
+    color: var(--at-text);
+  }
+
   .appt-card-details {
     margin: 0.25rem 0 0;
-    color: var(--text-muted);
+    color: var(--at-muted);
     font-size: 0.85rem;
   }
 
@@ -337,6 +430,9 @@
   .appt-card-actions button {
     font-size: 0.85rem;
     padding: 0.4rem 0.7rem;
+    background: var(--at-input-bg);
+    border: 1px solid var(--at-teal-1);
+    color: #7fd6e0;
   }
 
   @media (max-width: 640px) {
