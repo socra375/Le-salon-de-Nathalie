@@ -133,6 +133,7 @@ export interface OnboardingInput {
   name: string;
   type: 'individual' | 'group';
   teamSize: number | null;
+  currencySymbol: string;
 }
 
 export interface OnboardingResult {
@@ -151,6 +152,7 @@ export async function completeOnboarding(input: OnboardingInput): Promise<Onboar
     id: input.businessId,
     name: input.name,
     business_type: input.type,
+    currency_symbol: input.currencySymbol,
     onboarding_completed: true,
     ...(input.type === 'group' ? { team_size: input.teamSize } : {}),
   };

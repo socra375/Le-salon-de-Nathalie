@@ -20,67 +20,89 @@ beforeEach(() => {
   currentBusinessId.set('biz-1');
 });
 
+async function fillValidForm() {
+  await fireEvent.input(screen.getByLabelText('Nombre de tu negocio'), { target: { value: 'Mi Salón' } });
+  await fireEvent.click(screen.getByLabelText('Solo yo'));
+  await fireEvent.change(screen.getByLabelText('Moneda con la que cobras'), { target: { value: 'USD' } });
+}
+
 describe('OnboardingScreen', () => {
-  it('el campo de tamaño del equipo no aparece por defecto (negocio individual)', () => {
+  it('el botón "Empezar" arranca deshabilitado', () => {
     render(OnboardingScreen, { props: { onCompleted: vi.fn() } });
-    expect(screen.queryByLabelText('¿Cuántos estilistas/especialistas conforman el equipo?')).toBeNull();
+    const button = screen.getByRole('button', { name: 'Empezar' }) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
   });
 
-  it('elegir "Salón con equipo" revela el campo de tamaño del equipo', async () => {
+  it('con los tres datos completos, el botón se habilita', async () => {
     render(OnboardingScreen, { props: { onCompleted: vi.fn() } });
-    await fireEvent.click(screen.getByLabelText('Salón con equipo'));
-    expect(screen.getByLabelText('¿Cuántos estilistas/especialistas conforman el equipo?')).toBeTruthy();
+    await fillValidForm();
+    const button = screen.getByRole('button', { name: 'Empezar' }) as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
   });
 
-  it('sin nombre, avisa y no llama a completeOnboarding', async () => {
+  it('elegir "Solo yo" o "Con equipo" cambia el texto de ayuda', async () => {
     render(OnboardingScreen, { props: { onCompleted: vi.fn() } });
-    await fireEvent.click(screen.getByRole('button', { name: 'Continuar al Dashboard' }));
+    expect(screen.getByText('Elige una opción para adaptar el gestor a tu negocio.')).toBeTruthy();
+
+    await fireEvent.click(screen.getByLabelText('Solo yo'));
+    expect(screen.getByText('Sin equipo, ocultamos comisiones y horarios de personal.')).toBeTruthy();
+
+    await fireEvent.click(screen.getByLabelText('Con equipo'));
+    expect(screen.getByText('Con equipo, podrás agendar por persona y calcular comisiones.')).toBeTruthy();
+  });
+
+  it('sin completar los datos, el envío directo del formulario avisa y no llama a completeOnboarding', async () => {
+    const { container } = render(OnboardingScreen, { props: { onCompleted: vi.fn() } });
+    // El botón está deshabilitado a propósito; se dispara el submit directo
+    // sobre el <form> para probar la validación defensiva de handleSubmit.
+    const form = container.querySelector('form');
+    await fireEvent.submit(form!);
 
     expect((await screen.findByRole('alert')).textContent).toBe('Por favor ingresa un nombre.');
     expect(authActionsMock.completeOnboarding).not.toHaveBeenCalled();
   });
 
-  it('negocio individual: envía type "individual" y teamSize null', async () => {
+  it('negocio individual: envía type "individual", teamSize null y el símbolo de moneda elegido', async () => {
     authActionsMock.completeOnboarding.mockResolvedValue({ requiresForcedPassword: false });
     const onCompleted = vi.fn();
     render(OnboardingScreen, { props: { onCompleted } });
 
-    await fireEvent.input(screen.getByLabelText('Nombre del Salón'), { target: { value: 'Mi Salón' } });
-    await fireEvent.click(screen.getByRole('button', { name: 'Continuar al Dashboard' }));
+    await fillValidForm();
+    await fireEvent.click(screen.getByRole('button', { name: 'Empezar' }));
 
     expect(authActionsMock.completeOnboarding).toHaveBeenCalledWith({
       businessId: 'biz-1',
       name: 'Mi Salón',
       type: 'individual',
       teamSize: null,
+      currencySymbol: '$',
     });
     await vi.waitFor(() => expect(onCompleted).toHaveBeenCalledWith({ requiresForcedPassword: false }));
   });
 
-  it('negocio con equipo: envía type "group" y el tamaño del equipo como número', async () => {
+  it('negocio con equipo: envía type "group" y el símbolo de la moneda elegida', async () => {
     authActionsMock.completeOnboarding.mockResolvedValue({ requiresForcedPassword: true });
     const onCompleted = vi.fn();
     render(OnboardingScreen, { props: { onCompleted } });
 
-    await fireEvent.input(screen.getByLabelText('Nombre del Salón'), { target: { value: 'Salón con Equipo' } });
-    await fireEvent.click(screen.getByLabelText('Salón con equipo'));
-    await fireEvent.input(screen.getByLabelText('¿Cuántos estilistas/especialistas conforman el equipo?'), {
-      target: { value: '5' },
-    });
-    await fireEvent.click(screen.getByRole('button', { name: 'Continuar al Dashboard' }));
+    await fireEvent.input(screen.getByLabelText('Nombre de tu negocio'), { target: { value: 'Salón con Equipo' } });
+    await fireEvent.click(screen.getByLabelText('Con equipo'));
+    await fireEvent.change(screen.getByLabelText('Moneda con la que cobras'), { target: { value: 'DOP' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Empezar' }));
 
     expect(authActionsMock.completeOnboarding).toHaveBeenCalledWith({
       businessId: 'biz-1',
       name: 'Salón con Equipo',
       type: 'group',
-      teamSize: 5,
+      teamSize: null,
+      currencySymbol: 'RD$',
     });
     await vi.waitFor(() => expect(onCompleted).toHaveBeenCalledWith({ requiresForcedPassword: true }));
   });
 
   it('sin violaciones de accesibilidad (axe-core)', async () => {
     const { container } = render(OnboardingScreen, { props: { onCompleted: vi.fn() } });
-    await fireEvent.click(screen.getByLabelText('Salón con equipo'));
+    await fireEvent.click(screen.getByLabelText('Con equipo'));
     await expectNoA11yViolations(container);
   });
 });
