@@ -2,13 +2,13 @@ import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
 import { expectNoA11yViolations } from '../../support/axe';
 
-const appointmentsActionsMock = vi.hoisted(() => ({ changeAppointmentStatus: vi.fn() }));
+const appointmentsActionsMock = vi.hoisted(() => ({ changeAppointmentStatus: vi.fn(), loadAppointments: vi.fn() }));
 vi.mock('../../../../src/lib/actions/appointments', async () => {
   const actual =
     await vi.importActual<typeof import('../../../../src/lib/actions/appointments')>(
       '../../../../src/lib/actions/appointments'
     );
-  return { ...actual, changeAppointmentStatus: appointmentsActionsMock.changeAppointmentStatus };
+  return { ...actual, ...appointmentsActionsMock };
 });
 
 const invoicesActionsMock = vi.hoisted(() => ({
@@ -24,11 +24,11 @@ vi.mock('../../../../src/lib/actions/invoices', async () => {
 const completeAppointmentActionsMock = vi.hoisted(() => ({ completeAppointment: vi.fn() }));
 vi.mock('../../../../src/lib/actions/completeAppointment', () => completeAppointmentActionsMock);
 
-const servicesActionsMock = vi.hoisted(() => ({ loadSpecialistOptions: vi.fn() }));
+const servicesActionsMock = vi.hoisted(() => ({ loadSpecialistOptions: vi.fn(), loadServices: vi.fn() }));
 vi.mock('../../../../src/lib/actions/services', async () => {
   const actual =
     await vi.importActual<typeof import('../../../../src/lib/actions/services')>('../../../../src/lib/actions/services');
-  return { ...actual, loadSpecialistOptions: servicesActionsMock.loadSpecialistOptions };
+  return { ...actual, ...servicesActionsMock };
 });
 
 const pdfMock = vi.hoisted(() => ({
@@ -84,7 +84,9 @@ beforeEach(() => {
   customers.set([]);
   invoices.set([]);
   servicesActionsMock.loadSpecialistOptions.mockResolvedValue([{ id: 'biz-1', label: 'Tú (Administrador/a)' }]);
+  servicesActionsMock.loadServices.mockResolvedValue(undefined);
   invoicesActionsMock.loadInvoices.mockResolvedValue(undefined);
+  appointmentsActionsMock.loadAppointments.mockResolvedValue(undefined);
 });
 
 describe('AgendaScreen', () => {

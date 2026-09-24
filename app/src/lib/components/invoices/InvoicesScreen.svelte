@@ -8,7 +8,9 @@
   import { services as servicesStore } from '../../stores/services';
   import { customers as customersStore } from '../../stores/customers';
   import { loadInvoices } from '../../actions/invoices';
-  import { loadSpecialistOptions, type SpecialistOption } from '../../actions/services';
+  import { loadServices, loadSpecialistOptions, type SpecialistOption } from '../../actions/services';
+  import { loadAppointments } from '../../actions/appointments';
+  import { loadCustomers } from '../../actions/customers';
   import { apptServices } from '../../utils/appointments';
   import { paymentMethodLabel } from '../../utils/payments';
   import { fmtDate } from '../../utils/format';
@@ -22,6 +24,9 @@
     businessId = get(currentBusinessId);
     if (!businessId) return;
     void loadInvoices(businessId);
+    void loadAppointments(businessId);
+    void loadServices(businessId);
+    void loadCustomers(businessId);
     void loadSpecialistOptions(businessId, $t('appt.you_admin'), $t('appt.employee_unnamed')).then((options) => {
       specialistOptions = options;
     });

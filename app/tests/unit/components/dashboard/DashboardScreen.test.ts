@@ -1,8 +1,39 @@
-import { describe, expect, it, afterEach, beforeEach } from 'vitest';
+import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
 import { expectNoA11yViolations } from '../../support/axe';
 
+const appointmentsActionsMock = vi.hoisted(() => ({ loadAppointments: vi.fn() }));
+vi.mock('../../../../src/lib/actions/appointments', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../../../src/lib/actions/appointments')>(
+      '../../../../src/lib/actions/appointments'
+    );
+  return { ...actual, ...appointmentsActionsMock };
+});
+
+const servicesActionsMock = vi.hoisted(() => ({ loadServices: vi.fn() }));
+vi.mock('../../../../src/lib/actions/services', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../../../src/lib/actions/services')>('../../../../src/lib/actions/services');
+  return { ...actual, ...servicesActionsMock };
+});
+
+const invoicesActionsMock = vi.hoisted(() => ({ loadInvoices: vi.fn() }));
+vi.mock('../../../../src/lib/actions/invoices', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../../../src/lib/actions/invoices')>('../../../../src/lib/actions/invoices');
+  return { ...actual, ...invoicesActionsMock };
+});
+
+const customersActionsMock = vi.hoisted(() => ({ loadCustomers: vi.fn(), loadCredits: vi.fn() }));
+vi.mock('../../../../src/lib/actions/customers', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../../../src/lib/actions/customers')>('../../../../src/lib/actions/customers');
+  return { ...actual, ...customersActionsMock };
+});
+
 const { default: DashboardScreen } = await import('../../../../src/lib/components/dashboard/DashboardScreen.svelte');
+const { currentBusinessId } = await import('../../../../src/lib/stores/session');
 const { appointments } = await import('../../../../src/lib/stores/appointments');
 const { services } = await import('../../../../src/lib/stores/services');
 const { invoices } = await import('../../../../src/lib/stores/invoices');
@@ -12,12 +43,19 @@ const { activePeriod } = await import('../../../../src/lib/stores/dashboard');
 afterEach(() => cleanup());
 
 beforeEach(() => {
+  vi.clearAllMocks();
+  currentBusinessId.set('biz-1');
   appointments.set([]);
   services.set([]);
   invoices.set([]);
   customers.set([]);
   customerCredits.set([]);
   activePeriod.set('today');
+  appointmentsActionsMock.loadAppointments.mockResolvedValue(undefined);
+  servicesActionsMock.loadServices.mockResolvedValue(undefined);
+  invoicesActionsMock.loadInvoices.mockResolvedValue(undefined);
+  customersActionsMock.loadCustomers.mockResolvedValue(undefined);
+  customersActionsMock.loadCredits.mockResolvedValue(undefined);
 });
 
 const corte = { id: 'svc-1', business_id: 'biz-1', name: 'Corte', category: null, duration_minutes: 30, price: 500, active: true, created_at: null };
@@ -103,6 +141,15 @@ describe('DashboardScreen', () => {
   it('muestra el gráfico de actividad de los últimos 7 días', () => {
     render(DashboardScreen);
     expect(screen.getByRole('heading', { name: 'Actividad del Negocio' })).toBeTruthy();
+  });
+
+  it('al montar, carga sus propios datos -- no depende de haber visitado Agenda/Configuración antes', () => {
+    render(DashboardScreen);
+    expect(appointmentsActionsMock.loadAppointments).toHaveBeenCalledWith('biz-1');
+    expect(servicesActionsMock.loadServices).toHaveBeenCalledWith('biz-1');
+    expect(invoicesActionsMock.loadInvoices).toHaveBeenCalledWith('biz-1');
+    expect(customersActionsMock.loadCustomers).toHaveBeenCalledWith('biz-1');
+    expect(customersActionsMock.loadCredits).toHaveBeenCalledWith('biz-1');
   });
 
   it('sin violaciones de accesibilidad (axe-core)', async () => {

@@ -9,11 +9,27 @@ vi.mock('../../../../src/lib/actions/invoices', async () => {
   return { ...actual, loadInvoices: invoicesActionsMock.loadInvoices };
 });
 
-const servicesActionsMock = vi.hoisted(() => ({ loadSpecialistOptions: vi.fn() }));
+const appointmentsActionsMock = vi.hoisted(() => ({ loadAppointments: vi.fn() }));
+vi.mock('../../../../src/lib/actions/appointments', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../../../src/lib/actions/appointments')>(
+      '../../../../src/lib/actions/appointments'
+    );
+  return { ...actual, ...appointmentsActionsMock };
+});
+
+const customersActionsMock = vi.hoisted(() => ({ loadCustomers: vi.fn() }));
+vi.mock('../../../../src/lib/actions/customers', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../../../src/lib/actions/customers')>('../../../../src/lib/actions/customers');
+  return { ...actual, ...customersActionsMock };
+});
+
+const servicesActionsMock = vi.hoisted(() => ({ loadSpecialistOptions: vi.fn(), loadServices: vi.fn() }));
 vi.mock('../../../../src/lib/actions/services', async () => {
   const actual =
     await vi.importActual<typeof import('../../../../src/lib/actions/services')>('../../../../src/lib/actions/services');
-  return { ...actual, loadSpecialistOptions: servicesActionsMock.loadSpecialistOptions };
+  return { ...actual, ...servicesActionsMock };
 });
 
 const pdfMock = vi.hoisted(() => ({
@@ -57,6 +73,9 @@ beforeEach(() => {
   customers.set([]);
   invoicesActionsMock.loadInvoices.mockResolvedValue(undefined);
   servicesActionsMock.loadSpecialistOptions.mockResolvedValue([]);
+  servicesActionsMock.loadServices.mockResolvedValue(undefined);
+  appointmentsActionsMock.loadAppointments.mockResolvedValue(undefined);
+  customersActionsMock.loadCustomers.mockResolvedValue(undefined);
 });
 
 describe('InvoicesScreen', () => {
