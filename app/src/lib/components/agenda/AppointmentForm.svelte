@@ -87,7 +87,7 @@
 </script>
 
 <form class="card" onsubmit={handleSubmit}>
-  <h3>{$t('appt.form_title')}</h3>
+  <h2>{$t('appt.form_title')}</h2>
 
   <div>
     <label for="appt-customer">{$t('appt.customer_label')}</label>

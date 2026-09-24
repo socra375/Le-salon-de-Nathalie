@@ -4,6 +4,7 @@
   import { linkAppointmentCustomer } from '../../actions/appointments';
   import { enabledPaymentMethods, type PaymentMethodKey } from '../../utils/payments';
   import { apptServicesLabel, appointmentRevenue } from '../../utils/appointments';
+  import Modal from '../shared/Modal.svelte';
   import type { Tables } from '../../types/database.types';
 
   interface Props {
@@ -61,8 +62,9 @@
   }
 </script>
 
-<div class="card" role="dialog" aria-modal="true" aria-labelledby="pay-title">
-  <h3 id="pay-title">{$t('pay.title')}</h3>
+<Modal labelledBy="pay-title" onClose={onCancel}>
+  <div class="card">
+  <h2 id="pay-title">{$t('pay.title')}</h2>
   <p>{$t('pay.body')}</p>
 
   <form onsubmit={handleConfirm}>
@@ -103,4 +105,5 @@
     <button type="submit" disabled={submitting}>{$t('pay.confirm')}</button>
     <button type="button" onclick={onCancel}>{$t('common.cancel')}</button>
   </form>
-</div>
+  </div>
+</Modal>

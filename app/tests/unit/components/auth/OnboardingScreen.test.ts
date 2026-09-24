@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const authActionsMock = vi.hoisted(() => ({ completeOnboarding: vi.fn() }));
 vi.mock('../../../../src/lib/actions/auth', async () => {
@@ -75,5 +76,11 @@ describe('OnboardingScreen', () => {
       teamSize: 5,
     });
     await vi.waitFor(() => expect(onCompleted).toHaveBeenCalledWith({ requiresForcedPassword: true }));
+  });
+
+  it('sin violaciones de accesibilidad (axe-core)', async () => {
+    const { container } = render(OnboardingScreen, { props: { onCompleted: vi.fn() } });
+    await fireEvent.click(screen.getByLabelText('Salón con equipo'));
+    await expectNoA11yViolations(container);
   });
 });

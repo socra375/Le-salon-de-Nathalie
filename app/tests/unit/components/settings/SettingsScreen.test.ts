@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const accountActionsMock = vi.hoisted(() => ({ getAccountInfo: vi.fn() }));
 vi.mock('../../../../src/lib/actions/account', () => accountActionsMock);
@@ -37,5 +38,11 @@ describe('SettingsScreen', () => {
     render(SettingsScreen);
     await fireEvent.click(screen.getByRole('button', { name: 'Registro Actividad' }));
     expect(activityLogActionsMock.loadActivityLog).toHaveBeenCalledWith('biz-1');
+  });
+
+  it('sin violaciones de accesibilidad (axe-core) en la pestaña inicial', async () => {
+    const { container } = render(SettingsScreen);
+    await screen.findByText('ana@example.com');
+    await expectNoA11yViolations(container);
   });
 });

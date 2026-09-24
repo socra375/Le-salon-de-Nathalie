@@ -42,7 +42,7 @@
 
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3>{$t('dash.appts_today_title')}</h3>
+      <h2>{$t('dash.appts_today_title')}</h2>
       <span>{$t(todaysList.length === 1 ? 'dash.appt_count' : 'dash.appt_count_plural', { n: todaysList.length })}</span>
     </div>
     {#if todaysListPreview.length === 0}

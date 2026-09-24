@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const actionsMock = vi.hoisted(() => ({ updateBusinessPaymentMethods: vi.fn() }));
 vi.mock('../../../../src/lib/actions/settings', async () => {
@@ -40,5 +41,10 @@ describe('PaymentsTab', () => {
       expect.any(String)
     );
     expect(await screen.findByText('Métodos de pago guardados.')).toBeTruthy();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core)', async () => {
+    const { container } = render(PaymentsTab, { props: { businessId: 'biz-1', business: null } });
+    await expectNoA11yViolations(container);
   });
 });

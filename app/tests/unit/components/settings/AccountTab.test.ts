@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const accountActionsMock = vi.hoisted(() => ({ getAccountInfo: vi.fn() }));
 vi.mock('../../../../src/lib/actions/account', () => accountActionsMock);
@@ -61,5 +62,13 @@ describe('AccountTab', () => {
     render(AccountTab);
     await fireEvent.click(screen.getByRole('button', { name: 'Salir' }));
     expect(authActionsMock.signOut).toHaveBeenCalled();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core), con el formulario de contraseña abierto', async () => {
+    const { container } = render(AccountTab);
+    await screen.findByText('Ana Pérez');
+    await fireEvent.click(screen.getByRole('button', { name: 'Contraseña' }));
+
+    await expectNoA11yViolations(container);
   });
 });

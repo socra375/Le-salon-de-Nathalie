@@ -1,5 +1,6 @@
 import { describe, expect, it, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const { default: DashboardScreen } = await import('../../../../src/lib/components/dashboard/DashboardScreen.svelte');
 const { appointments } = await import('../../../../src/lib/stores/appointments');
@@ -97,5 +98,28 @@ describe('DashboardScreen', () => {
 
     render(DashboardScreen);
     expect(screen.getByText('$200.00')).toBeTruthy();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core)', async () => {
+    services.set([corte]);
+    appointments.set([
+      {
+        id: 'a1',
+        business_id: 'biz-1',
+        customer_id: null,
+        employee_id: 'biz-1',
+        service_id: 'svc-1',
+        service_ids: null,
+        start_at: todayAt(10),
+        end_at: todayAt(11),
+        status: 'confirmada',
+        price: 500,
+        notes: null,
+        created_at: null,
+      } as never,
+    ]);
+
+    const { container } = render(DashboardScreen);
+    await expectNoA11yViolations(container);
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const customersActionsMock = vi.hoisted(() => ({
   loadCustomers: vi.fn(),
@@ -98,5 +99,13 @@ describe('CustomersScreen', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
     expect(screen.queryByRole('heading', { name: 'Cuenta de Ana' })).toBeNull();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core), con la cuenta del cliente abierta', async () => {
+    const { container } = render(CustomersScreen);
+    await screen.findByText('Ana');
+    await fireEvent.click(screen.getByRole('button', { name: 'Ver Cuenta' }));
+
+    await expectNoA11yViolations(container);
   });
 });

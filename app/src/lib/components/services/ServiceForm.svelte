@@ -62,7 +62,7 @@
 </script>
 
 <form class="card" onsubmit={handleSubmit}>
-  <h3>{service ? $t('svc.form_title_edit') : $t('svc.form_title_new')}</h3>
+  <h2>{service ? $t('svc.form_title_edit') : $t('svc.form_title_new')}</h2>
 
   <div>
     <label for="svc-name">{$t('svc.name_label')}</label>

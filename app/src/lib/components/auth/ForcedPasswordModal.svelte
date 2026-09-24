@@ -1,6 +1,7 @@
 <script lang="ts">
   import { t } from '../../stores/locale';
   import { setForcedPassword } from '../../actions/auth';
+  import Modal from '../shared/Modal.svelte';
 
   interface Props {
     onSaved: () => void;
@@ -33,7 +34,9 @@
   }
 </script>
 
-<div role="dialog" aria-modal="true" aria-labelledby="forced-password-title">
+<!-- Sin `onClose`: forzar la contraseña es obligatorio en el onboarding de
+     un salón con equipo, no se puede cancelar (igual que el legado). -->
+<Modal labelledBy="forced-password-title">
   <h2 id="forced-password-title">{$t('fp.title')}</h2>
   <p>{$t('fp.body')}</p>
 
@@ -45,4 +48,4 @@
   {/if}
 
   <button type="button" onclick={handleSave} disabled={submitting}>{$t('fp.submit')}</button>
-</div>
+</Modal>

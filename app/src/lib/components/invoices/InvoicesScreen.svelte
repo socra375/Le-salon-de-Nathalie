@@ -54,7 +54,7 @@
   <p>{$t('inv.auto_hint')}</p>
 
   <div class="card table-responsive">
-    <h3>{$t('inv.history_title')}</h3>
+    <h2>{$t('inv.history_title')}</h2>
     <table>
       <thead>
         <tr>

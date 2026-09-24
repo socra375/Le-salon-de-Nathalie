@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const invoicesActionsMock = vi.hoisted(() => ({ loadInvoices: vi.fn() }));
 vi.mock('../../../../src/lib/actions/invoices', async () => {
@@ -81,5 +82,12 @@ describe('InvoicesScreen', () => {
 
     await vi.waitFor(() => expect(pdfMock.buildInvoicePdf).toHaveBeenCalled());
     expect(pdfMock.openInvoicePdf).toHaveBeenCalled();
+  });
+
+  it('sin violaciones de accesibilidad (axe-core)', async () => {
+    invoices.set([invoice] as never);
+    const { container } = render(InvoicesScreen);
+    await screen.findByText('FAC-123456');
+    await expectNoA11yViolations(container);
   });
 });

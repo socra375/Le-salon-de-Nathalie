@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { expectNoA11yViolations } from '../../support/axe';
 
 const actionsMock = vi.hoisted(() => ({
   loadServices: vi.fn(),
@@ -116,5 +117,13 @@ describe('ServicesScreen', () => {
 
     expect(screen.getByRole('heading', { name: 'Editar Servicio' })).toBeTruthy();
     expect((screen.getByLabelText('Nombre del Servicio') as HTMLInputElement).value).toBe('Corte');
+  });
+
+  it('sin violaciones de accesibilidad (axe-core), con la tabla y el formulario abiertos', async () => {
+    const { container } = render(ServicesScreen);
+    await screen.findByText('Corte');
+    await fireEvent.click(screen.getByRole('button', { name: '+ Nuevo Servicio' }));
+
+    await expectNoA11yViolations(container);
   });
 });
