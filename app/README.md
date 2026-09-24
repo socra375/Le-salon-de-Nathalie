@@ -235,8 +235,110 @@ que esta sección tampoco los tiene.
   `tests/unit/actions/{customers,appointments}.test.ts`,
   `tests/unit/components/customers/*.test.ts`.
 
-## Qué NO hay todavía
+## Fase 5 (completa) — Agenda, Facturas/PDF, Dashboard, Configuración y Empleados
 
-Sin paridad funcional completa con el `index.html` legado: de la Fase 5
-falta Agenda, Facturas/PDF, Dashboard, Configuración (el resto de sus
-pestañas) y Empleados.
+Últimas cinco secciones, cierran la Fase 5: paridad funcional completa
+con el `index.html` legado, todo en `app/`.
+
+### Agenda y el primer acoplamiento real con Facturas
+
+`src/lib/actions/appointments.ts` (ampliado): `createAppointment` (suma
+duraciones/precios de los servicios elegidos, antepone el nombre walk-in
+a las notas solo si la cita no tiene cliente registrado --
+`utils/appointments.ts` gana `buildAppointmentNotes`/
+`getAppointmentClientName` para esto), `changeAppointmentStatus` y
+`linkAppointmentCustomer` (enlazar una cita walk-in a un cliente
+registrado al elegir fiarla). `src/lib/actions/completeAppointment.ts`
+es el orquestador que pide el plan para este acoplamiento: compone
+marcar la cita como completada + facturarla, sin que Agenda sepa nada de
+cómo Facturas dibuja o genera el PDF.
+
+`src/lib/components/agenda/`: `AppointmentForm` (alta, con el checklist
+de servicios), `PaymentMethodModal` (pide método de pago antes de
+completar/re-facturar, con el mismo flujo de enlazar un cliente walk-in
+al elegir crédito) y `AgendaScreen` (calendario por día + tabla +
+acciones por estado). Los cambios de estado simples (confirmar, cancelar,
+no-show) usan una confirmación inline accesible en vez del `confirm()`
+nativo del legado -- mismo criterio que Servicios.
+
+### Facturas y el PDF
+
+`src/lib/utils/invoices.ts` (`calculateInvoiceTax`, desglosa
+subtotal/impuesto/total igual que el legado) y
+`src/lib/actions/invoices.ts` (`createInvoiceForAppointment`: crea la
+factura, el crédito si el método es "credito", y recarga -- sin generar
+el PDF, eso lo decide quien llama, según la separación vista-modelo que
+pide el plan para esta sección).
+
+`src/lib/pdf/invoicePdf.ts` es el módulo de dibujo puro: `buildInvoicePdf`
+arma el documento (jsPDF) a partir de datos ya resueltos, sin tocar el
+DOM; `openInvoicePdf` es el único punto que sí lo toca (abre el blob en
+una pestaña nueva); `loadImageAsDataURL` descarga el logo para
+incrustarlo. `invoiceLineItems`, la construcción de las líneas de la
+tabla de servicios, es una función pura aparte, probada sin jsPDF de por
+medio. La librería se actualizó a `jspdf@4.2.1` (la `2.5.1` que usa el
+legado por CDN depende de una versión de `dompurify` con varias
+vulnerabilidades conocidas; la `4.2.1` ya no).
+
+`src/lib/components/invoices/InvoicesScreen.svelte`: historial +
+re-abrir el PDF de una factura ya generada.
+
+### Dashboard
+
+`src/lib/utils/dashboard.ts`: `calculateDashboardTotals` (mismo cálculo
+que `calculateFinancialDashboard` del legado -- ingreso neto solo de
+citas completadas del período elegido, usando `collectedRevenue` para no
+contar dos veces lo fiado) y `todaysAppointments`. `stores/dashboard.ts`
+solo guarda el período activo (Hoy/Esta Semana/Este Mes). Sin la
+animación del contador (`requestAnimationFrame`) del legado -- una
+simplificación deliberada, no solo estética: un número que cambia solo
+es más simple de anunciar a un lector de pantalla que uno animándose.
+
+### Configuración (el resto de sus pestañas)
+
+`src/lib/actions/settings.ts`: una función por pestaña
+(`updateBusinessInfo`, `updateBusinessLanguage`, `updateBusinessAppearance`
++ `clearBusinessBackground`, `updateBusinessTax`,
+`updateBusinessPaymentMethods`), cada una replicando el detalle fino del
+legado que importa -- por ejemplo, si el logo falla al subir, el negocio
+igual se guarda con la URL anterior (solo se avisa del error), pero si
+falla el fondo de Personalización, se aborta sin guardar nada; son dos
+comportamientos distintos en el legado y se mantienen distintos acá.
+`src/lib/actions/account.ts` (datos del perfil de Auth, no de
+`businesses`) y `src/lib/actions/activityLog.ts` completan las pestañas
+restantes.
+
+`src/lib/components/settings/`: `SettingsScreen` (el selector de
+pestañas) más una por pestaña (`AccountTab`, `BusinessTab`,
+`LanguageTab`, `AppearanceTab`, `TaxTab`, `PaymentsTab`,
+`ActivityLogTab`). El cambio de contraseña de "Mi Cuenta" reutiliza
+`setForcedPassword` de `actions/auth.ts` (ya existía desde Auth/
+Onboarding) en vez de duplicar la llamada a Supabase Auth.
+
+### Empleados
+
+`src/lib/utils/employees.ts` (`codeFromBytes`, el mapeo bytes-a-código
+por separado de `crypto.getRandomValues`, que es un efecto) y
+`src/lib/actions/employees.ts` (`generateInvite`, `loadEmployees`,
+`updateEmployeeRoleTitle`) -- `employee_invites.expires_at` ya tiene un
+default de 72h en la base (migración `002_invite_expiration.sql`), así
+que no hace falta mandarlo desde acá. `src/lib/components/employees/
+EmployeesScreen.svelte`: generar/copiar código + lista de empleados con
+su cargo editable.
+
+### Navegación mínima en `App.svelte`
+
+Con las 7 secciones ya completas, `App.svelte` gana una barra de
+navegación real (admin-only, igual que el legado) en vez de apilar
+pantallas: Dashboard, Agenda, Facturas, Servicios, Clientes,
+Configuración y, solo para negocios de tipo "grupo", Empleados -- misma
+condición que el legado usa para ocultar `nav-btn-employees` a un salón
+individual. Un empleado solo ve el Dashboard de solo lectura, sin barra
+de navegación (misma regla que hoy).
+
+### Qué falta para el corte de producción (fuera de la Fase 5)
+
+Con esto, la Fase 5 completa la paridad funcional con el `index.html`
+legado. Quedan la Fase 6 (accesibilidad -- ya integrada por composición
+en cada componente desde el inicio, no como pasada aparte) formalizada
+con una auditoría explícita, y la Fase 7 (corte a producción) del plan.
