@@ -4,6 +4,8 @@
   "header.role_admin": "Admin",
   "header.role_employee": "Empleado",
   "auth.subtitle": "Agenda, servicios y control administrativo para tu salón de belleza.",
+  "auth.heading": "Acceso al Gestor",
+  "auth.lead": "Entra con tu cuenta.",
   "auth.email_label": "Correo Electrónico",
   "auth.password_label": "Contraseña",
   "auth.invite_label": "¿Tienes un código de invitación de tu salón? (Opcional)",
