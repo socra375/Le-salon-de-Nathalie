@@ -78,8 +78,8 @@ describe('DashboardScreen', () => {
       } as never,
     ]);
 
-    render(DashboardScreen);
-    expect(screen.getByText('$500.00')).toBeTruthy();
+    const { container } = render(DashboardScreen);
+    expect(container.querySelector('.hero-metric .val-large')?.textContent).toBe('$500.00');
   });
 
   it('cambiar de período actualiza qué botón está presionado', async () => {
@@ -98,6 +98,11 @@ describe('DashboardScreen', () => {
 
     render(DashboardScreen);
     expect(screen.getByText('$200.00')).toBeTruthy();
+  });
+
+  it('muestra el gráfico de actividad de los últimos 7 días', () => {
+    render(DashboardScreen);
+    expect(screen.getByRole('heading', { name: 'Actividad del Negocio' })).toBeTruthy();
   });
 
   it('sin violaciones de accesibilidad (axe-core)', async () => {

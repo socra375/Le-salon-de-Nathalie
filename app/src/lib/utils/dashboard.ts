@@ -44,3 +44,28 @@ export function todaysAppointments(now: Date, appointments: Tables<'appointments
     .filter((a) => isSameCalendarDay(new Date(a.start_at), now) && a.status !== 'cancelada')
     .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime());
 }
+
+export interface DailyRevenuePoint {
+  date: Date;
+  amount: number;
+}
+
+/** Ingresos cobrados de cada uno de los últimos 7 días (incluyendo `now`), para el gráfico de actividad. */
+export function last7DaysRevenue(
+  now: Date,
+  appointments: Tables<'appointments'>[],
+  services: Tables<'services'>[],
+  invoices: Tables<'invoices'>[],
+  credits: Tables<'customer_credits'>[]
+): DailyRevenuePoint[] {
+  const completed = appointments.filter((a) => a.status === 'completada');
+  const points: DailyRevenuePoint[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const amount = completed
+      .filter((a) => isSameCalendarDay(new Date(a.start_at), date))
+      .reduce((acc, a) => acc + collectedRevenue(a, services, invoices, credits), 0);
+    points.push({ date, amount });
+  }
+  return points;
+}

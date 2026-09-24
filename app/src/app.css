@@ -117,7 +117,7 @@ nav {
 
 main {
   padding: 1.25rem;
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -245,4 +245,76 @@ td {
 
 [role='status'] {
   color: var(--accent-profit);
+}
+
+/* Configuración: lista estilo iOS, igual que el diseño original (legado). */
+.settings-list {
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  border-radius: 0;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row:hover {
+  filter: none;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.settings-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.settings-row-label {
+  flex: 1;
+  font-weight: 500;
+}
+
+.settings-chevron {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.btn-settings-back {
+  width: auto;
+  margin: 0 0 1rem;
+  padding: 0.4rem 0.6rem 0.4rem 0.3rem;
+  background: transparent;
+  border: none;
+  color: var(--accent-profit);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.95rem;
 }
