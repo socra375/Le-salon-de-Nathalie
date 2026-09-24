@@ -1,24 +1,31 @@
-# Gestión Empresarial
+# Gestor Empresarial — v2.0
 
-Variante de "Gestión PYME" adaptada para salones de belleza, peluquerías, barberías y spas: agenda de citas y catálogo de servicios sobre la misma base de autenticación, roles, clientes y configuración. No incluye Ventas ni Inventario de productos: el negocio de esta app es 100% por servicios.
+Gestor todo-en-uno para salones de belleza, peluquerías, barberías y spas: agenda, clientes, servicios, facturación y equipo en un solo lugar, con diseño propio y disponible en 6 idiomas.
 
-Fase 1 (MVP) implementada en este commit:
+Reescrito por completo en esta versión (Vite + TypeScript + Svelte 5), reemplazando el `index.html` original de la v1 — más confiable, más seguro y con una interfaz nueva de punta a punta.
 
-- **Catálogo de Servicios**: nombre, categoría, duración, precio, estado activo y especialistas habilitados. Se gestiona desde la pestaña "Servicios" en Configuración.
-- **Agenda de Citas**: crear, ver y cancelar citas por fecha; cálculo automático de la hora de fin según la duración del servicio; opción de cita walk-in sin cliente registrado. La validación de solapamiento de horarios y los horarios por especialista llegan en la Fase 2.
-- **Clientes**: se gestiona desde la pestaña "Clientes" en Configuración. Incluye historial (última visita, servicio más frecuente, especialista preferido) y notas (alergias, preferencias) en la ficha de cada cliente.
-- Tarjeta "Citas de Hoy" e "Ingresos por Servicios Completados" en el Dashboard.
-- **Facturas nacen de una cita completada** (no de una venta): desde la Agenda, una cita "completada" muestra un botón "Facturar"; el cliente es obligatorio, hay método de pago (incluyendo Crédito, que genera cuenta por cobrar), y el PDF sigue una plantilla tipo "Nota de Remisión" (encabezado con datos del cliente, tabla de servicio con cantidad/descripción/valor unitario/importe, subtotal/impuesto/total, logo del salón y pie con dirección/teléfono/sitio web del negocio).
-- **Idioma**: selector en Configuración (Español / English / Français) que traduce toda la interfaz — menús, formularios, tablas, alertas y el PDF de factura — y se recuerda por negocio y por dispositivo.
+## Qué ofrece
 
-Los módulos de Autenticación, Roles y Configuración se reutilizan de la app base sin cambios funcionales. En esta fase, Agenda, Servicios, Clientes y Facturas son exclusivos del rol admin; el empleado ve un dashboard de solo lectura.
+- **Inicio**: un checklist de primeros pasos para negocios nuevos (servicios, clientes, primera cita, equipo) y, ya con actividad, un resumen del negocio — ingresos del período, agenda del día, cuentas por cobrar por cliente y un gráfico de los últimos 7 días.
+- **Agenda**: citas agrupadas por Mañana/Tarde, con walk-ins, múltiples servicios por cita y cambio de estado (confirmar, completar, cancelar, no-show).
+- **Clientes**: historial de visitas, servicio y especialista preferidos, y créditos pendientes por cobrar.
+- **Servicios**: catálogo con precio, duración y especialistas habilitados.
+- **Facturas**: nacen de una cita completada, con método de pago (incluido crédito) y PDF descargable con el logo del negocio.
+- **Equipo**: invitaciones por código con expiración; empleados con acceso de solo lectura a nivel de base de datos, no solo de interfaz.
+- **Configuración**: datos del negocio, moneda e impuestos, apariencia, idioma y actividad reciente.
+- **Idioma**: español, inglés, francés, portugués, alemán e italiano — se recuerda por negocio.
+- **Diseño propio**: identidad de marca (logo, favicon, PWA instalable) y un mismo lenguaje visual en el login, la landing, la configuración inicial, la agenda y el inicio.
+- **Seguridad**: acceso por roles (admin/empleado) reforzado con políticas de base de datos (RLS), no solo ocultando botones en pantalla.
 
-## Puesta en marcha
+## Cómo empezar
 
-1. Ejecuta `supabase/schema.sql` en el SQL Editor de tu proyecto Supabase (si ya lo corriste antes de esta versión, solo hace falta el bloque final "7. MIGRACIÓN", que ahora incluye la columna `businesses.language`).
-2. En `index.html`, reemplaza `SUPABASE_URL` y `SUPABASE_ANON_KEY` con las credenciales de tu proyecto.
-3. Sirve `index.html` como sitio estático (por ejemplo, GitHub Pages).
+```bash
+cd app
+npm install
+cp .env.example .env   # completa VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
+npm run dev
+```
 
-## Próximas fases
+Producción se publica sola en GitHub Pages con cada cambio a `main` (ver `.github/workflows/deploy.yml`). El detalle técnico completo — arquitectura, decisiones de cada sección, pruebas — está en [`app/README.md`](app/README.md).
 
-Fase 2: validación de solapamiento de citas y horarios por especialista. Fase 3: comisiones automáticas. Fase 4: dashboard de ocupación. Fase 5 (opcional): recordatorios manuales para WhatsApp y depósitos/señas.
+> El `index.html` de la raíz es la v1, ya reemplazada en producción; se conserva únicamente como referencia de rollback.
