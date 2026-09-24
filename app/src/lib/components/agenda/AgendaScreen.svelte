@@ -7,10 +7,10 @@
   import { services as servicesStore } from '../../stores/services';
   import { customers as customersStore } from '../../stores/customers';
   import { invoices as invoicesStore } from '../../stores/invoices';
-  import { changeAppointmentStatus } from '../../actions/appointments';
+  import { changeAppointmentStatus, loadAppointments } from '../../actions/appointments';
   import { loadInvoices, createInvoiceForAppointment } from '../../actions/invoices';
   import { completeAppointment } from '../../actions/completeAppointment';
-  import { loadSpecialistOptions, type SpecialistOption } from '../../actions/services';
+  import { loadServices, loadSpecialistOptions, type SpecialistOption } from '../../actions/services';
   import { toDateInputValue } from '../../utils/dates';
   import { fmtDate, fmtTime } from '../../utils/format';
   import { apptServices, apptServicesLabel, getAppointmentClientName } from '../../utils/appointments';
@@ -41,6 +41,8 @@
   onMount(() => {
     businessId = get(currentBusinessId);
     if (!businessId) return;
+    void loadAppointments(businessId);
+    void loadServices(businessId);
     void loadInvoices(businessId);
     void loadSpecialistOptions(businessId, $t('appt.you_admin'), $t('appt.employee_unnamed')).then((options) => {
       specialistOptions = options;

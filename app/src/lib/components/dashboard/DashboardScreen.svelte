@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
   import { t, locale } from '../../stores/locale';
+  import { currentBusinessId } from '../../stores/session';
   import { appointments as appointmentsStore } from '../../stores/appointments';
   import { services as servicesStore } from '../../stores/services';
   import { invoices as invoicesStore } from '../../stores/invoices';
@@ -9,7 +12,28 @@
   import { apptServicesLabel, getAppointmentClientName } from '../../utils/appointments';
   import { apptStatusLabel, type AppointmentStatus } from '../../utils/labels';
   import { fmtTime } from '../../utils/format';
+  import { loadAppointments } from '../../actions/appointments';
+  import { loadServices } from '../../actions/services';
+  import { loadInvoices } from '../../actions/invoices';
+  import { loadCustomers, loadCredits } from '../../actions/customers';
   import RevenueChart from './RevenueChart.svelte';
+
+  /**
+   * El Dashboard es la sección de entrada de la app (`activeSection` arranca
+   * ahí) -- no puede depender de que antes se haya visitado Agenda/Facturas/
+   * Configuración para que estos stores compartidos ya tengan datos. Cada
+   * screen debe cargar lo que necesita, no asumir el efecto secundario de
+   * otra.
+   */
+  onMount(() => {
+    const businessId = get(currentBusinessId);
+    if (!businessId) return;
+    void loadAppointments(businessId);
+    void loadServices(businessId);
+    void loadInvoices(businessId);
+    void loadCustomers(businessId);
+    void loadCredits(businessId);
+  });
 
   const PERIODS: { key: DashboardPeriod; labelKey: 'dash.period_today' | 'dash.period_week' | 'dash.period_month' }[] = [
     { key: 'today', labelKey: 'dash.period_today' },
