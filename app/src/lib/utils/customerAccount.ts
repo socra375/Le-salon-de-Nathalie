@@ -38,3 +38,34 @@ export function pendingCreditTotal(credits: Tables<'customer_credits'>[]): numbe
     .filter((c) => c.status !== 'pagado')
     .reduce((acc, c) => acc + (Number(c.amount) - Number(c.amount_paid)), 0);
 }
+
+export interface CustomerReceivable {
+  customerId: string;
+  name: string;
+  amount: number;
+}
+
+/**
+ * Desglosa las cuentas por cobrar por cliente, de mayor a menor saldo --
+ * para la tarjeta "Por cobrar" del dashboard. Créditos sin `customer_id`
+ * (venta anónima) se ignoran: no hay a quién cobrarle.
+ */
+export function receivablesByCustomer(
+  credits: Tables<'customer_credits'>[],
+  customers: Tables<'customers'>[]
+): CustomerReceivable[] {
+  const byCustomer = new Map<string, Tables<'customer_credits'>[]>();
+  for (const credit of credits) {
+    if (!credit.customer_id) continue;
+    const list = byCustomer.get(credit.customer_id) ?? [];
+    list.push(credit);
+    byCustomer.set(credit.customer_id, list);
+  }
+
+  const names = new Map(customers.map((c) => [c.id, c.name]));
+
+  return [...byCustomer.entries()]
+    .map(([customerId, list]) => ({ customerId, name: names.get(customerId) ?? '', amount: pendingCreditTotal(list) }))
+    .filter((r) => r.amount > 0)
+    .sort((a, b) => b.amount - a.amount);
+}

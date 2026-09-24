@@ -22,9 +22,43 @@
   import InvoicesScreen from './lib/components/invoices/InvoicesScreen.svelte';
   import SettingsScreen from './lib/components/settings/SettingsScreen.svelte';
   import EmployeesScreen from './lib/components/employees/EmployeesScreen.svelte';
+  import type { DashboardNavTarget } from './lib/components/dashboard/DashboardScreen.svelte';
 
   type Section = 'dashboard' | 'agenda' | 'invoices' | 'settings' | 'employees';
   let activeSection = $state<Section>('dashboard');
+  /** Un solo uso: el Dashboard pide abrir el formulario de nueva cita de una vez al llegar a Agenda. */
+  let agendaAutoOpen = $state(false);
+  /** Igual, para saltar directo a una pestaña de Configuración desde el checklist de primeros pasos. */
+  let settingsInitialTab = $state<'services' | 'customers' | null>(null);
+
+  function goToSection(section: Section) {
+    agendaAutoOpen = false;
+    settingsInitialTab = null;
+    activeSection = section;
+  }
+
+  function handleDashboardNavigate(target: DashboardNavTarget) {
+    switch (target) {
+      case 'agenda-new':
+        agendaAutoOpen = true;
+        activeSection = 'agenda';
+        break;
+      case 'agenda-view':
+        goToSection('agenda');
+        break;
+      case 'services':
+        settingsInitialTab = 'services';
+        activeSection = 'settings';
+        break;
+      case 'customers':
+        settingsInitialTab = 'customers';
+        activeSection = 'settings';
+        break;
+      case 'employees':
+        goToSection('employees');
+        break;
+    }
+  }
 
   let ready = $state(false);
   let resolving = $state(false);
@@ -150,6 +184,80 @@
   <OnboardingScreen onCompleted={handleOnboardingCompleted} />
 {:else if showForcedPassword}
   <ForcedPasswordModal onSaved={() => (showForcedPassword = false)} />
+{:else if $isAdmin}
+  <div class="app-shell">
+    <aside class="side">
+      <div class="side-brand">
+        {#if $currentBusiness?.logo_url}
+          <img src={$currentBusiness.logo_url} alt="" class="side-logo" />
+        {/if}
+        <div>
+          <b>{$currentBusiness?.name ?? 'Gestión Salón'}</b>
+          <small>Gestor Empresarial</small>
+        </div>
+      </div>
+      <nav aria-label={$t('nav.dashboard')}>
+        <button type="button" class="side-link" aria-current={activeSection === 'dashboard' ? 'page' : undefined} onclick={() => goToSection('dashboard')}>
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6.5L20 11" /><path d="M6 10v9.5h12V10" /><path d="M10 19.5v-5h4v5" /></svg>
+          {$t('nav.dashboard')}
+        </button>
+        <button type="button" class="side-link" aria-current={activeSection === 'agenda' ? 'page' : undefined} onclick={() => goToSection('agenda')}>
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="3" /><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" /></svg>
+          {$t('nav.agenda')}
+        </button>
+        <button type="button" class="side-link" aria-current={activeSection === 'invoices' ? 'page' : undefined} onclick={() => goToSection('invoices')}>
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.6-2.4 1.6-1.2-.9-1.2.9-2.4-1.6L6 20.5z" /><path d="M9 8.5h6M9 12h6" /></svg>
+          {$t('nav.invoices')}
+        </button>
+        {#if $currentBusiness?.business_type === 'group'}
+          <button type="button" class="side-link" aria-current={activeSection === 'employees' ? 'page' : undefined} onclick={() => goToSection('employees')}>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2" /><path d="M3 19.5c.5-3.2 2.8-5 6-5s5.5 1.8 6 5" /><circle cx="17" cy="9.5" r="2.6" /><path d="M16.5 14.8c2.6.1 4.1 1.6 4.5 4.2" /></svg>
+            {$t('nav.employees')}
+          </button>
+        {/if}
+      </nav>
+      <div class="side-foot">
+        <button type="button" class="side-link" aria-current={activeSection === 'settings' ? 'page' : undefined} onclick={() => goToSection('settings')}>
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></svg>
+          {$t('cfg.back')}
+        </button>
+        <button type="button" class="side-link" onclick={() => signOut()}>
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5h4.5a1 1 0 011 1v13a1 1 0 01-1 1H14" /><path d="M10 8l-4 4 4 4M6 12h9" /></svg>
+          {$t('header.logout')}
+        </button>
+      </div>
+    </aside>
+
+    <div class="content">
+      <div class="mbrand">
+        {#if $currentBusiness?.logo_url}
+          <img src={$currentBusiness.logo_url} alt="" class="mbrand-logo" />
+        {/if}
+        {$currentBusiness?.name ?? 'Gestión Salón'}
+      </div>
+
+      {#if showSessionBanner}
+        <p class="session-banner" transition:fade={{ duration: 200 }}>
+          Sesión iniciada como <strong>{$currentUserRole === 'admin' ? $t('header.role_admin') : $t('header.role_employee')}</strong>
+          de <strong>{$currentBusiness?.name ?? 'Mi Salón'}</strong>.
+        </p>
+      {/if}
+
+      <main>
+        {#if activeSection === 'dashboard'}
+          <DashboardScreen onNavigate={handleDashboardNavigate} />
+        {:else if activeSection === 'agenda'}
+          <AgendaScreen autoOpenForm={agendaAutoOpen} />
+        {:else if activeSection === 'invoices'}
+          <InvoicesScreen />
+        {:else if activeSection === 'settings'}
+          <SettingsScreen initialTab={settingsInitialTab} />
+        {:else if activeSection === 'employees'}
+          <EmployeesScreen />
+        {/if}
+      </main>
+    </div>
+  </div>
 {:else}
   <header>
     <div class="header-top">
@@ -160,16 +268,6 @@
         <h1>{$currentBusiness?.name ?? 'Gestión Salón'}</h1>
       </div>
       <div class="header-actions">
-        {#if $isAdmin}
-          <button
-            type="button"
-            class="header-action"
-            aria-pressed={activeSection === 'settings'}
-            onclick={() => (activeSection = 'settings')}
-          >
-            {$t('cfg.back')}
-          </button>
-        {/if}
         <button type="button" class="header-action" onclick={() => signOut()}>{$t('header.logout')}</button>
       </div>
     </div>
@@ -180,44 +278,7 @@
       </p>
     {/if}
   </header>
-
-  {#if $isAdmin}
-    <main>
-      {#if activeSection === 'dashboard'}
-        <DashboardScreen />
-      {:else if activeSection === 'agenda'}
-        <AgendaScreen />
-      {:else if activeSection === 'invoices'}
-        <InvoicesScreen />
-      {:else if activeSection === 'settings'}
-        <SettingsScreen />
-      {:else if activeSection === 'employees'}
-        <EmployeesScreen />
-      {/if}
-    </main>
-
-    <!-- Igual que el legado: barra de navegación fija abajo, solo con las
-         secciones de uso frecuente -- Servicios y Clientes viven dentro de
-         Configuración (ver settings-list del index.html original). -->
-    <nav class="bottom-nav" aria-label={$t('nav.dashboard')}>
-      <button type="button" aria-pressed={activeSection === 'dashboard'} onclick={() => (activeSection = 'dashboard')}>
-        {$t('nav.dashboard')}
-      </button>
-      <button type="button" aria-pressed={activeSection === 'agenda'} onclick={() => (activeSection = 'agenda')}>
-        {$t('nav.agenda')}
-      </button>
-      <button type="button" aria-pressed={activeSection === 'invoices'} onclick={() => (activeSection = 'invoices')}>
-        {$t('nav.invoices')}
-      </button>
-      {#if $currentBusiness?.business_type === 'group'}
-        <button type="button" aria-pressed={activeSection === 'employees'} onclick={() => (activeSection = 'employees')}>
-          {$t('nav.employees')}
-        </button>
-      {/if}
-    </nav>
-  {:else}
-    <main>
-      <DashboardScreen />
-    </main>
-  {/if}
+  <main>
+    <DashboardScreen onNavigate={handleDashboardNavigate} />
+  </main>
 {/if}

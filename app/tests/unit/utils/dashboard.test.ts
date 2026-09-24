@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { calculateDashboardTotals, todaysAppointments, last7DaysRevenue } from '../../../src/lib/utils/dashboard';
+import {
+  calculateDashboardTotals,
+  todaysAppointments,
+  last7DaysRevenue,
+  periodAppointmentsCount,
+} from '../../../src/lib/utils/dashboard';
 import type { Tables } from '../../../src/lib/types/database.types';
 
 const services: Tables<'services'>[] = [
@@ -60,6 +65,22 @@ describe('calculateDashboardTotals', () => {
     ];
     const totals = calculateDashboardTotals(now, 'today', [], services, [], credits);
     expect(totals.totalReceivables).toBe(200);
+  });
+});
+
+describe('periodAppointmentsCount', () => {
+  it('cuenta las citas del período sin importar su estado, salvo canceladas', () => {
+    const today = makeAppt({ id: 'today', status: 'pendiente', start_at: '2026-01-15T09:00:00.000Z' });
+    const cancelled = makeAppt({ id: 'cancelled', status: 'cancelada', start_at: '2026-01-15T10:00:00.000Z' });
+    const yesterday = makeAppt({ id: 'yesterday', status: 'completada', start_at: '2026-01-14T09:00:00.000Z' });
+    expect(periodAppointmentsCount(now, 'today', [today, cancelled, yesterday])).toBe(1);
+  });
+
+  it('"month" cuenta todas las citas no canceladas del mes', () => {
+    const a = makeAppt({ id: 'a', start_at: '2026-01-02T09:00:00.000Z' });
+    const b = makeAppt({ id: 'b', start_at: '2026-01-20T09:00:00.000Z' });
+    const otherMonth = makeAppt({ id: 'c', start_at: '2025-12-30T09:00:00.000Z' });
+    expect(periodAppointmentsCount(now, 'month', [a, b, otherMonth])).toBe(2);
   });
 });
 

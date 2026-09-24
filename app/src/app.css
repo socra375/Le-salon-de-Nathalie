@@ -38,9 +38,6 @@ body {
   font-family: var(--font-inter);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  /* Espacio reservado para la barra de navegación fija de abajo (.bottom-nav)
-     -- igual que el index.html legado, para que no tape el contenido. */
-  padding-bottom: 90px;
 }
 
 h1,
@@ -67,7 +64,8 @@ a {
   color: var(--accent-profit);
 }
 
-/* Encabezado y navegación del shell (App.svelte) */
+/* Encabezado simple (App.svelte): lo sigue usando la vista de empleado,
+   de solo lectura y sin más secciones a las que navegar. */
 header {
   background-color: var(--bg-card);
   padding: 1rem 1.25rem;
@@ -105,9 +103,6 @@ header {
   gap: 0.5rem;
 }
 
-/* "Configuración"/"Salir": acciones de cuenta, no pestañas de contenido --
-   más discretas que los botones de .nav, para no competir visualmente con
-   las secciones reales del negocio. */
 .header-action {
   background: transparent;
   border: 1px solid var(--border-subtle);
@@ -116,57 +111,209 @@ header {
   font-size: 0.85rem;
 }
 
-.header-action[aria-pressed='true'] {
-  background: var(--btn-bg);
-  color: var(--text-primary);
-  border-color: var(--accent-agenda);
-  font-weight: 600;
+/*
+ * Shell autenticado de admin (App.svelte): menú lateral en escritorio,
+ * barra fija abajo en móvil -- reemplaza el header + `.bottom-nav` de
+ * antes. Tokens propios (burdeos/oro), autocontenidos en `.side`, sin
+ * tocar el resto de los tokens globales oscuros que usan Facturas/Equipo/
+ * Configuración dentro de `.content`.
+ */
+.app-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
 }
 
-/* Barra de navegación fija abajo, igual que el index.html legado
-   (`.bottom-nav`/`.nav-item`): texto chico, sin fondo de botón, la
-   sección activa se distingue por color, no por una píldora. */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-  padding: 0.6rem 0;
-  background-color: var(--bg-card);
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: none;
-  z-index: 100;
-  overflow-x: auto;
-}
-
-.bottom-nav button {
-  background: none;
-  border: none;
-  color: var(--text-muted);
+.side {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  padding: 1.5rem 0.9rem 1.1rem;
+  background: linear-gradient(180deg, #3a0e26 0%, #4a1230 60%, #5b1a3b 100%);
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.side-brand {
+  display: flex;
   align-items: center;
-  font-size: 0.72rem;
-  margin: 0;
-  padding: 0.2rem 0.5rem;
-  width: auto;
-  white-space: nowrap;
+  gap: 0.75rem;
+  padding: 0 0.6rem 1.6rem;
+}
+
+.side-logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  object-fit: cover;
   flex-shrink: 0;
-  border-radius: 0;
 }
 
-.bottom-nav button:hover {
-  filter: none;
-  color: var(--text-primary);
-}
-
-.bottom-nav button[aria-pressed='true'] {
-  background: none;
-  color: var(--accent-profit);
+.side-brand b {
+  display: block;
+  font-family: var(--font-grotesk);
+  font-size: 1.1rem;
   font-weight: 600;
-  border-color: transparent;
+  color: #fff;
+  line-height: 1.15;
+}
+
+.side-brand small {
+  color: #d9b270;
+  font-size: 0.78rem;
+}
+
+.side nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.side-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.side-link svg.i {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.side-link:hover {
+  filter: none;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.side-link[aria-current='page'] {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-weight: 500;
+}
+
+.side-link[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: -0.9rem;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: #d9b270;
+}
+
+.side-foot {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mbrand {
+  display: none;
+}
+
+.session-banner {
+  margin: 1rem 1.25rem 0;
+}
+
+/* Bajo los 860px, el menú lateral se convierte en una barra fija abajo --
+   Configuración/Salir se quedan en la misma barra (a diferencia del
+   mockup original, que los ocultaba en móvil): hoy son alcanzables desde
+   cualquier ancho de pantalla y no hay motivo para quitarlos. */
+@media (max-width: 860px) {
+  .app-shell {
+    display: block;
+  }
+
+  .side {
+    position: fixed;
+    inset: auto 0 0 0;
+    height: auto;
+    flex-direction: row;
+    padding: 0.4rem 0.5rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    box-shadow: 0 -8px 24px rgba(30, 0, 16, 0.25);
+    z-index: 100;
+  }
+
+  .side-brand {
+    display: none;
+  }
+
+  .side nav,
+  .side-foot {
+    flex-direction: row;
+  }
+
+  .side-foot {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .side-link {
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.68rem;
+    min-width: 60px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .side-link[aria-current='page']::before {
+    left: 12px;
+    right: 12px;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 3px;
+    border-radius: 0 0 4px 4px;
+  }
+
+  .mbrand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem 0;
+    font-family: var(--font-grotesk);
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .mbrand-logo {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  /* Espacio reservado para que la barra fija de abajo no tape el contenido. */
+  body:has(.app-shell) {
+    padding-bottom: 74px;
+  }
 }
 
 main {

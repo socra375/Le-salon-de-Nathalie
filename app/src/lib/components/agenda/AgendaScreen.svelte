@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { get } from 'svelte/store';
   import { t, locale } from '../../stores/locale';
   import { currentBusinessId, currentBusiness } from '../../stores/session';
@@ -21,10 +21,17 @@
   import PaymentMethodModal from './PaymentMethodModal.svelte';
   import type { Tables } from '../../types/database.types';
 
+  interface Props {
+    /** Abre el formulario de nueva cita de una vez, para cuando se llega acá desde un atajo (p. ej. el Dashboard). */
+    autoOpenForm?: boolean;
+  }
+
+  const { autoOpenForm = false }: Props = $props();
+
   let businessId = $state<string | null>(null);
   let specialistOptions = $state<SpecialistOption[]>([]);
   let selectedDate = $state(toDateInputValue(new Date()));
-  let formOpen = $state(false);
+  let formOpen = $state(untrack(() => autoOpenForm));
   let payingAppt = $state<Tables<'appointments'> | null>(null);
   let payingMode = $state<'complete' | 'retry'>('complete');
   let pendingChange = $state<{ apptId: string; status: AppointmentStatus; label: string } | null>(null);

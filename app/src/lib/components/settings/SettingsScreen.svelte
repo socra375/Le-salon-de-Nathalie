@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { t } from '../../stores/locale';
   import { currentBusinessId, currentBusiness } from '../../stores/session';
   import type { TranslationKey } from '../../i18n';
@@ -38,7 +39,14 @@
     { key: 'activity', labelKey: 'cfg.tab_activity', icon: '📋', color: '#8e8e93' },
   ];
 
-  let activeTab = $state<TabKey | null>(null);
+  interface Props {
+    /** Salta directo a una pestaña (p. ej. desde el checklist de primeros pasos del Dashboard), en vez de la lista. */
+    initialTab?: TabKey | null;
+  }
+
+  const { initialTab = null }: Props = $props();
+
+  let activeTab = $state<TabKey | null>(untrack(() => initialTab));
 </script>
 
 <section aria-labelledby="settings-title">

@@ -93,6 +93,12 @@ describe('SettingsScreen', () => {
     expect(servicesActionsMock.loadServices).toHaveBeenCalledWith('biz-1');
   });
 
+  it('con initialTab, salta directo a esa pestaña en vez de la lista', async () => {
+    render(SettingsScreen, { props: { initialTab: 'services' } });
+    expect(await screen.findByRole('heading', { name: 'Servicios' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Servicios' })).toBeNull();
+  });
+
   it('sin violaciones de accesibilidad (axe-core) en la lista inicial', async () => {
     const { container } = render(SettingsScreen);
     await expectNoA11yViolations(container);

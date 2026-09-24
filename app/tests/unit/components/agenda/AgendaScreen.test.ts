@@ -190,6 +190,12 @@ describe('AgendaScreen', () => {
     expect(screen.queryByRole('button', { name: 'Facturar' })).toBeNull();
   });
 
+  it('con autoOpenForm, el formulario de nueva cita ya está abierto al montar', async () => {
+    render(AgendaScreen, { props: { autoOpenForm: true } });
+    expect(await screen.findByRole('button', { name: 'Cancelar' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '+ Nueva Cita' })).toBeNull();
+  });
+
   it('cambiar la fecha del selector actualiza el título de la lista', async () => {
     render(AgendaScreen);
     await screen.findByText('Citas de hoy');
