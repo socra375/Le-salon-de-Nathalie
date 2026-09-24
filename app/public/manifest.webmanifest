@@ -1,0 +1,13 @@
+{
+  "name": "Gestor Empresarial",
+  "short_name": "Gestor",
+  "description": "Agenda, clientes, pagos y estadísticas de tu salón, peluquería o spa en un solo lugar.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fcf8f9",
+  "theme_color": "#6e1f45",
+  "icons": [
+    { "src": "logo-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "logo-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

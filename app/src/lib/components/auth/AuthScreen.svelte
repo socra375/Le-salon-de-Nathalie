@@ -71,7 +71,7 @@
 
     <section class="auth-access" aria-labelledby="auth-title">
       <form onsubmit={handleSubmit}>
-        <div class="auth-mark">G</div>
+        <img src="{import.meta.env.BASE_URL}logo-256.png" alt="" class="auth-mark" />
         <h1 id="auth-title">{$t('auth.heading')}</h1>
         <p class="auth-lead">{$t('auth.lead')}</p>
 
@@ -249,17 +249,10 @@
   }
 
   .auth-mark {
+    display: block;
     width: 46px;
     height: 46px;
     margin: 0 auto 18px;
-    border: 1.5px solid var(--oro);
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: var(--ciruela);
   }
 
   .auth-access h1 {
