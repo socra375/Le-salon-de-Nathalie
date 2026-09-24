@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fade } from 'svelte/transition';
   import { t, locale } from './lib/stores/locale';
   import { isLocale } from './lib/i18n';
   import { supabase, isSupabaseConfigured } from './lib/api/client';
@@ -29,6 +30,32 @@
   let pendingInvite = $state<PendingInvite | null>(null);
   let inviteError = $state<string | null>(null);
   let showForcedPassword = $state(false);
+  let showSessionBanner = $state(false);
+
+  /**
+   * "Sesión iniciada como..." es un aviso de bienvenida, no un dato
+   * permanente -- se muestra 5 segundos y solo la primera vez que se entra
+   * a la app cada día calendario (guardado en localStorage, por navegador).
+   */
+  $effect(() => {
+    if (!$isAuthenticated || $needsOnboarding || showForcedPassword) return;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const today = new Date().toDateString();
+      if (localStorage.getItem('sessionBannerLastShown') !== today) {
+        localStorage.setItem('sessionBannerLastShown', today);
+        showSessionBanner = true;
+        timeoutId = setTimeout(() => {
+          showSessionBanner = false;
+        }, 5000);
+      }
+    } catch {
+      // localStorage no disponible (modo privado, etc.) -- sin aviso, no rompe nada.
+    }
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  });
 
   onMount(() => {
     if (!isSupabaseConfigured) {
@@ -101,7 +128,12 @@
 {:else}
   <header>
     <div class="header-top">
-      <h1>Gestión Salón</h1>
+      <div class="header-brand">
+        {#if $currentBusiness?.logo_url}
+          <img src={$currentBusiness.logo_url} alt="" class="header-logo" />
+        {/if}
+        <h1>{$currentBusiness?.name ?? 'Gestión Salón'}</h1>
+      </div>
       <div class="header-actions">
         {#if $isAdmin}
           <button
@@ -116,10 +148,12 @@
         <button type="button" class="header-action" onclick={() => signOut()}>{$t('header.logout')}</button>
       </div>
     </div>
-    <p>
-      Sesión iniciada como <strong>{$currentUserRole === 'admin' ? $t('header.role_admin') : $t('header.role_employee')}</strong>
-      de <strong>{$currentBusiness?.name ?? 'Mi Salón'}</strong>.
-    </p>
+    {#if showSessionBanner}
+      <p transition:fade={{ duration: 200 }}>
+        Sesión iniciada como <strong>{$currentUserRole === 'admin' ? $t('header.role_admin') : $t('header.role_employee')}</strong>
+        de <strong>{$currentBusiness?.name ?? 'Mi Salón'}</strong>.
+      </p>
+    {/if}
   </header>
 
   {#if $isAdmin}
