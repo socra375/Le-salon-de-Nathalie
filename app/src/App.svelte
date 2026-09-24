@@ -13,6 +13,7 @@
     resetSession,
   } from './lib/stores/session';
   import { readPendingInviteFromUrl, resolveSessionAfterLogin, signOut, type PendingInvite } from './lib/actions/auth';
+  import LandingScreen from './lib/components/auth/LandingScreen.svelte';
   import AuthScreen from './lib/components/auth/AuthScreen.svelte';
   import OnboardingScreen from './lib/components/auth/OnboardingScreen.svelte';
   import ForcedPasswordModal from './lib/components/auth/ForcedPasswordModal.svelte';
@@ -31,6 +32,19 @@
   let inviteError = $state<string | null>(null);
   let showForcedPassword = $state(false);
   let showSessionBanner = $state(false);
+  // Landing solo para quien nunca entró a esta app en este navegador --
+  // arranca en false y se decide en onMount, después de resolver un posible
+  // link de invitación (ese caso salta el landing y va directo al acceso).
+  let showLanding = $state(false);
+
+  function dismissLanding() {
+    try {
+      localStorage.setItem('gestorLandingSeen', '1');
+    } catch {
+      // localStorage no disponible -- igual se puede seguir al login sin guardar la preferencia.
+    }
+    showLanding = false;
+  }
 
   /**
    * "Sesión iniciada como..." es un aviso de bienvenida, no un dato
@@ -64,6 +78,13 @@
     }
 
     pendingInvite = readPendingInviteFromUrl(new URL(window.location.href));
+    if (!pendingInvite) {
+      try {
+        showLanding = localStorage.getItem('gestorLandingSeen') !== '1';
+      } catch {
+        showLanding = false;
+      }
+    }
 
     const {
       data: { subscription },
@@ -117,10 +138,14 @@
     </p>
   </main>
 {:else if !$isAuthenticated}
-  {#if inviteError}
-    <p role="alert">{$t('auth.invite_invalid', { msg: inviteError })}</p>
+  {#if showLanding}
+    <LandingScreen onEnter={dismissLanding} />
+  {:else}
+    {#if inviteError}
+      <p role="alert">{$t('auth.invite_invalid', { msg: inviteError })}</p>
+    {/if}
+    <AuthScreen {pendingInvite} />
   {/if}
-  <AuthScreen {pendingInvite} />
 {:else if $needsOnboarding}
   <OnboardingScreen onCompleted={handleOnboardingCompleted} />
 {:else if showForcedPassword}
