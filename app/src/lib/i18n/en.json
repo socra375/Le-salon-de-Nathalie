@@ -4,6 +4,8 @@
   "header.role_admin": "Admin",
   "header.role_employee": "Employee",
   "auth.subtitle": "Scheduling, services and administrative control for your beauty salon.",
+  "auth.heading": "Sign In to the Manager",
+  "auth.lead": "Sign in with your account.",
   "auth.email_label": "Email Address",
   "auth.password_label": "Password",
   "auth.invite_label": "Do you have an invitation code from your salon? (Optional)",

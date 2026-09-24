@@ -4,6 +4,8 @@
   "header.role_admin": "Admin",
   "header.role_employee": "Mitarbeiter",
   "auth.subtitle": "Terminplanung, Dienstleistungen und Verwaltung für Ihren Schönheitssalon.",
+  "auth.heading": "Zugang zum Manager",
+  "auth.lead": "Melden Sie sich mit Ihrem Konto an.",
   "auth.email_label": "E-Mail-Adresse",
   "auth.password_label": "Passwort",
   "auth.invite_label": "Haben Sie einen Einladungscode von Ihrem Salon? (Optional)",
