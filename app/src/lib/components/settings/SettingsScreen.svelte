@@ -3,6 +3,7 @@
   import { currentBusinessId, currentBusiness } from '../../stores/session';
   import type { TranslationKey } from '../../i18n';
   import AccountTab from './AccountTab.svelte';
+  import PlanTab from './PlanTab.svelte';
   import BusinessTab from './BusinessTab.svelte';
   import LanguageTab from './LanguageTab.svelte';
   import AppearanceTab from './AppearanceTab.svelte';
@@ -10,10 +11,11 @@
   import PaymentsTab from './PaymentsTab.svelte';
   import ActivityLogTab from './ActivityLogTab.svelte';
 
-  type TabKey = 'account' | 'business' | 'language' | 'appearance' | 'tax' | 'payments' | 'activity';
+  type TabKey = 'account' | 'plan' | 'business' | 'language' | 'appearance' | 'tax' | 'payments' | 'activity';
 
   const TABS: { key: TabKey; labelKey: TranslationKey }[] = [
     { key: 'account', labelKey: 'cfg.tab_account' },
+    { key: 'plan', labelKey: 'cfg.tab_plan' },
     { key: 'business', labelKey: 'cfg.tab_business' },
     { key: 'language', labelKey: 'cfg.tab_language' },
     { key: 'appearance', labelKey: 'cfg.tab_appearance' },
@@ -40,6 +42,8 @@
   {#if $currentBusinessId}
     {#if activeTab === 'account'}
       <AccountTab />
+    {:else if activeTab === 'plan'}
+      <PlanTab />
     {:else if activeTab === 'business'}
       <BusinessTab businessId={$currentBusinessId} business={$currentBusiness} />
     {:else if activeTab === 'language'}
