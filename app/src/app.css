@@ -38,6 +38,9 @@ body {
   font-family: var(--font-inter);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  /* Espacio reservado para la barra de navegación fija de abajo (.bottom-nav)
+     -- igual que el index.html legado, para que no tape el contenido. */
+  padding-bottom: 90px;
 }
 
 h1,
@@ -106,13 +109,50 @@ header {
   font-weight: 600;
 }
 
-nav {
+/* Barra de navegación fija abajo, igual que el index.html legado
+   (`.bottom-nav`/`.nav-item`): texto chico, sin fondo de botón, la
+   sección activa se distingue por color, no por una píldora. */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  justify-content: space-around;
+  padding: 0.6rem 0;
   background-color: var(--bg-card);
-  border-bottom: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: none;
+  z-index: 100;
+  overflow-x: auto;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.72rem;
+  margin: 0;
+  padding: 0.2rem 0.5rem;
+  width: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-radius: 0;
+}
+
+.bottom-nav button:hover {
+  filter: none;
+  color: var(--text-primary);
+}
+
+.bottom-nav button[aria-pressed='true'] {
+  background: none;
+  color: var(--accent-profit);
+  font-weight: 600;
+  border-color: transparent;
 }
 
 main {

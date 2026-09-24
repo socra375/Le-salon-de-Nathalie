@@ -10,8 +10,20 @@
   import TaxTab from './TaxTab.svelte';
   import PaymentsTab from './PaymentsTab.svelte';
   import ActivityLogTab from './ActivityLogTab.svelte';
+  import CustomersScreen from '../customers/CustomersScreen.svelte';
+  import ServicesScreen from '../services/ServicesScreen.svelte';
 
-  type TabKey = 'account' | 'plan' | 'business' | 'language' | 'appearance' | 'tax' | 'payments' | 'activity';
+  type TabKey =
+    | 'account'
+    | 'plan'
+    | 'business'
+    | 'language'
+    | 'appearance'
+    | 'tax'
+    | 'payments'
+    | 'customers'
+    | 'services'
+    | 'activity';
 
   const TABS: { key: TabKey; labelKey: TranslationKey; icon: string; color: string }[] = [
     { key: 'account', labelKey: 'cfg.tab_account', icon: '👤', color: '#8e8e93' },
@@ -21,6 +33,8 @@
     { key: 'appearance', labelKey: 'cfg.tab_appearance', icon: '🎨', color: '#ff9f0a' },
     { key: 'tax', labelKey: 'cfg.tab_tax', icon: '💵', color: '#30d158' },
     { key: 'payments', labelKey: 'cfg.tab_payments', icon: '💳', color: '#bf5af2' },
+    { key: 'customers', labelKey: 'cfg.tab_customers', icon: '👤', color: '#ff9f0a' },
+    { key: 'services', labelKey: 'cfg.tab_services', icon: '✂️', color: '#ff375f' },
     { key: 'activity', labelKey: 'cfg.tab_activity', icon: '📋', color: '#8e8e93' },
   ];
 
@@ -61,6 +75,10 @@
         <TaxTab businessId={$currentBusinessId} business={$currentBusiness} />
       {:else if activeTab === 'payments'}
         <PaymentsTab businessId={$currentBusinessId} business={$currentBusiness} />
+      {:else if activeTab === 'customers'}
+        <CustomersScreen />
+      {:else if activeTab === 'services'}
+        <ServicesScreen />
       {:else if activeTab === 'activity'}
         <ActivityLogTab businessId={$currentBusinessId} />
       {/if}
