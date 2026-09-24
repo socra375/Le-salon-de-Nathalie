@@ -30,6 +30,7 @@
   "onboarding.currency_label": "Devise dans laquelle vous facturez",
   "onboarding.currency_placeholder": "Choisissez votre devise",
   "onboarding.currency_usd": "Dollar américain (USD)",
+  "onboarding.currency_cad": "Dollar canadien (CAD)",
   "onboarding.currency_dop": "Peso dominicain (DOP)",
   "onboarding.currency_mxn": "Peso mexicain (MXN)",
   "onboarding.currency_cop": "Peso colombien (COP)",
