@@ -1,17 +1,16 @@
 name: Deploy a GitHub Pages
 
 # Fase 7 del plan de migración: publica app/ (Vite + Svelte) en GitHub
-# Pages vía Actions. Deliberadamente arranca en solo `workflow_dispatch`
-# (disparo manual) y NO en cada push a main: mientras Settings → Pages →
-# Source siga en "Deploy from a branch", `actions/configure-pages` falla
-# (Pages todavía no está configurado para build vía Actions) -- correrlo en
-# cada push llenaría el historial de Actions de corridas rojas sin
-# significado real antes del corte. Una vez completado el checklist go/no-go
-# y hecho el cambio manual de Source, se dispara una vez a mano para
-# confirmar que publica bien, y recién ahí se agrega el trigger `push` en un
-# commit aparte -- así todo despliegue automático futuro queda pedido
-# explícitamente, no heredado de un archivo que nadie revisó en ese momento.
+# Pages vía Actions.
+#
+# Corte a producción completado: Settings → Pages → Source ya está en
+# "GitHub Actions" (no "Deploy from a branch"), y el primer disparo manual
+# (workflow_dispatch, corrida 35985856704) publicó bien -- confirmado con
+# `actions/deploy-pages` en verde. A partir de este commit, cada push a
+# `main` despliega solo.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
