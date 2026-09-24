@@ -15,15 +15,13 @@
   import AuthScreen from './lib/components/auth/AuthScreen.svelte';
   import OnboardingScreen from './lib/components/auth/OnboardingScreen.svelte';
   import ForcedPasswordModal from './lib/components/auth/ForcedPasswordModal.svelte';
-  import ServicesScreen from './lib/components/services/ServicesScreen.svelte';
-  import CustomersScreen from './lib/components/customers/CustomersScreen.svelte';
   import DashboardScreen from './lib/components/dashboard/DashboardScreen.svelte';
   import AgendaScreen from './lib/components/agenda/AgendaScreen.svelte';
   import InvoicesScreen from './lib/components/invoices/InvoicesScreen.svelte';
   import SettingsScreen from './lib/components/settings/SettingsScreen.svelte';
   import EmployeesScreen from './lib/components/employees/EmployeesScreen.svelte';
 
-  type Section = 'dashboard' | 'agenda' | 'invoices' | 'services' | 'customers' | 'settings' | 'employees';
+  type Section = 'dashboard' | 'agenda' | 'invoices' | 'settings' | 'employees';
   let activeSection = $state<Section>('dashboard');
 
   let ready = $state(false);
@@ -125,10 +123,24 @@
   </header>
 
   {#if $isAdmin}
-    <!-- Todos los módulos operativos son admin-only en el legado; el
-         empleado ve solo el Dashboard de solo lectura, sin barra de
-         navegación (misma regla que hoy). -->
-    <nav aria-label={$t('nav.dashboard')}>
+    <main>
+      {#if activeSection === 'dashboard'}
+        <DashboardScreen />
+      {:else if activeSection === 'agenda'}
+        <AgendaScreen />
+      {:else if activeSection === 'invoices'}
+        <InvoicesScreen />
+      {:else if activeSection === 'settings'}
+        <SettingsScreen />
+      {:else if activeSection === 'employees'}
+        <EmployeesScreen />
+      {/if}
+    </main>
+
+    <!-- Igual que el legado: barra de navegación fija abajo, solo con las
+         secciones de uso frecuente -- Servicios y Clientes viven dentro de
+         Configuración (ver settings-list del index.html original). -->
+    <nav class="bottom-nav" aria-label={$t('nav.dashboard')}>
       <button type="button" aria-pressed={activeSection === 'dashboard'} onclick={() => (activeSection = 'dashboard')}>
         {$t('nav.dashboard')}
       </button>
@@ -138,36 +150,12 @@
       <button type="button" aria-pressed={activeSection === 'invoices'} onclick={() => (activeSection = 'invoices')}>
         {$t('nav.invoices')}
       </button>
-      <button type="button" aria-pressed={activeSection === 'services'} onclick={() => (activeSection = 'services')}>
-        {$t('cfg.tab_services')}
-      </button>
-      <button type="button" aria-pressed={activeSection === 'customers'} onclick={() => (activeSection = 'customers')}>
-        {$t('cfg.tab_customers')}
-      </button>
       {#if $currentBusiness?.business_type === 'group'}
         <button type="button" aria-pressed={activeSection === 'employees'} onclick={() => (activeSection = 'employees')}>
           {$t('nav.employees')}
         </button>
       {/if}
     </nav>
-
-    <main>
-      {#if activeSection === 'dashboard'}
-        <DashboardScreen />
-      {:else if activeSection === 'agenda'}
-        <AgendaScreen />
-      {:else if activeSection === 'invoices'}
-        <InvoicesScreen />
-      {:else if activeSection === 'services'}
-        <ServicesScreen />
-      {:else if activeSection === 'customers'}
-        <CustomersScreen />
-      {:else if activeSection === 'settings'}
-        <SettingsScreen />
-      {:else if activeSection === 'employees'}
-        <EmployeesScreen />
-      {/if}
-    </main>
   {:else}
     <main>
       <DashboardScreen />

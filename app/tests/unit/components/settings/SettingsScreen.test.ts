@@ -8,6 +8,23 @@ vi.mock('../../../../src/lib/actions/account', () => accountActionsMock);
 const activityLogActionsMock = vi.hoisted(() => ({ loadActivityLog: vi.fn() }));
 vi.mock('../../../../src/lib/actions/activityLog', () => activityLogActionsMock);
 
+const customersActionsMock = vi.hoisted(() => ({
+  loadCustomers: vi.fn(),
+  loadCredits: vi.fn(),
+  registerCustomer: vi.fn(),
+}));
+vi.mock('../../../../src/lib/actions/customers', () => customersActionsMock);
+
+const appointmentsActionsMock = vi.hoisted(() => ({ loadAppointments: vi.fn() }));
+vi.mock('../../../../src/lib/actions/appointments', () => appointmentsActionsMock);
+
+const servicesActionsMock = vi.hoisted(() => ({
+  loadServices: vi.fn(),
+  loadSpecialistOptions: vi.fn(),
+  removeService: vi.fn(),
+}));
+vi.mock('../../../../src/lib/actions/services', () => servicesActionsMock);
+
 const { default: SettingsScreen } = await import('../../../../src/lib/components/settings/SettingsScreen.svelte');
 const { currentBusinessId, currentBusiness } = await import('../../../../src/lib/stores/session');
 
@@ -19,6 +36,11 @@ beforeEach(() => {
   currentBusiness.set({ id: 'biz-1', name: 'Mi Salón' } as never);
   accountActionsMock.getAccountInfo.mockResolvedValue({ avatarUrl: '', name: '', email: 'ana@example.com' });
   activityLogActionsMock.loadActivityLog.mockResolvedValue([]);
+  customersActionsMock.loadCustomers.mockResolvedValue([]);
+  customersActionsMock.loadCredits.mockResolvedValue([]);
+  appointmentsActionsMock.loadAppointments.mockResolvedValue([]);
+  servicesActionsMock.loadServices.mockResolvedValue([]);
+  servicesActionsMock.loadSpecialistOptions.mockResolvedValue([]);
 });
 
 describe('SettingsScreen', () => {
@@ -55,6 +77,20 @@ describe('SettingsScreen', () => {
     render(SettingsScreen);
     await fireEvent.click(screen.getByRole('button', { name: 'Registro Actividad' }));
     expect(activityLogActionsMock.loadActivityLog).toHaveBeenCalledWith('biz-1');
+  });
+
+  it('entrar a "Clientes" muestra la pantalla de clientes', async () => {
+    render(SettingsScreen);
+    await fireEvent.click(screen.getByRole('button', { name: 'Clientes' }));
+    expect(await screen.findByRole('heading', { name: 'Clientes' })).toBeTruthy();
+    expect(customersActionsMock.loadCustomers).toHaveBeenCalledWith('biz-1');
+  });
+
+  it('entrar a "Servicios" muestra la pantalla de servicios', async () => {
+    render(SettingsScreen);
+    await fireEvent.click(screen.getByRole('button', { name: 'Servicios' }));
+    expect(await screen.findByRole('heading', { name: 'Servicios' })).toBeTruthy();
+    expect(servicesActionsMock.loadServices).toHaveBeenCalledWith('biz-1');
   });
 
   it('sin violaciones de accesibilidad (axe-core) en la lista inicial', async () => {
