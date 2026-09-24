@@ -34,3 +34,13 @@ export function fmtTime(value: Date | string, locale: Locale): string {
 export function fmtWeekdayShort(value: Date | string, locale: Locale): string {
   return toDate(value).toLocaleDateString(LOCALE_MAP[locale], { weekday: 'short' });
 }
+
+/** Fecha larga con mayúscula inicial (p. ej. "Miércoles, 24 de septiembre") -- para el saludo del Inicio. */
+export function fmtDateLong(value: Date | string, locale: Locale): string {
+  const formatted = toDate(value).toLocaleDateString(LOCALE_MAP[locale], {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}

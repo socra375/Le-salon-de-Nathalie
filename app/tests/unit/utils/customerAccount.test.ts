@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { summarizeCustomerHistory, pendingCreditTotal } from '../../../src/lib/utils/customerAccount';
+import { summarizeCustomerHistory, pendingCreditTotal, receivablesByCustomer } from '../../../src/lib/utils/customerAccount';
 import type { Tables } from '../../../src/lib/types/database.types';
 
 function appt(overrides: Partial<Tables<'appointments'>>): Tables<'appointments'> {
@@ -85,5 +85,49 @@ describe('pendingCreditTotal', () => {
 
   it('sin créditos pendientes, el total es cero', () => {
     expect(pendingCreditTotal([credit({ status: 'pagado', amount_paid: 100 })])).toBe(0);
+  });
+});
+
+describe('receivablesByCustomer', () => {
+  function credit(overrides: Partial<Tables<'customer_credits'>>): Tables<'customer_credits'> {
+    return {
+      id: 'cr-1',
+      business_id: 'biz-1',
+      customer_id: 'cust-1',
+      sale_id: null,
+      invoice_id: null,
+      amount: 100,
+      amount_paid: 0,
+      status: 'pendiente',
+      created_at: null,
+      ...overrides,
+    };
+  }
+
+  const customers: Tables<'customers'>[] = [
+    { id: 'cust-1', business_id: 'biz-1', name: 'Carmen Lugo', phone: null, notes: null, address: null, email: null, created_at: null },
+    { id: 'cust-2', business_id: 'biz-1', name: 'Rosa Martínez', phone: null, notes: null, address: null, email: null, created_at: null },
+  ];
+
+  it('agrupa el saldo pendiente por cliente y ordena de mayor a menor', () => {
+    const credits = [
+      credit({ id: 'cr-1', customer_id: 'cust-1', amount: 100, amount_paid: 0 }),
+      credit({ id: 'cr-2', customer_id: 'cust-2', amount: 450, amount_paid: 0 }),
+      credit({ id: 'cr-3', customer_id: 'cust-1', amount: 50, amount_paid: 0 }),
+    ];
+    expect(receivablesByCustomer(credits, customers)).toEqual([
+      { customerId: 'cust-2', name: 'Rosa Martínez', amount: 450 },
+      { customerId: 'cust-1', name: 'Carmen Lugo', amount: 150 },
+    ]);
+  });
+
+  it('ignora créditos sin cliente asociado (venta anónima)', () => {
+    const credits = [credit({ id: 'cr-1', customer_id: null, amount: 100, amount_paid: 0 })];
+    expect(receivablesByCustomer(credits, customers)).toEqual([]);
+  });
+
+  it('excluye clientes ya saldados por completo', () => {
+    const credits = [credit({ id: 'cr-1', customer_id: 'cust-1', amount: 100, amount_paid: 100, status: 'pagado' })];
+    expect(receivablesByCustomer(credits, customers)).toEqual([]);
   });
 });

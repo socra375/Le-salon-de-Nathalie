@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fmtDate, fmtDateTime, fmtTime, LOCALE_MAP } from '../../../src/lib/utils/format';
+import { fmtDate, fmtDateTime, fmtTime, fmtDateLong, LOCALE_MAP } from '../../../src/lib/utils/format';
 import { LOCALES } from '../../../src/lib/i18n';
 
 describe('LOCALE_MAP', () => {
@@ -29,5 +29,12 @@ describe('fmtDate / fmtDateTime / fmtTime', () => {
 
   it('fmtTime usa formato de 2 dígitos para hora y minuto', () => {
     expect(fmtTime(date, 'en')).toBe(date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+  });
+
+  it('fmtDateLong devuelve día de semana + fecha larga, con mayúscula inicial', () => {
+    const expected = date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    const capitalized = expected.charAt(0).toUpperCase() + expected.slice(1);
+    expect(fmtDateLong(date, 'es')).toBe(capitalized);
+    expect(fmtDateLong(date, 'es')[0]).toBe(capitalized[0]);
   });
 });

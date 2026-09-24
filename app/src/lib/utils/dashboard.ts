@@ -38,6 +38,17 @@ export function calculateDashboardTotals(
   return { netProfit, totalReceivables };
 }
 
+/** Cuántas citas (sin contar canceladas) caen dentro del período elegido -- para la tarjeta "Citas" del resumen. */
+export function periodAppointmentsCount(now: Date, period: DashboardPeriod, appointments: Tables<'appointments'>[]): number {
+  return appointments.filter((a) => {
+    if (a.status === 'cancelada') return false;
+    const d = new Date(a.start_at);
+    if (period === 'today') return isSameCalendarDay(d, now);
+    if (period === 'week') return isWithinCalendarWeek(d, now);
+    return isSameCalendarMonth(d, now);
+  }).length;
+}
+
 /** Citas de hoy para el widget del dashboard -- excluye canceladas, ordenadas por hora. */
 export function todaysAppointments(now: Date, appointments: Tables<'appointments'>[]): Tables<'appointments'>[] {
   return appointments
