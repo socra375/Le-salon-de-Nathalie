@@ -30,6 +30,7 @@
   "onboarding.currency_label": "Currency you charge in",
   "onboarding.currency_placeholder": "Choose your currency",
   "onboarding.currency_usd": "US Dollar (USD)",
+  "onboarding.currency_cad": "Canadian Dollar (CAD)",
   "onboarding.currency_dop": "Dominican Peso (DOP)",
   "onboarding.currency_mxn": "Mexican Peso (MXN)",
   "onboarding.currency_cop": "Colombian Peso (COP)",

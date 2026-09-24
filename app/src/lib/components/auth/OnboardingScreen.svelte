@@ -11,6 +11,7 @@
 
   const CURRENCIES = [
     { code: 'USD', symbol: '$', labelKey: 'onboarding.currency_usd' },
+    { code: 'CAD', symbol: 'CA$', labelKey: 'onboarding.currency_cad' },
     { code: 'DOP', symbol: 'RD$', labelKey: 'onboarding.currency_dop' },
     { code: 'MXN', symbol: 'MXN$', labelKey: 'onboarding.currency_mxn' },
     { code: 'COP', symbol: 'COP$', labelKey: 'onboarding.currency_cop' },
