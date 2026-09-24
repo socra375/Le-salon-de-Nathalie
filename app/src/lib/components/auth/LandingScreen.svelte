@@ -14,7 +14,7 @@
     </div>
     <div class="wrap">
       <nav aria-label="Principal">
-        <span class="logo"><i aria-hidden="true">G</i>Gestor Empresarial</span>
+        <span class="logo"><img src="{import.meta.env.BASE_URL}logo-256.png" alt="" />Gestor Empresarial</span>
         <div class="nav-links">
           <a href="#funciones">Funciones</a>
           <a href="#demo">Demo</a>
@@ -67,7 +67,7 @@
           </div>
           <div class="app" aria-hidden="true">
             <aside class="side">
-              <div class="brand"><i>G</i>Gestor</div>
+              <div class="brand"><img src="{import.meta.env.BASE_URL}logo-256.png" alt="" />Gestor</div>
               <span class="side-link on">📊 Inicio</span>
               <span class="side-link">📅 Agenda</span>
               <span class="side-link">👥 Clientes</span>
@@ -208,17 +208,10 @@
     font-size: 1.5rem;
   }
 
-  .logo i {
+  .logo img {
+    display: block;
     width: 38px;
     height: 38px;
-    border-radius: 50%;
-    border: 1.5px solid var(--oro);
-    display: grid;
-    place-items: center;
-    font-style: normal;
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--oro);
   }
 
   .nav-links {
@@ -479,16 +472,10 @@
     color: #fff;
   }
 
-  .side .brand i {
+  .side .brand img {
+    display: block;
     width: 28px;
     height: 28px;
-    border-radius: 50%;
-    border: 1.5px solid var(--oro);
-    color: var(--oro);
-    display: grid;
-    place-items: center;
-    font-style: normal;
-    font-size: 0.95rem;
   }
 
   .side-link {

@@ -30,7 +30,18 @@ test.describe('Build bajo el base path real de GitHub Pages', () => {
   });
 
   test('el favicon resuelve bajo el prefijo del repo, no en la raíz del dominio', async ({ page, baseURL }) => {
-    const res = await page.request.get(new URL('favicon.svg', baseURL).toString());
+    const res = await page.request.get(new URL('favicon-32.png', baseURL).toString());
     expect(res.status()).toBe(200);
+  });
+
+  test('el manifest y los íconos de instalación resuelven bajo el prefijo del repo', async ({ page, baseURL }) => {
+    const manifestRes = await page.request.get(new URL('manifest.webmanifest', baseURL).toString());
+    expect(manifestRes.status()).toBe(200);
+
+    const manifest = await manifestRes.json();
+    for (const icon of manifest.icons) {
+      const iconRes = await page.request.get(new URL(icon.src, new URL('manifest.webmanifest', baseURL)).toString());
+      expect(iconRes.status()).toBe(200);
+    }
   });
 });
