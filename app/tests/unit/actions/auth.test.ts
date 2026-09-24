@@ -208,7 +208,13 @@ describe('resolveSessionAfterLogin', () => {
 
 describe('completeOnboarding', () => {
   it('negocio individual: solo hace upsert de businesses, sin afiliar business_members', async () => {
-    const result = await completeOnboarding({ businessId: 'biz-1', name: 'Mi Salón', type: 'individual', teamSize: null });
+    const result = await completeOnboarding({
+      businessId: 'biz-1',
+      name: 'Mi Salón',
+      type: 'individual',
+      teamSize: null,
+      currencySymbol: '$',
+    });
 
     expect(result).toEqual({ requiresForcedPassword: false });
     expect(businessMembersMock.upsertBusinessMember).not.toHaveBeenCalled();
@@ -216,13 +222,20 @@ describe('completeOnboarding', () => {
       id: 'biz-1',
       name: 'Mi Salón',
       business_type: 'individual',
+      currency_symbol: '$',
       onboarding_completed: true,
     });
     expect(get(currentBusiness)).toMatchObject({ name: 'Mi Salón', business_type: 'individual' });
   });
 
   it('negocio con equipo: afilia al dueño como admin y exige contraseña forzada después', async () => {
-    const result = await completeOnboarding({ businessId: 'biz-1', name: 'Salón con Equipo', type: 'group', teamSize: 5 });
+    const result = await completeOnboarding({
+      businessId: 'biz-1',
+      name: 'Salón con Equipo',
+      type: 'group',
+      teamSize: 5,
+      currencySymbol: 'RD$',
+    });
 
     expect(result).toEqual({ requiresForcedPassword: true });
     expect(businessMembersMock.upsertBusinessMember).toHaveBeenCalledWith({
@@ -234,6 +247,7 @@ describe('completeOnboarding', () => {
       id: 'biz-1',
       name: 'Salón con Equipo',
       business_type: 'group',
+      currency_symbol: 'RD$',
       onboarding_completed: true,
       team_size: 5,
     });
