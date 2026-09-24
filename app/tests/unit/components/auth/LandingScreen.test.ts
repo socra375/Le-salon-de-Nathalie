@@ -37,6 +37,31 @@ describe('LandingScreen', () => {
     expect(link.getAttribute('href')).toBe('#demo');
   });
 
+  it('muestra los 3 planes con su precio', () => {
+    render(LandingScreen, { props: { onEnter: vi.fn() } });
+    expect(screen.getByRole('heading', { name: 'Mensual' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: '6 Meses' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Anual' })).toBeTruthy();
+    expect(screen.getByText('$20')).toBeTruthy();
+    expect(screen.getByText('$100')).toBeTruthy();
+    expect(screen.getByText('$200')).toBeTruthy();
+  });
+
+  it('el botón "Probar gratis" de un plan llama a onEnter', async () => {
+    const onEnter = vi.fn();
+    render(LandingScreen, { props: { onEnter } });
+
+    const buttons = screen.getAllByRole('button', { name: 'Probar gratis' });
+    await fireEvent.click(buttons[1]!); // el primer botón de plan, después del del encabezado
+    expect(onEnter).toHaveBeenCalledOnce();
+  });
+
+  it('el enlace de WhatsApp de los planes va al mismo número que "Cambiar de Plan"', () => {
+    render(LandingScreen, { props: { onEnter: vi.fn() } });
+    const link = screen.getByRole('link', { name: 'Escribinos por WhatsApp' });
+    expect(link.getAttribute('href')).toContain('https://wa.me/18299788249');
+  });
+
   it('sin violaciones de accesibilidad (axe-core)', async () => {
     const { container } = render(LandingScreen, { props: { onEnter: vi.fn() } });
     await expectNoA11yViolations(container);

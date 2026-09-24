@@ -4,6 +4,14 @@
   }
 
   const { onEnter }: Props = $props();
+
+  // Mismo número de WhatsApp que "Cambiar de Plan" en Configuración
+  // (PlanTab.svelte) -- acá es la consulta previa al registro, allá el
+  // cambio de plan de una cuenta ya existente; misma vía en los dos casos,
+  // porque el plan se coordina con el equipo, no hay cobro automatizado.
+  const plansWhatsappHref = `https://wa.me/18299788249?text=${encodeURIComponent(
+    'Hola, quiero información sobre los planes de Gestor Empresarial.'
+  )}`;
 </script>
 
 <div class="landing-page">
@@ -18,6 +26,7 @@
         <div class="nav-links">
           <a href="#funciones">Funciones</a>
           <a href="#demo">Demo</a>
+          <a href="#planes">Planes</a>
           <button type="button" class="acceso" onclick={onEnter}>Acceder</button>
         </div>
       </nav>
@@ -106,6 +115,65 @@
           </div>
         </div>
         <p class="demo-note">Los nombres, citas y cifras de esta demostración son inventados. Tu panel mostrará los datos de tu negocio.</p>
+      </div>
+    </section>
+
+    <section class="plans" id="planes">
+      <div class="wrap">
+        <div class="plans-head">
+          <h2>Un plan para cada etapa de tu negocio</h2>
+          <p>Empieza gratis, sin tarjeta. Cambia de plan cuando quieras — lo coordinás directo con nuestro equipo.</p>
+        </div>
+
+        <div class="plan-grid">
+          <div class="plan-card">
+            <h3>Mensual</h3>
+            <p class="plan-tag">Para arrancar tu negocio</p>
+            <p class="plan-price"><span class="amount">$20</span><span class="period">/mes</span></p>
+            <ul class="plan-features">
+              <li>10 días de prueba gratis</li>
+              <li>Hasta 10–15 clientes</li>
+              <li>Agenda, clientes y servicios</li>
+              <li>Facturas en PDF</li>
+            </ul>
+            <button type="button" class="btn btn-plan" onclick={onEnter}>Probar gratis</button>
+          </div>
+
+          <div class="plan-card featured">
+            <span class="plan-badge">Más popular</span>
+            <h3>6 Meses</h3>
+            <p class="plan-tag">Para negocios en crecimiento</p>
+            <p class="plan-price"><span class="amount">$100</span><span class="period">/6 meses</span></p>
+            <p class="plan-equiv">Equivale a $16.67/mes</p>
+            <ul class="plan-features">
+              <li>20 días de prueba gratis</li>
+              <li>Hasta 50–90 clientes</li>
+              <li>Todo lo del plan Mensual</li>
+              <li>Equipo y empleados</li>
+              <li>Estadísticas del negocio</li>
+            </ul>
+            <button type="button" class="btn btn-plan btn-plan-primary" onclick={onEnter}>Probar gratis</button>
+          </div>
+
+          <div class="plan-card">
+            <span class="plan-badge plan-badge-gold">Mejor valor</span>
+            <h3>Anual</h3>
+            <p class="plan-tag">El plan completo</p>
+            <p class="plan-price"><span class="amount">$200</span><span class="period">/año</span></p>
+            <p class="plan-equiv">Incluye 1 mes gratis · $15.38/mes</p>
+            <ul class="plan-features">
+              <li>Más de 150 clientes</li>
+              <li>Todo lo del plan 6 Meses</li>
+              <li>Asistente virtual <span class="soon">(próximamente)</span></li>
+            </ul>
+            <button type="button" class="btn btn-plan" onclick={onEnter}>Probar gratis</button>
+          </div>
+        </div>
+
+        <p class="plans-note">
+          Precios en dólares estadounidenses. ¿Ya tenés cuenta y querés cambiar de plan?
+          <a href={plansWhatsappHref} target="_blank" rel="noopener noreferrer">Escribinos por WhatsApp</a>.
+        </p>
       </div>
     </section>
 
@@ -641,6 +709,180 @@
     color: var(--suave);
   }
 
+  /* ---------- Planes ---------- */
+  .plans {
+    padding: 96px 0;
+    background: var(--campo);
+  }
+
+  .plans-head {
+    max-width: 640px;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .plans-head h2 {
+    max-width: none;
+    margin-inline: auto;
+  }
+
+  .plans-head p {
+    margin-top: 12px;
+    color: var(--suave);
+    font-size: 1.05rem;
+  }
+
+  .plan-grid {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .plan-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--papel);
+    border: 1px solid var(--linea);
+    border-radius: 16px;
+    padding: 32px 28px;
+  }
+
+  .plan-card.featured {
+    border-color: var(--ciruela);
+    box-shadow: 0 30px 60px rgba(74, 18, 48, 0.16);
+    transform: translateY(-8px);
+  }
+
+  .plan-badge {
+    position: absolute;
+    top: -14px;
+    left: 28px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, var(--burdeos), var(--ciruela));
+  }
+
+  .plan-badge-gold {
+    background: linear-gradient(90deg, #c0893a, var(--oro));
+    color: var(--tinta);
+  }
+
+  .plan-card h3 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: var(--ciruela);
+    margin: 0;
+  }
+
+  .plan-tag {
+    margin: 4px 0 0;
+    color: var(--suave);
+    font-size: 0.9rem;
+  }
+
+  .plan-price {
+    margin: 20px 0 0;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .plan-price .amount {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 2.6rem;
+    color: var(--tinta);
+    line-height: 1;
+  }
+
+  .plan-price .period {
+    color: var(--suave);
+    font-size: 0.95rem;
+  }
+
+  .plan-equiv {
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    color: var(--ok);
+    font-weight: 500;
+  }
+
+  .plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 28px;
+    flex: 1;
+  }
+
+  .plan-features li {
+    position: relative;
+    padding: 8px 0 8px 26px;
+    border-top: 1px solid var(--linea);
+    font-size: 0.92rem;
+  }
+
+  .plan-features li:first-child {
+    border-top: 0;
+  }
+
+  .plan-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--ok);
+    font-weight: 700;
+  }
+
+  .plan-features .soon {
+    color: var(--suave);
+    font-size: 0.85rem;
+  }
+
+  .btn-plan {
+    width: 100%;
+    height: 48px;
+    border-radius: 999px;
+    border: 1.5px solid var(--ciruela);
+    background: transparent;
+    color: var(--ciruela);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-plan:hover {
+    background: var(--campo);
+  }
+
+  .btn-plan-primary {
+    border: 0;
+    color: #fff;
+    background: linear-gradient(90deg, var(--burdeos), var(--ciruela));
+  }
+
+  .btn-plan-primary:hover {
+    filter: brightness(1.08);
+  }
+
+  .plans-note {
+    margin-top: 36px;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--suave);
+  }
+
+  .plans-note a {
+    color: var(--ciruela);
+    font-weight: 500;
+  }
+
   /* ---------- Cierre ---------- */
   .closing {
     text-align: center;
@@ -688,6 +930,14 @@
     }
     .cols {
       grid-template-columns: 1fr;
+    }
+    .plan-grid {
+      grid-template-columns: 1fr;
+      max-width: 420px;
+      margin-inline: auto;
+    }
+    .plan-card.featured {
+      transform: none;
     }
   }
 
