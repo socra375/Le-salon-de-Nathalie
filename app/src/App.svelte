@@ -11,7 +11,7 @@
     needsOnboarding,
     resetSession,
   } from './lib/stores/session';
-  import { readPendingInviteFromUrl, resolveSessionAfterLogin, type PendingInvite } from './lib/actions/auth';
+  import { readPendingInviteFromUrl, resolveSessionAfterLogin, signOut, type PendingInvite } from './lib/actions/auth';
   import AuthScreen from './lib/components/auth/AuthScreen.svelte';
   import OnboardingScreen from './lib/components/auth/OnboardingScreen.svelte';
   import ForcedPasswordModal from './lib/components/auth/ForcedPasswordModal.svelte';
@@ -102,7 +102,22 @@
   <ForcedPasswordModal onSaved={() => (showForcedPassword = false)} />
 {:else}
   <header>
-    <h1>Gestión Salón</h1>
+    <div class="header-top">
+      <h1>Gestión Salón</h1>
+      <div class="header-actions">
+        {#if $isAdmin}
+          <button
+            type="button"
+            class="header-action"
+            aria-pressed={activeSection === 'settings'}
+            onclick={() => (activeSection = 'settings')}
+          >
+            {$t('cfg.back')}
+          </button>
+        {/if}
+        <button type="button" class="header-action" onclick={() => signOut()}>{$t('header.logout')}</button>
+      </div>
+    </div>
     <p>
       Sesión iniciada como <strong>{$currentUserRole === 'admin' ? $t('header.role_admin') : $t('header.role_employee')}</strong>
       de <strong>{$currentBusiness?.name ?? 'Mi Salón'}</strong>.
@@ -128,9 +143,6 @@
       </button>
       <button type="button" aria-pressed={activeSection === 'customers'} onclick={() => (activeSection = 'customers')}>
         {$t('cfg.tab_customers')}
-      </button>
-      <button type="button" aria-pressed={activeSection === 'settings'} onclick={() => (activeSection = 'settings')}>
-        {$t('cfg.title')}
       </button>
       {#if $currentBusiness?.business_type === 'group'}
         <button type="button" aria-pressed={activeSection === 'employees'} onclick={() => (activeSection = 'employees')}>

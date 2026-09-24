@@ -71,6 +71,41 @@ header {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.header-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-top h1 {
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* "Configuración"/"Salir": acciones de cuenta, no pestañas de contenido --
+   más discretas que los botones de .nav, para no competir visualmente con
+   las secciones reales del negocio. */
+.header-action {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.header-action[aria-pressed='true'] {
+  background: var(--btn-bg);
+  color: var(--text-primary);
+  border-color: var(--accent-agenda);
+  font-weight: 600;
+}
+
 nav {
   display: flex;
   flex-wrap: wrap;
