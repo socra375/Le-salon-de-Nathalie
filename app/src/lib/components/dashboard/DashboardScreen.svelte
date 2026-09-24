@@ -184,45 +184,15 @@
 </section>
 
 <style>
+  /* Colores/tipografía de marca (bg-card, text-*, accent-*, fuentes) viven
+     en app.css a nivel global desde la Fase 7 -- acá solo lo específico
+     de este componente. */
   .dashboard {
-    --bg-card: #141b2e;
-    --text-primary: #e8ecf4;
-    --text-muted: #8891a8;
-    --border-subtle: #232b42;
-    --accent-profit: #00d9a3;
-    --accent-expense: #ff5a5f;
-    --accent-recommend: #f5b942;
-    --accent-agenda: #8b5cf6;
     --trend-up: #0ca30c;
     --trend-down: #e66767;
-    color: var(--text-primary);
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-  .dashboard h1,
-  .dashboard h2,
-  .stat-value {
-    font-family: 'Space Grotesk', system-ui, sans-serif;
-  }
-  @media (prefers-color-scheme: light) {
-    .dashboard {
-      --bg-card: #ffffff;
-      --text-primary: #1a2233;
-      --text-muted: #62697c;
-      --border-subtle: #dde3ef;
-      --trend-up: #006300;
-      --trend-down: #d03b3b;
-    }
-  }
-  :global([data-theme='light']) .dashboard {
-    --bg-card: #ffffff;
-    --text-primary: #1a2233;
-    --text-muted: #62697c;
-    --border-subtle: #dde3ef;
-    --trend-up: #006300;
-    --trend-down: #d03b3b;
   }
 
   .dash-greeting .eyebrow {
@@ -252,24 +222,6 @@
     color: var(--text-muted);
   }
 
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
-  }
-  .card-header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    row-gap: 0.15rem;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-  .card h2 {
-    margin: 0;
-  }
   .card-accent-agenda {
     border-left: 4px solid var(--accent-agenda);
   }
@@ -318,18 +270,6 @@
   .trend-new {
     color: var(--text-muted);
     font-weight: 500;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 
   .customer-grid {

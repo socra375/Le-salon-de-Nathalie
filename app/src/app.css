@@ -1,0 +1,213 @@
+/*
+ * Base visual del negocio (Fase 7, post-corte): antes de esto, toda la app
+ * salvo el Dashboard no tenía ni un solo estilo -- el resto de las
+ * pantallas ya usaba clases como .card/.table-responsive/.sr-only
+ * anticipando una hoja de estilos compartida que nunca se escribió.
+ * Los tokens son los mismos del index.html legado (marca real), solo en
+ * modo oscuro por ahora -- no hay todavía un selector de tema en la app
+ * nueva, así que fijar un solo modo es más consistente que depender de
+ * las preferencias del sistema de quien mire la pantalla.
+ */
+:root {
+  --bg-primary: #0b1120;
+  --bg-card: #141b2e;
+  --accent-profit: #00d9a3;
+  --accent-expense: #ff5a5f;
+  --accent-recommend: #f5b942;
+  --accent-agenda: #8b5cf6;
+  --text-primary: #e8ecf4;
+  --text-muted: #8891a8;
+  --border-subtle: #232b42;
+  --input-bg: #070b14;
+  --btn-bg: #1e2942;
+  --on-accent: #0b1120;
+  --font-grotesk: 'Space Grotesk', system-ui, sans-serif;
+  --font-inter: 'Inter', system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+.val-large,
+.stat-value {
+  font-family: var(--font-grotesk);
+  margin: 0 0 0.5rem;
+}
+
+p {
+  margin: 0 0 0.75rem;
+}
+
+code {
+  background: var(--input-bg);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+a {
+  color: var(--accent-profit);
+}
+
+/* Encabezado y navegación del shell (App.svelte) */
+header {
+  background-color: var(--bg-card);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+main {
+  padding: 1.25rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Botones: uno genérico, y el estado "activo" (aria-pressed) que ya usan
+   los selectores de período/pestañas/nav en varios componentes. */
+button {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--btn-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+button[aria-pressed='true'] {
+  background-color: var(--accent-profit);
+  color: var(--on-accent);
+  border-color: var(--accent-profit);
+  font-weight: 600;
+}
+
+a[role='button'] {
+  display: inline-block;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--accent-profit);
+  background-color: var(--accent-profit);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+/* Formularios */
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+}
+
+label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Tarjeta genérica -- ya referenciada por Servicios, Clientes, Agenda,
+   Empleados, Configuración, etc. sin que existiera hasta ahora. */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.badge-status {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--btn-bg);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.val-large {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+[role='alert'] {
+  color: var(--accent-expense);
+}
+
+[role='status'] {
+  color: var(--accent-profit);
+}

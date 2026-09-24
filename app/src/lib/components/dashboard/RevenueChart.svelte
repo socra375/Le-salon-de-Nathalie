@@ -87,22 +87,12 @@
 </div>
 
 <style>
+  /* bg-card/accent-profit/text-* son globales (app.css); acá solo el mapeo
+     a los roles que usa el dibujo del gráfico. */
   .revenue-chart {
-    --bar-fill: #00d9a3;
-    --axis-ink: #8891a8;
-    --label-ink: #e8ecf4;
-  }
-  @media (prefers-color-scheme: light) {
-    .revenue-chart {
-      --bar-fill: #008300;
-      --axis-ink: #62697c;
-      --label-ink: #1a2233;
-    }
-  }
-  :global([data-theme='light']) .revenue-chart {
-    --bar-fill: #008300;
-    --axis-ink: #62697c;
-    --label-ink: #1a2233;
+    --bar-fill: var(--accent-profit);
+    --axis-ink: var(--text-muted);
+    --label-ink: var(--text-primary);
   }
 
   .sr-only {
