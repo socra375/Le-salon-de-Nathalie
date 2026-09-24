@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { t } from '../../stores/locale';
   import { getAccountInfo } from '../../actions/account';
-  import { setForcedPassword, signOut } from '../../actions/auth';
+  import { setForcedPassword } from '../../actions/auth';
 
   let avatarUrl = $state('');
   let name = $state('');
@@ -71,5 +71,3 @@
     <button type="submit" disabled={submitting}>{$t('pwd.save')}</button>
   </form>
 {/if}
-
-<button type="button" onclick={() => signOut()}>{$t('header.logout')}</button>

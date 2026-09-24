@@ -5,11 +5,11 @@ import { expectNoA11yViolations } from '../../support/axe';
 const accountActionsMock = vi.hoisted(() => ({ getAccountInfo: vi.fn() }));
 vi.mock('../../../../src/lib/actions/account', () => accountActionsMock);
 
-const authActionsMock = vi.hoisted(() => ({ setForcedPassword: vi.fn(), signOut: vi.fn() }));
+const authActionsMock = vi.hoisted(() => ({ setForcedPassword: vi.fn() }));
 vi.mock('../../../../src/lib/actions/auth', async () => {
   const actual =
     await vi.importActual<typeof import('../../../../src/lib/actions/auth')>('../../../../src/lib/actions/auth');
-  return { ...actual, setForcedPassword: authActionsMock.setForcedPassword, signOut: authActionsMock.signOut };
+  return { ...actual, setForcedPassword: authActionsMock.setForcedPassword };
 });
 
 const { default: AccountTab } = await import('../../../../src/lib/components/settings/AccountTab.svelte');
@@ -55,13 +55,6 @@ describe('AccountTab', () => {
 
     expect(authActionsMock.setForcedPassword).toHaveBeenCalledWith('clave-segura');
     expect(await screen.findByText('¡Listo! Ya puedes iniciar sesión con tu correo y esta contraseña.')).toBeTruthy();
-  });
-
-  it('el botón de salir llama a signOut', async () => {
-    authActionsMock.signOut.mockResolvedValue(undefined);
-    render(AccountTab);
-    await fireEvent.click(screen.getByRole('button', { name: 'Salir' }));
-    expect(authActionsMock.signOut).toHaveBeenCalled();
   });
 
   it('sin violaciones de accesibilidad (axe-core), con el formulario de contraseña abierto', async () => {
