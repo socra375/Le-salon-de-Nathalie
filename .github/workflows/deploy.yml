@@ -1,0 +1,68 @@
+name: Deploy a GitHub Pages
+
+# Fase 7 del plan de migración: publica app/ (Vite + Svelte) en GitHub
+# Pages vía Actions. Deliberadamente arranca en solo `workflow_dispatch`
+# (disparo manual) y NO en cada push a main: mientras Settings → Pages →
+# Source siga en "Deploy from a branch", `actions/configure-pages` falla
+# (Pages todavía no está configurado para build vía Actions) -- correrlo en
+# cada push llenaría el historial de Actions de corridas rojas sin
+# significado real antes del corte. Una vez completado el checklist go/no-go
+# y hecho el cambio manual de Source, se dispara una vez a mano para
+# confirmar que publica bien, y recién ahí se agrega el trigger `push` en un
+# commit aparte -- así todo despliegue automático futuro queda pedido
+# explícitamente, no heredado de un archivo que nadie revisó en ese momento.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita dos despliegues corriendo a la vez; no cancela uno ya en curso para
+# no dejar Pages a mitad de una subida.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build app/
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build de producción
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/dist
+
+  deploy:
+    name: Publicar en Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
