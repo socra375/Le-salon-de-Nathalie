@@ -219,3 +219,18 @@ Deno.test('/confirmar borra logos y usuarios, e informa lo que falló', async ()
   assertStringIncludes(out, 'Usuarios borrados: 1/2');
   assertStringIncludes(out, 'usuario u2: boom');
 });
+
+Deno.test('/prueba valida el plan y llama admin_set_trial', async () => {
+  const { db, calls } = fullDb();
+  assertStringIncludes(await handleCommand(db, '/prueba nath1105@hotmail.ca trimestral'), 'Uso: /prueba');
+  const out = await handleCommand(db, '/prueba NATH1105@hotmail.ca Semestral');
+  assertStringIncludes(out, 'Prueba aplicada');
+  assertEquals(calls.find((c) => c.fn === 'admin_set_trial')?.args, { p_business_id: 'b1', p_plan: 'semestral' });
+});
+
+Deno.test('/prueba sobre un plan pagado devuelve el motivo de la BD', async () => {
+  const { db } = fullDb({
+    admin_set_trial: { data: null, error: { message: 'Solo se puede elegir una prueba mientras la cuenta está en prueba' } },
+  });
+  assertStringIncludes(await handleCommand(db, '/prueba nath1105@hotmail.ca anual'), 'mientras la cuenta está en prueba');
+});
