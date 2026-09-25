@@ -234,3 +234,18 @@ Deno.test('/prueba sobre un plan pagado devuelve el motivo de la BD', async () =
   });
   assertStringIncludes(await handleCommand(db, '/prueba nath1105@hotmail.ca anual'), 'mientras la cuenta está en prueba');
 });
+
+Deno.test('/cambiar valida el plan y llama admin_change_plan', async () => {
+  const { db, calls } = fullDb();
+  assertStringIncludes(await handleCommand(db, '/cambiar nath1105@hotmail.ca gratis'), 'Uso: /cambiar');
+  const out = await handleCommand(db, '/cambiar nath1105@hotmail.ca Mensual');
+  assertStringIncludes(out, 'se conserva la fecha de vencimiento');
+  assertEquals(calls.find((c) => c.fn === 'admin_change_plan')?.args, { p_business_id: 'b1', p_plan: 'mensual' });
+});
+
+Deno.test('/cambiar informa cuántos clientes sobran si el plan nuevo no alcanza', async () => {
+  const { db } = fullDb({
+    admin_change_plan: { data: null, error: { message: 'Tiene 55 clientes y el plan mensual permite 15: le sobran 40' } },
+  });
+  assertStringIncludes(await handleCommand(db, '/cambiar nath1105@hotmail.ca mensual'), 'le sobran 40');
+});
