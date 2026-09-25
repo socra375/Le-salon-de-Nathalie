@@ -44,3 +44,12 @@ export function fmtDateLong(value: Date | string, locale: Locale): string {
   });
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
+
+/** Mes y año con mayúscula inicial (p. ej. "Septiembre 2026") -- para el resumen mensual de la cuenta del cliente. */
+export function fmtMonthYear(year: number, month: number, locale: Locale): string {
+  const formatted = new Date(year, month, 1).toLocaleDateString(LOCALE_MAP[locale], {
+    month: 'long',
+    year: 'numeric',
+  });
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}

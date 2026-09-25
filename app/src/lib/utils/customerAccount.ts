@@ -1,5 +1,5 @@
 import type { Tables } from '../types/database.types';
-import { apptServiceIds } from './appointments';
+import { apptServiceIds, collectedRevenue } from './appointments';
 
 export interface CustomerAccountSummary {
   lastVisitAt: string | null;
@@ -68,4 +68,51 @@ export function receivablesByCustomer(
     .map(([customerId, list]) => ({ customerId, name: names.get(customerId) ?? '', amount: pendingCreditTotal(list) }))
     .filter((r) => r.amount > 0)
     .sort((a, b) => b.amount - a.amount);
+}
+
+export interface MonthlySpending {
+  /** Clave ordenable "YYYY-MM", no mostrada -- la etiqueta la arma el llamador con el locale activo. */
+  monthKey: string;
+  year: number;
+  month: number;
+  total: number;
+  visitCount: number;
+  /** Citas completadas de ese mes que todavía no tienen factura -- para el acceso rápido a facturar. */
+  pendingInvoice: Tables<'appointments'>[];
+}
+
+/**
+ * Agrupa por mes calendario las citas completadas del cliente (el informe
+ * de gastos de su cuenta) -- en vivo a partir del historial ya cargado, sin
+ * ningún proceso ni tabla que "cierre" el mes por separado. Solo cuenta lo
+ * ya cobrado (`collectedRevenue`), igual que el resto de los reportes de la
+ * app: una cita a crédito sin abonar no suma hasta que se pague.
+ */
+export function monthlySpendingSummary(
+  history: Tables<'appointments'>[],
+  services: Tables<'services'>[],
+  invoices: Tables<'invoices'>[],
+  credits: Tables<'customer_credits'>[]
+): MonthlySpending[] {
+  const invoicedIds = new Set(invoices.filter((inv) => inv.appointment_id).map((inv) => inv.appointment_id as string));
+  const byMonth = new Map<string, MonthlySpending>();
+
+  for (const appt of history) {
+    if (appt.status !== 'completada') continue;
+    const date = new Date(appt.start_at);
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+    let entry = byMonth.get(monthKey);
+    if (!entry) {
+      entry = { monthKey, year, month, total: 0, visitCount: 0, pendingInvoice: [] };
+      byMonth.set(monthKey, entry);
+    }
+    entry.total += collectedRevenue(appt, services, invoices, credits);
+    entry.visitCount += 1;
+    if (!invoicedIds.has(appt.id)) entry.pendingInvoice.push(appt);
+  }
+
+  return [...byMonth.values()].sort((a, b) => b.monthKey.localeCompare(a.monthKey));
 }

@@ -6,8 +6,10 @@
   import { customers as customersStore, customerCredits as creditsStore } from '../../stores/customers';
   import { appointments as appointmentsStore } from '../../stores/appointments';
   import { services as servicesStore } from '../../stores/services';
+  import { invoices as invoicesStore } from '../../stores/invoices';
   import { loadCustomers, loadCredits, registerCustomer } from '../../actions/customers';
   import { loadAppointments } from '../../actions/appointments';
+  import { loadInvoices } from '../../actions/invoices';
   import { loadSpecialistOptions, type SpecialistOption } from '../../actions/services';
   import { pendingCreditTotal } from '../../utils/customerAccount';
   import CustomerAccountModal from './CustomerAccountModal.svelte';
@@ -29,10 +31,11 @@
   });
 
   async function refresh(id: string) {
-    const [, , , options] = await Promise.all([
+    const [, , , , options] = await Promise.all([
       loadCustomers(id),
       loadCredits(id),
       loadAppointments(id),
+      loadInvoices(id),
       loadSpecialistOptions(id, $t('appt.you_admin'), $t('appt.employee_unnamed')),
     ]);
     specialistOptions = options;
@@ -125,6 +128,7 @@
         .filter((a) => a.customer_id === customer.id)
         .sort((a, b) => new Date(b.start_at).getTime() - new Date(a.start_at).getTime())}
       services={$servicesStore}
+      invoices={$invoicesStore.filter((inv) => inv.customer_id === customer.id)}
       {specialistOptions}
       onClose={() => (viewingCustomer = null)}
     />

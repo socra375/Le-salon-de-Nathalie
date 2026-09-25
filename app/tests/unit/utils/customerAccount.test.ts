@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { summarizeCustomerHistory, pendingCreditTotal, receivablesByCustomer } from '../../../src/lib/utils/customerAccount';
+import {
+  summarizeCustomerHistory,
+  pendingCreditTotal,
+  receivablesByCustomer,
+  monthlySpendingSummary,
+} from '../../../src/lib/utils/customerAccount';
 import type { Tables } from '../../../src/lib/types/database.types';
 
 function appt(overrides: Partial<Tables<'appointments'>>): Tables<'appointments'> {
@@ -129,5 +134,74 @@ describe('receivablesByCustomer', () => {
   it('excluye clientes ya saldados por completo', () => {
     const credits = [credit({ id: 'cr-1', customer_id: 'cust-1', amount: 100, amount_paid: 100, status: 'pagado' })];
     expect(receivablesByCustomer(credits, customers)).toEqual([]);
+  });
+});
+
+describe('monthlySpendingSummary', () => {
+  const services: Tables<'services'>[] = [
+    { id: 'svc-1', business_id: 'biz-1', name: 'Corte', category: null, duration_minutes: 30, price: 500, active: true, created_at: null },
+  ];
+
+  function invoice(overrides: Partial<Tables<'invoices'>>): Tables<'invoices'> {
+    return {
+      id: 'inv-1',
+      business_id: 'biz-1',
+      sale_id: null,
+      customer_id: 'cust-1',
+      appointment_id: 'a1',
+      invoice_number: 'F-0001',
+      customer_name: 'Ana',
+      payment_method: 'efectivo',
+      subtotal: 500,
+      tax_amount: 0,
+      total: 500,
+      created_at: null,
+      ...overrides,
+    };
+  }
+
+  it('agrupa por mes calendario y suma solo las citas completadas', () => {
+    const history = [
+      appt({ id: 'a1', start_at: '2026-01-05T10:00:00Z', status: 'completada', price: 500 }),
+      appt({ id: 'a2', start_at: '2026-01-20T10:00:00Z', status: 'completada', price: 300 }),
+      appt({ id: 'a3', start_at: '2026-01-10T10:00:00Z', status: 'cancelada', price: 999 }),
+      appt({ id: 'a4', start_at: '2026-02-01T10:00:00Z', status: 'completada', price: 200 }),
+    ];
+    const summary = monthlySpendingSummary(history, services, [], []);
+
+    expect(summary).toHaveLength(2);
+    expect(summary[0]).toMatchObject({ monthKey: '2026-02', total: 200, visitCount: 1 });
+    expect(summary[1]).toMatchObject({ monthKey: '2026-01', total: 800, visitCount: 2 });
+  });
+
+  it('ordena los meses del más reciente al más antiguo', () => {
+    const history = [
+      appt({ id: 'a1', start_at: '2026-01-05T10:00:00Z', status: 'completada' }),
+      appt({ id: 'a2', start_at: '2026-03-05T10:00:00Z', status: 'completada' }),
+      appt({ id: 'a3', start_at: '2026-02-05T10:00:00Z', status: 'completada' }),
+    ];
+    const summary = monthlySpendingSummary(history, services, [], []);
+    expect(summary.map((m) => m.monthKey)).toEqual(['2026-03', '2026-02', '2026-01']);
+  });
+
+  it('separa las citas completadas que todavía no tienen factura', () => {
+    const history = [
+      appt({ id: 'a1', start_at: '2026-01-05T10:00:00Z', status: 'completada' }),
+      appt({ id: 'a2', start_at: '2026-01-20T10:00:00Z', status: 'completada' }),
+    ];
+    const invoices = [invoice({ appointment_id: 'a1' })];
+    const summary = monthlySpendingSummary(history, services, invoices, []);
+
+    expect(summary[0]!.pendingInvoice.map((a) => a.id)).toEqual(['a2']);
+  });
+
+  it('una venta a crédito sin abonar no suma al total del mes', () => {
+    const history = [appt({ id: 'a1', start_at: '2026-01-05T10:00:00Z', status: 'completada', price: 500 })];
+    const invoices = [invoice({ id: 'inv-1', appointment_id: 'a1', payment_method: 'credito' })];
+    const credits: Tables<'customer_credits'>[] = [
+      { id: 'cr-1', business_id: 'biz-1', customer_id: 'cust-1', sale_id: null, invoice_id: 'inv-1', amount: 500, amount_paid: 0, status: 'pendiente', created_at: null },
+    ];
+    const summary = monthlySpendingSummary(history, services, invoices, credits);
+    expect(summary[0]!.total).toBe(0);
   });
 });

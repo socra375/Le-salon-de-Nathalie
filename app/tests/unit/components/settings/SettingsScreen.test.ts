@@ -18,6 +18,9 @@ vi.mock('../../../../src/lib/actions/customers', () => customersActionsMock);
 const appointmentsActionsMock = vi.hoisted(() => ({ loadAppointments: vi.fn() }));
 vi.mock('../../../../src/lib/actions/appointments', () => appointmentsActionsMock);
 
+const invoicesActionsMock = vi.hoisted(() => ({ loadInvoices: vi.fn() }));
+vi.mock('../../../../src/lib/actions/invoices', () => invoicesActionsMock);
+
 const servicesActionsMock = vi.hoisted(() => ({
   loadServices: vi.fn(),
   loadSpecialistOptions: vi.fn(),
