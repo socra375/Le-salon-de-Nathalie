@@ -34,7 +34,7 @@ const businessAccessMock = vi.hoisted(() => ({
   getMyBusinessAccess: vi.fn(),
 }));
 vi.mock('../../../src/lib/api/businessAccess', () => businessAccessMock);
-const ACTIVE_ACCESS = { status: 'active', plan: 'anual', expires_at: '2027-09-25T00:00:00Z', reason: null };
+const ACTIVE_ACCESS = { status: 'active', plan: 'anual', expires_at: '2027-09-25T00:00:00Z', reason: null, is_super_admin: false };
 
 const {
   readPendingInviteFromUrl,

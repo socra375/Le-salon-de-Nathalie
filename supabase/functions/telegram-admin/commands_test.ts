@@ -1,5 +1,5 @@
 import { assert, assertEquals, assertStringIncludes } from 'jsr:@std/assert@1';
-import { type BusinessRow, type Db, expiringWithin, handleCommand, parseCommand } from './commands.ts';
+import { type BusinessRow, type Db, expiringWithin, handleCommand, handleUpdate, parseCommand } from './commands.ts';
 
 const NATH: BusinessRow = {
   business_id: 'b1',
@@ -81,4 +81,48 @@ Deno.test('expiringWithin ignora vencidos, bloqueados, pausados y lejanos', () =
     { ...NATH, business_id: 'paused', status: 'pausado', expires_at: '2026-09-30T00:00:00Z' },
   ];
   assertEquals(expiringWithin(rows, 7, now).map((r) => r.business_id), ['soon']);
+});
+
+function authDb(adminChat: number, validCode = 'ABC123DEF0') {
+  const calls: string[] = [];
+  const db: Db = {
+    rpc(fn, args) {
+      calls.push(fn);
+      if (fn === 'admin_chat_is_super_admin') return Promise.resolve({ data: args?.p_chat_id === adminChat, error: null });
+      if (fn === 'admin_link_telegram') {
+        return Promise.resolve(
+          args?.p_code === validCode
+            ? { data: 'marcos@example.com', error: null }
+            : { data: null, error: { message: 'Código inválido o vencido' } },
+        );
+      }
+      if (fn === 'admin_list_businesses') return Promise.resolve({ data: [NATH], error: null });
+      return Promise.resolve({ data: null, error: null });
+    },
+  };
+  return { db, calls };
+}
+
+Deno.test('handleUpdate: un chat ajeno no recibe respuesta ni ejecuta comandos', async () => {
+  const { db, calls } = authDb(111);
+  assertEquals(await handleUpdate(db, 999, '/negocios'), null);
+  assertEquals(calls, ['admin_chat_is_super_admin']);
+});
+
+Deno.test('handleUpdate: el súper admin vinculado ejecuta comandos', async () => {
+  const { db } = authDb(111);
+  assertStringIncludes((await handleUpdate(db, 111, '/negocios')) ?? '', 'Nathalie');
+});
+
+Deno.test('handleUpdate: /vincular con código válido vincula y muestra la ayuda', async () => {
+  const { db } = authDb(111);
+  const out = (await handleUpdate(db, 999, '/vincular ABC123DEF0')) ?? '';
+  assertStringIncludes(out, 'Vinculado como súper admin: marcos@example.com');
+  assertStringIncludes(out, '/negocios');
+});
+
+Deno.test('handleUpdate: /vincular con código inválido o sin código', async () => {
+  const { db } = authDb(111);
+  assertStringIncludes((await handleUpdate(db, 999, '/vincular NOPE')) ?? '', 'Código inválido o vencido');
+  assertStringIncludes((await handleUpdate(db, 999, '/vincular')) ?? '', 'Uso: /vincular');
 });

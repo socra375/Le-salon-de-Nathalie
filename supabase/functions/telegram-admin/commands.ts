@@ -16,6 +16,7 @@ export const PLANS = ['mensual', 'semestral', 'anual'] as const;
 
 export const HELP = [
   'Comandos:',
+  '/vincular <código> — vincula este chat (el código se genera en la app: Configuración → Plan)',
   '/negocios — todos los negocios',
   '/estado <email>',
   '/plan <email> mensual|semestral|anual',
@@ -77,6 +78,26 @@ async function findByEmail(db: Db, email: string | undefined): Promise<BusinessR
 async function statusOf(db: Db, id: string): Promise<string> {
   const b = (await listBusinesses(db)).find((r) => r.business_id === id);
   return b ? formatBusiness(b) : '';
+}
+
+/**
+ * Punto de entrada de cada mensaje. `/vincular` lo puede usar cualquier
+ * chat (el código de un solo uso es la prueba de identidad); el resto
+ * solo un chat vinculado a un súper admin. Para chats ajenos devuelve
+ * null: el webhook no responde nada.
+ */
+export async function handleUpdate(db: Db, chatId: number, text: string, now: Date = new Date()): Promise<string | null> {
+  const parsed = parseCommand(text);
+  if (parsed?.cmd === 'vincular') {
+    if (!parsed.args[0]) return 'Uso: /vincular <código>';
+    const { data, error } = await db.rpc('admin_link_telegram', { p_code: parsed.args[0], p_chat_id: chatId });
+    if (error) return 'Código inválido o vencido. Genera uno nuevo en la app (Configuración → Plan).';
+    return `Vinculado como súper admin: ${data}\n\n${HELP}`;
+  }
+
+  const { data: isAdmin, error } = await db.rpc('admin_chat_is_super_admin', { p_chat_id: chatId });
+  if (error || isAdmin !== true) return null;
+  return handleCommand(db, text, now);
 }
 
 export async function handleCommand(db: Db, text: string, now: Date = new Date()): Promise<string> {

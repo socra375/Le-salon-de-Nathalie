@@ -1,5 +1,5 @@
 import { supabase } from './client';
-import { unwrapNullable } from './errors';
+import { unwrap, unwrapNullable } from './errors';
 import type { BusinessAccess } from '../types/businessAccess';
 
 /**
@@ -9,5 +9,10 @@ import type { BusinessAccess } from '../types/businessAccess';
  */
 export async function getMyBusinessAccess(): Promise<BusinessAccess> {
   const row = unwrapNullable(await supabase.rpc('get_my_business_access').maybeSingle());
-  return (row as BusinessAccess | null) ?? { status: 'new', plan: null, expires_at: null, reason: null };
+  return (row as BusinessAccess | null) ?? { status: 'new', plan: null, expires_at: null, reason: null, is_super_admin: false };
+}
+
+/** Código de un solo uso (10 min) para vincular Telegram. Solo súper admins. */
+export async function createTelegramLinkCode(): Promise<{ code: string; expires_at: string }> {
+  return unwrap(await supabase.rpc('create_telegram_link_code').single());
 }

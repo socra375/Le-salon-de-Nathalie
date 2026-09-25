@@ -1,11 +1,11 @@
-// Webhook del bot de Telegram de administración (uso exclusivo del dueño
-// del SaaS). Se despliega con verify_jwt = false porque Telegram no manda
-// JWT: la autenticación es el secret_token del webhook + el chat_id.
+// Webhook del bot de Telegram de administración (uso exclusivo de los
+// súper admins). Se despliega con verify_jwt = false porque Telegram no
+// manda JWT: la autenticación es el secret_token del webhook + un chat_id
+// vinculado en la tabla super_admins (ver migración 004).
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { handleCommand } from './commands.ts';
+import { handleUpdate } from './commands.ts';
 
 const WEBHOOK_SECRET = Deno.env.get('TELEGRAM_WEBHOOK_SECRET') ?? '';
-const ADMIN_CHAT_ID = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID') ?? '';
 
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false },
@@ -21,9 +21,9 @@ function safeEqual(a: string, b: string): boolean {
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
 
-  // Sin secretos configurados el bot no responde a nadie.
+  // Sin el secreto configurado el bot no responde a nadie.
   const secret = req.headers.get('x-telegram-bot-api-secret-token') ?? '';
-  if (!WEBHOOK_SECRET || !ADMIN_CHAT_ID || !safeEqual(secret, WEBHOOK_SECRET)) {
+  if (!WEBHOOK_SECRET || !safeEqual(secret, WEBHOOK_SECRET)) {
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -36,12 +36,12 @@ Deno.serve(async (req) => {
 
   const chatId = update.message?.chat?.id;
   const text = update.message?.text;
-  // Chats ajenos: 200 vacío para que Telegram no reintente y no revelar nada.
-  if (chatId === undefined || String(chatId) !== ADMIN_CHAT_ID || !text) {
-    return new Response(null, { status: 200 });
-  }
+  // 200 vacío (sin texto, o chat que no es súper admin): Telegram no
+  // reintenta y un extraño no aprende nada del bot.
+  if (chatId === undefined || !text) return new Response(null, { status: 200 });
 
-  const reply = await handleCommand(db, text);
+  const reply = await handleUpdate(db, chatId, text);
+  if (reply === null) return new Response(null, { status: 200 });
   // Respuesta directa en el cuerpo del webhook: no hace falta el token del bot.
   return new Response(JSON.stringify({ method: 'sendMessage', chat_id: chatId, text: reply }), {
     headers: { 'Content-Type': 'application/json' },

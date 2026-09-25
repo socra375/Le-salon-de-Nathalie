@@ -503,7 +503,12 @@ export interface Database {
           plan: string | null;
           expires_at: string | null;
           reason: string | null;
+          is_super_admin: boolean;
         }[];
+      };
+      create_telegram_link_code: {
+        Args: Record<string, never>;
+        Returns: { code: string; expires_at: string }[];
       };
     };
     Enums: Record<string, never>;

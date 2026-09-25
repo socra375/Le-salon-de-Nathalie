@@ -6,6 +6,7 @@ export interface BusinessAccess {
   plan: BusinessPlan | null;
   expires_at: string | null;
   reason: string | null;
+  is_super_admin: boolean;
 }
 
 export const LOCKED_STATUSES: readonly BusinessAccessStatus[] = ['expired', 'paused', 'blocked'];

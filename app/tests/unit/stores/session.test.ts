@@ -18,7 +18,7 @@ beforeEach(() => {
 });
 
 describe('isBusinessBlocked', () => {
-  const base = { plan: 'anual' as const, expires_at: null, reason: null };
+  const base = { plan: 'anual' as const, expires_at: null, reason: null, is_super_admin: false };
 
   it('es false mientras no se conoce el acceso', () => {
     expect(get(isBusinessBlocked)).toBe(false);
