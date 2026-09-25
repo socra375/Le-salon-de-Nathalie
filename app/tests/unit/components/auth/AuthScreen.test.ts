@@ -1,6 +1,8 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/svelte';
+import { get } from 'svelte/store';
 import { expectNoA11yViolations } from '../../support/axe';
+import { loader, hideLoader } from '../../../../src/lib/stores/loader';
 
 const authActionsMock = vi.hoisted(() => ({
   signInOrSignUp: vi.fn(),
@@ -15,7 +17,10 @@ vi.mock('../../../../src/lib/actions/auth', async () => {
 
 const { default: AuthScreen } = await import('../../../../src/lib/components/auth/AuthScreen.svelte');
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  hideLoader();
+});
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -68,6 +73,26 @@ describe('AuthScreen', () => {
     expect(authActionsMock.signInOrSignUp).toHaveBeenCalledWith(
       expect.objectContaining({ email: 'ana@test.com', password: 'secret123', invite: null })
     );
+  });
+
+  it('muestra el loader de "Iniciando sesión…" mientras se envía el formulario, y lo oculta al terminar', async () => {
+    let resolveSignIn: (value: { status: 'signed_in' }) => void = () => {};
+    authActionsMock.signInOrSignUp.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveSignIn = resolve;
+        })
+    );
+    render(AuthScreen, { props: { pendingInvite: null } });
+
+    await fireEvent.input(screen.getByLabelText('Correo Electrónico'), { target: { value: 'ana@test.com' } });
+    await fireEvent.input(screen.getByLabelText('Contraseña'), { target: { value: 'secret123' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Iniciar Sesión / Registrarse' }));
+
+    expect(get(loader)).toBe('login');
+
+    resolveSignIn({ status: 'signed_in' });
+    await vi.waitFor(() => expect(get(loader)).toBeNull());
   });
 
   it('muestra el mensaje de éxito cuando se envía el correo de registro', async () => {

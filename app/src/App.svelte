@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
   import { fade } from 'svelte/transition';
   import { t, locale } from './lib/stores/locale';
   import { isLocale } from './lib/i18n';
@@ -13,7 +14,9 @@
     needsOnboarding,
     resetSession,
   } from './lib/stores/session';
+  import { showLoader, hideLoader } from './lib/stores/loader';
   import { readPendingInviteFromUrl, resolveSessionAfterLogin, signOut, type PendingInvite } from './lib/actions/auth';
+  import Loader from './lib/components/shared/Loader.svelte';
   import LandingScreen from './lib/components/auth/LandingScreen.svelte';
   import AuthScreen from './lib/components/auth/AuthScreen.svelte';
   import OnboardingScreen from './lib/components/auth/OnboardingScreen.svelte';
@@ -62,6 +65,10 @@
     }
   }
 
+  // Visible desde el primer render (antes incluso de onMount) hasta que se
+  // resuelve si hay sesión o no -- reemplaza el "…" a secas que se veía antes.
+  showLoader('boot');
+
   let ready = $state(false);
   let resolving = $state(false);
   let pendingInvite = $state<PendingInvite | null>(null);
@@ -107,9 +114,34 @@
     };
   });
 
+  function finishBoot() {
+    ready = true;
+    hideLoader();
+  }
+
+  const LAST_ACTIVE_KEY = 'ge_last_active';
+  const INACTIVITY_RESYNC_MS = 5 * 60 * 1000;
+
+  /**
+   * Si se vuelve a esta pestaña después de estar inactiva un buen rato
+   * (mínimo 5 min), los datos ya cargados pueden estar desactualizados o el
+   * token de sesión pudo vencer -- se recarga la página entera en vez de
+   * intentar refrescar cada store por separado, mostrando el mismo overlay
+   * mientras tanto para que no se vea como una pantalla en blanco.
+   */
+  function handleVisibilityChange() {
+    if (document.visibilityState !== 'visible') return;
+    if (!get(isAuthenticated)) return;
+    const lastActive = Number(sessionStorage.getItem(LAST_ACTIVE_KEY) || 0);
+    if (Date.now() - lastActive > INACTIVITY_RESYNC_MS) {
+      showLoader('sync');
+      window.location.reload();
+    }
+  }
+
   onMount(() => {
     if (!isSupabaseConfigured) {
-      ready = true;
+      finishBoot();
       return;
     }
 
@@ -129,7 +161,7 @@
         // onAuthStateChange dispara de nuevo en cada refresh de token; ya
         // resuelta una vez la sesión, los siguientes eventos son no-ops.
         if (resolving || $isAuthenticated) {
-          ready = true;
+          finishBoot();
           return;
         }
         resolving = true;
@@ -147,15 +179,24 @@
           })
           .finally(() => {
             resolving = false;
-            ready = true;
+            finishBoot();
           });
       } else {
         resetSession();
-        ready = true;
+        finishBoot();
       }
     });
 
-    return () => subscription.unsubscribe();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    const activityIntervalId = setInterval(() => {
+      sessionStorage.setItem(LAST_ACTIVE_KEY, String(Date.now()));
+    }, 15_000);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(activityIntervalId);
+    };
   });
 
   function handleOnboardingCompleted(result: { requiresForcedPassword: boolean }) {
@@ -163,8 +204,10 @@
   }
 </script>
 
+<Loader />
+
 {#if !ready}
-  <p>…</p>
+  <!-- El overlay de Loader ya cubre este estado. -->
 {:else if !isSupabaseConfigured}
   <main>
     <h1>Gestión Salón</h1>

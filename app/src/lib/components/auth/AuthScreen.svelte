@@ -2,6 +2,7 @@
   import { untrack } from 'svelte';
   import { t } from '../../stores/locale';
   import { signInOrSignUp, signInWithGoogle, type PendingInvite } from '../../actions/auth';
+  import { showLoader, hideLoader } from '../../stores/loader';
 
   interface Props {
     pendingInvite: PendingInvite | null;
@@ -32,6 +33,7 @@
     }
 
     submitting = true;
+    showLoader('login');
     try {
       const result = await signInOrSignUp({
         email,
@@ -49,6 +51,7 @@
       // supabase.auth.onAuthStateChange (App.svelte) toma el control.
     } finally {
       submitting = false;
+      hideLoader();
     }
   }
 
