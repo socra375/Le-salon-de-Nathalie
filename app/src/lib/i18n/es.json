@@ -202,6 +202,8 @@
   "cust.address_placeholder": "Para la factura",
   "cust.email_label": "E-mail (opcional)",
   "cust.save": "Guardar Cliente",
+  "cust.limit_reached": "Llegaste al límite de {{limit}} clientes de tu plan. Para agregar más, cambia de plan en Configuración → Cambiar de Plan.",
+  "cust.save_error": "No se pudo guardar el cliente: {{msg}}",
   "cust.th_name": "Nombre",
   "cust.th_phone": "Teléfono",
   "cust.th_balance": "Saldo Pendiente",

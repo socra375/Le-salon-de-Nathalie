@@ -1480,6 +1480,114 @@ revoke execute on function public.admin_set_plan(uuid, text) from public, anon, 
 grant execute on function public.admin_set_plan(uuid, text) to service_role;
 
 -- ============================================================
+-- MIGRACIÓN 008 — límite de clientes por plan y aviso de registros
+-- (detalle en supabase/migrations/008_customer_limits_and_signup_alerts.sql).
+-- ============================================================
+
+create or replace function public.plan_customer_limit(p_plan text)
+returns int
+language sql
+immutable
+as $$
+  select case p_plan
+    when 'mensual' then 15
+    when 'semestral' then 90
+    else null
+  end;
+$$;
+
+create or replace function public.business_customer_limit(bid uuid)
+returns int
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select case
+    when exists (select 1 from super_admins where user_id = bid) then null
+    else (
+      select plan_customer_limit(case when p.plan = 'prueba' then coalesce(p.trial_plan, 'mensual') else p.plan end)
+      from business_plans p where p.business_id = bid
+    )
+  end;
+$$;
+
+create or replace function public.enforce_customer_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_limit int := business_customer_limit(new.business_id);
+begin
+  if v_limit is not null
+     and (select count(*) from customers where business_id = new.business_id) >= v_limit then
+    raise exception 'CUSTOMER_LIMIT:%', v_limit;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_customer_limit on customers;
+create trigger trg_customer_limit before insert on customers
+  for each row execute function public.enforce_customer_limit();
+
+alter table business_plans add column if not exists signup_notified_at timestamptz;
+
+-- Devuelve los datos del registro y lo marca como avisado, una sola vez.
+-- Sin filas = nada que avisar (sin negocio, sin configurar o ya avisado).
+create or replace function public.admin_claim_signup_notification(p_user uuid)
+returns table (
+  name text, email text, business_type text, team_size int,
+  trial_plan text, expires_at timestamptz, chat_ids bigint[]
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+#variable_conflict use_column
+begin
+  update business_plans bp set signup_notified_at = now()
+  where bp.business_id = p_user
+    and bp.signup_notified_at is null
+    and exists (select 1 from businesses b where b.id = p_user and b.onboarding_completed);
+  if not found then
+    return;
+  end if;
+
+  return query
+  select b.name, u.email::text, b.business_type, b.team_size, bp.trial_plan, bp.expires_at,
+    array(select sa.telegram_chat_id from super_admins sa where sa.telegram_chat_id is not null)
+  from businesses b
+  join auth.users u on u.id = b.id
+  join business_plans bp on bp.business_id = b.id
+  where b.id = p_user;
+end;
+$$;
+
+-- Si Telegram falla, se desmarca para que el próximo intento vuelva a avisar.
+create or replace function public.admin_reset_signup_notification(p_user uuid)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update business_plans set signup_notified_at = null where business_id = p_user;
+$$;
+
+-- Los negocios que ya existían no se avisan.
+update business_plans set signup_notified_at = now() where signup_notified_at is null;
+
+revoke execute on function public.plan_customer_limit(text) from public, anon;
+revoke execute on function public.business_customer_limit(uuid) from public, anon, authenticated;
+revoke execute on function public.enforce_customer_limit() from public, anon, authenticated;
+revoke execute on function public.admin_claim_signup_notification(uuid) from public, anon, authenticated;
+revoke execute on function public.admin_reset_signup_notification(uuid) from public, anon, authenticated;
+grant execute on function public.admin_claim_signup_notification(uuid) to service_role;
+grant execute on function public.admin_reset_signup_notification(uuid) to service_role;
+
+-- ============================================================
 -- FIN DEL SCRIPT
 -- Recuerda: en el HTML, reemplaza SUPABASE_URL y SUPABASE_ANON_KEY
 -- con las credenciales de tu proyecto (Project Settings > API).

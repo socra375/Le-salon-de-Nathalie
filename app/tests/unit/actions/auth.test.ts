@@ -75,6 +75,13 @@ describe('readPendingInviteFromUrl', () => {
 });
 
 describe('buildSignUpRedirectUrl', () => {
+  it('agrega el plan elegido en la landing para que sobreviva a la confirmación del correo', () => {
+    expect(buildSignUpRedirectUrl('https://app.test/', null, 'semestral')).toBe('https://app.test/?plan=semestral');
+    const url = new URL(buildSignUpRedirectUrl('https://app.test/', { code: 'EMP1', employeeName: 'Ana' }, 'anual'));
+    expect(url.searchParams.get('invite')).toBe('EMP1');
+    expect(url.searchParams.get('plan')).toBe('anual');
+  });
+
   it('sin invitación, devuelve la URL base tal cual', () => {
     expect(buildSignUpRedirectUrl('https://app.test/', null)).toBe('https://app.test/');
   });

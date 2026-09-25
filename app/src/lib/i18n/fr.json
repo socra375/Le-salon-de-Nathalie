@@ -202,6 +202,8 @@
   "cust.address_placeholder": "Pour la facture",
   "cust.email_label": "E-mail (facultatif)",
   "cust.save": "Enregistrer le Client",
+  "cust.limit_reached": "Vous avez atteint la limite de {{limit}} clients de votre forfait. Pour en ajouter, changez de forfait dans Paramètres → Changer de forfait.",
+  "cust.save_error": "Impossible d'enregistrer le client : {{msg}}",
   "cust.th_name": "Nom",
   "cust.th_phone": "Téléphone",
   "cust.th_balance": "Solde Impayé",

@@ -202,6 +202,8 @@
   "cust.address_placeholder": "For the invoice",
   "cust.email_label": "E-mail (optional)",
   "cust.save": "Save Customer",
+  "cust.limit_reached": "You reached your plan's limit of {{limit}} customers. To add more, change your plan in Settings → Change Plan.",
+  "cust.save_error": "The customer could not be saved: {{msg}}",
   "cust.th_name": "Name",
   "cust.th_phone": "Phone",
   "cust.th_balance": "Outstanding Balance",

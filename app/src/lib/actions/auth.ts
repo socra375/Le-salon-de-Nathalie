@@ -12,7 +12,8 @@ import {
   businessAccess,
   resetSession,
 } from '../stores/session';
-import { LOCKED_STATUSES } from '../types/businessAccess';
+import { LOCKED_STATUSES, type PaidPlan } from '../types/businessAccess';
+import { getPendingTrial } from '../utils/pendingTrial';
 import type { Tables, TablesInsert } from '../types/database.types';
 
 export interface PendingInvite {
@@ -27,10 +28,19 @@ export function readPendingInviteFromUrl(url: URL): PendingInvite | null {
   return { code, employeeName: url.searchParams.get('empname') ?? '' };
 }
 
-export function buildSignUpRedirectUrl(baseUrl: string, invite: PendingInvite | null): string {
-  if (!invite) return baseUrl;
-  const params = new URLSearchParams({ invite: invite.code, empname: invite.employeeName });
-  return `${baseUrl}?${params.toString()}`;
+export function buildSignUpRedirectUrl(
+  baseUrl: string,
+  invite: PendingInvite | null,
+  trialPlan: PaidPlan | null = null
+): string {
+  const params = new URLSearchParams();
+  if (invite) {
+    params.set('invite', invite.code);
+    params.set('empname', invite.employeeName);
+  }
+  if (trialPlan) params.set('plan', trialPlan);
+  const query = params.toString();
+  return query ? `${baseUrl}?${query}` : baseUrl;
 }
 
 export type SignInOrSignUpResult =
@@ -56,7 +66,7 @@ export async function signInOrSignUp(params: {
   });
   if (!signInError) return { status: 'signed_in' };
 
-  const redirectUrl = buildSignUpRedirectUrl(params.redirectBaseUrl, params.invite);
+  const redirectUrl = buildSignUpRedirectUrl(params.redirectBaseUrl, params.invite, getPendingTrial());
   const { error: signUpError } = await supabase.auth.signUp({
     email: params.email,
     password: params.password,

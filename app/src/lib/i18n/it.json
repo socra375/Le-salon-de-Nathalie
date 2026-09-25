@@ -202,6 +202,8 @@
   "cust.address_placeholder": "Per la fattura",
   "cust.email_label": "E-mail (facoltativo)",
   "cust.save": "Salva Cliente",
+  "cust.limit_reached": "Hai raggiunto il limite di {{limit}} clienti del tuo piano. Per aggiungerne altri, cambia piano in Impostazioni → Cambia piano.",
+  "cust.save_error": "Impossibile salvare il cliente: {{msg}}",
   "cust.th_name": "Nome",
   "cust.th_phone": "Telefono",
   "cust.th_balance": "Saldo in Sospeso",
