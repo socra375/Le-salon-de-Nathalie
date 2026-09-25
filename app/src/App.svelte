@@ -23,6 +23,8 @@
   import OnboardingScreen from './lib/components/auth/OnboardingScreen.svelte';
   import ForcedPasswordModal from './lib/components/auth/ForcedPasswordModal.svelte';
   import BlockedScreen from './lib/components/auth/BlockedScreen.svelte';
+  import { isPaidPlan, setPendingTrial } from './lib/utils/pendingTrial';
+  import type { PaidPlan } from './lib/types/businessAccess';
   import DashboardScreen from './lib/components/dashboard/DashboardScreen.svelte';
   import AgendaScreen from './lib/components/agenda/AgendaScreen.svelte';
   import InvoicesScreen from './lib/components/invoices/InvoicesScreen.svelte';
@@ -88,7 +90,8 @@
   // link de invitación (ese caso salta el landing y va directo al acceso).
   let showLanding = $state(false);
 
-  function dismissLanding() {
+  function dismissLanding(plan?: PaidPlan) {
+    if (plan) setPendingTrial(plan);
     try {
       localStorage.setItem('gestorLandingSeen', '1');
     } catch {
@@ -153,7 +156,15 @@
       return;
     }
 
-    pendingInvite = readPendingInviteFromUrl(new URL(window.location.href));
+    const startUrl = new URL(window.location.href);
+    pendingInvite = readPendingInviteFromUrl(startUrl);
+    // El plan de "Probar gratis" viaja en el link de confirmación del correo
+    // por si se confirma en otro dispositivo.
+    const urlPlan = startUrl.searchParams.get('plan');
+    if (isPaidPlan(urlPlan)) {
+      setPendingTrial(urlPlan);
+      if (!pendingInvite) window.history.replaceState({}, document.title, window.location.pathname);
+    }
     if (!pendingInvite) {
       try {
         showLanding = localStorage.getItem('gestorLandingSeen') !== '1';

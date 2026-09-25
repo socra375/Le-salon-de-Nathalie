@@ -21,3 +21,8 @@ export async function createTelegramLinkCode(): Promise<{ code: string; expires_
 export async function chooseTrialPlan(plan: PaidPlan): Promise<string> {
   return unwrap(await supabase.rpc('choose_trial_plan', { p_plan: plan }));
 }
+
+/** Pide avisar al súper admin del registro (una sola vez; la Edge Function lo garantiza). */
+export async function notifySignup(): Promise<void> {
+  await supabase.functions.invoke('notify-signup', { method: 'POST' });
+}

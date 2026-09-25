@@ -202,6 +202,8 @@
   "cust.address_placeholder": "Für die Rechnung",
   "cust.email_label": "E-Mail (optional)",
   "cust.save": "Kunde speichern",
+  "cust.limit_reached": "Sie haben das Limit von {{limit}} Kunden Ihres Tarifs erreicht. Um weitere hinzuzufügen, wechseln Sie den Tarif unter Einstellungen → Tarif ändern.",
+  "cust.save_error": "Der Kunde konnte nicht gespeichert werden: {{msg}}",
   "cust.th_name": "Name",
   "cust.th_phone": "Telefon",
   "cust.th_balance": "Ausstehender Saldo",
