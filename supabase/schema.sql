@@ -1588,6 +1588,34 @@ grant execute on function public.admin_claim_signup_notification(uuid) to servic
 grant execute on function public.admin_reset_signup_notification(uuid) to service_role;
 
 -- ============================================================
+-- MIGRACIÓN 009 — solo el plan Mensual tiene prueba gratis
+-- (detalle en supabase/migrations/009_trial_only_mensual.sql).
+-- ============================================================
+
+create or replace function public.choose_trial_plan(p_plan text)
+returns timestamptz
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if p_plan <> 'mensual' then
+    raise exception 'Solo el plan Mensual tiene prueba gratis';
+  end if;
+  if not exists (select 1 from businesses where id = auth.uid()) then
+    raise exception 'Solo el dueño del negocio puede elegir la prueba';
+  end if;
+  if exists (select 1 from business_plans where business_id = auth.uid() and trial_plan is not null) then
+    raise exception 'La prueba de un plan ya fue elegida';
+  end if;
+  return apply_trial_plan(auth.uid(), p_plan);
+end;
+$$;
+
+revoke execute on function public.choose_trial_plan(text) from public, anon;
+grant execute on function public.choose_trial_plan(text) to authenticated;
+
+-- ============================================================
 -- FIN DEL SCRIPT
 -- Recuerda: en el HTML, reemplaza SUPABASE_URL y SUPABASE_ANON_KEY
 -- con las credenciales de tu proyecto (Project Settings > API).
