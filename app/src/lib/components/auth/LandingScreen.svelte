@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { PaidPlan } from '../../types/businessAccess';
+  import { teamWhatsappHref } from '../../utils/whatsapp';
 
   interface Props {
-    /** Con plan: el visitante tocó "Probar gratis" en la tarjeta de ese plan. */
+    /** Con plan: el visitante tocó "Probar gratis" en la tarjeta de Mensual (el único con prueba). */
     onEnter: (plan?: PaidPlan) => void;
   }
 
@@ -15,6 +16,11 @@
   const plansWhatsappHref = `https://wa.me/18299788249?text=${encodeURIComponent(
     'Hola, quiero información sobre los planes de Gestor Empresarial.'
   )}`;
+
+  // Solo Mensual tiene prueba gratis; Semestral y Anual se contratan por WhatsApp.
+  function hireHref(plan: string): string {
+    return teamWhatsappHref(`Hola, quiero contratar el plan ${plan} de Gestor Empresarial.`);
+  }
 </script>
 
 <div class="landing-page">
@@ -149,13 +155,12 @@
             <p class="plan-price"><span class="amount">$100</span><span class="period">/6 meses</span></p>
             <p class="plan-equiv">Equivale a $16.67/mes</p>
             <ul class="plan-features">
-              <li>20 días de prueba gratis</li>
               <li>Hasta 50–90 clientes</li>
               <li>Todo lo del plan Mensual</li>
               <li>Equipo y empleados</li>
               <li>Estadísticas del negocio</li>
             </ul>
-            <button type="button" class="btn btn-plan btn-plan-primary" onclick={() => onEnter('semestral')}>Probar gratis</button>
+            <a class="btn btn-plan btn-plan-primary" href={hireHref('Semestral (6 meses)')} target="_blank" rel="noopener noreferrer">Contratar</a>
           </div>
 
           <div class="plan-card">
@@ -165,12 +170,11 @@
             <p class="plan-price"><span class="amount">$200</span><span class="period">/año</span></p>
             <p class="plan-equiv">Incluye 1 mes gratis · $15.38/mes</p>
             <ul class="plan-features">
-              <li>30 días de prueba gratis</li>
               <li>Más de 150 clientes</li>
               <li>Todo lo del plan 6 Meses</li>
               <li>Asistente virtual <span class="soon">(próximamente)</span></li>
             </ul>
-            <button type="button" class="btn btn-plan" onclick={() => onEnter('anual')}>Probar gratis</button>
+            <a class="btn btn-plan" href={hireHref('Anual')} target="_blank" rel="noopener noreferrer">Contratar</a>
           </div>
         </div>
 

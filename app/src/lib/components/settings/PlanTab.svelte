@@ -61,7 +61,8 @@
     anual: 'cfg.plan_equiv_anual',
   };
 
-  // Mientras sigue en la prueba genérica, puede elegir la de un plan una vez.
+  // Mientras sigue en la prueba genérica puede pasar a la de Mensual (el único
+  // plan con prueba gratis), una sola vez.
   const canChooseTrial = $derived(access?.status === 'trial' && access.plan === 'prueba' && !access.trial_plan);
   let trialError = $state('');
   let startingTrial = $state(false);
@@ -144,7 +145,7 @@
               <li>{feature}</li>
             {/each}
           </ul>
-          {#if canChooseTrial}
+          {#if canChooseTrial && key === 'mensual'}
             <button type="button" class="plan-try" onclick={() => tryPlan(key)} disabled={startingTrial}>
               {$t('cfg.plan_try_button')}
             </button>
