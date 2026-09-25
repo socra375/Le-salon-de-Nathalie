@@ -496,6 +496,20 @@ export interface Database {
         Args: { input_code: string; input_employee_name: string };
         Returns: string;
       };
+      get_my_business_access: {
+        Args: Record<string, never>;
+        Returns: {
+          status: string;
+          plan: string | null;
+          expires_at: string | null;
+          reason: string | null;
+          is_super_admin: boolean;
+        }[];
+      };
+      create_telegram_link_code: {
+        Args: Record<string, never>;
+        Returns: { code: string; expires_at: string }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

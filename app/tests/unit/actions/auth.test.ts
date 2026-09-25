@@ -30,6 +30,12 @@ const employeeInvitesMock = vi.hoisted(() => ({
 }));
 vi.mock('../../../src/lib/api/employeeInvites', () => employeeInvitesMock);
 
+const businessAccessMock = vi.hoisted(() => ({
+  getMyBusinessAccess: vi.fn(),
+}));
+vi.mock('../../../src/lib/api/businessAccess', () => businessAccessMock);
+const ACTIVE_ACCESS = { status: 'active', plan: 'anual', expires_at: '2027-09-25T00:00:00Z', reason: null, is_super_admin: false };
+
 const {
   readPendingInviteFromUrl,
   buildSignUpRedirectUrl,
@@ -39,12 +45,13 @@ const {
   completeOnboarding,
   setForcedPassword,
 } = await import('../../../src/lib/actions/auth');
-const { currentUserId, currentBusinessId, currentUserRole, currentBusiness } = await import(
-  '../../../src/lib/stores/session'
-);
+const { currentUserId, currentBusinessId, currentUserRole, currentBusiness, businessAccess, isBusinessBlocked } =
+  await import('../../../src/lib/stores/session');
 
 beforeEach(() => {
   vi.clearAllMocks();
+  businessAccessMock.getMyBusinessAccess.mockResolvedValue(ACTIVE_ACCESS);
+  businessAccess.set(null);
   currentUserId.set(null);
   currentBusinessId.set(null);
   currentUserRole.set('admin');
@@ -203,6 +210,33 @@ describe('resolveSessionAfterLogin', () => {
 
     expect(businessesMock.createBusiness).not.toHaveBeenCalled();
     expect(result.business).toBeNull();
+  });
+
+  it.each(['blocked', 'paused', 'expired'])(
+    'negocio %s: se detiene antes de buscar membresía o crear el negocio',
+    async (status) => {
+      businessAccessMock.getMyBusinessAccess.mockResolvedValue({ ...ACTIVE_ACCESS, status, reason: 'Pago pendiente' });
+
+      const result = await resolveSessionAfterLogin('user-7', null);
+
+      expect(result.businessId).toBeNull();
+      expect(businessMembersMock.getMembershipByUserId).not.toHaveBeenCalled();
+      expect(businessesMock.getBusinessById).not.toHaveBeenCalled();
+      expect(businessesMock.createBusiness).not.toHaveBeenCalled();
+      expect(get(isBusinessBlocked)).toBe(true);
+      expect(get(currentUserId)).toBe('user-7');
+    }
+  );
+
+  it('negocio en prueba o activo: continúa normalmente y no queda bloqueado', async () => {
+    businessAccessMock.getMyBusinessAccess.mockResolvedValue({ ...ACTIVE_ACCESS, status: 'trial', plan: 'prueba' });
+    businessMembersMock.getMembershipByUserId.mockResolvedValue(null);
+    businessesMock.getBusinessById.mockResolvedValue({ id: 'user-8', name: 'Salón', onboarding_completed: true });
+
+    const result = await resolveSessionAfterLogin('user-8', null);
+
+    expect(result.businessId).toBe('user-8');
+    expect(get(isBusinessBlocked)).toBe(false);
   });
 });
 

@@ -3,7 +3,16 @@ import { supabase } from '../api/client';
 import { getBusinessById, createBusiness, upsertBusiness } from '../api/businesses';
 import { getMembershipByUserId, upsertBusinessMember } from '../api/businessMembers';
 import { redeemInviteCode } from '../api/employeeInvites';
-import { currentUserId, currentBusinessId, currentUserRole, currentBusiness, resetSession } from '../stores/session';
+import { getMyBusinessAccess } from '../api/businessAccess';
+import {
+  currentUserId,
+  currentBusinessId,
+  currentUserRole,
+  currentBusiness,
+  businessAccess,
+  resetSession,
+} from '../stores/session';
+import { LOCKED_STATUSES } from '../types/businessAccess';
 import type { Tables, TablesInsert } from '../types/database.types';
 
 export interface PendingInvite {
@@ -67,7 +76,8 @@ export async function signOut(): Promise<void> {
 }
 
 export interface ResolvedSession {
-  businessId: string;
+  /** null cuando el negocio está bloqueado, pausado o vencido. */
+  businessId: string | null;
   role: 'admin' | 'employee';
   business: Tables<'businesses'> | null;
   /** Si venía un código de invitación y el canje falló, el mensaje para mostrar (auth.invite_invalid). */
@@ -103,6 +113,14 @@ export async function resolveSessionAfterLogin(
     } catch (err) {
       inviteError = err instanceof Error ? err.message : String(err);
     }
+  }
+
+  // Antes de buscar membresía o crear "Mi Salón": con el negocio bloqueado,
+  // pausado o vencido, RLS oculta todo y se intentaría crear un duplicado.
+  const access = await getMyBusinessAccess();
+  businessAccess.set(access);
+  if (LOCKED_STATUSES.includes(access.status)) {
+    return { businessId: null, role, business: null, inviteError };
   }
 
   if (!businessId) {

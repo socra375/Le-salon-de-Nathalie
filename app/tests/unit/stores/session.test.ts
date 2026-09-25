@@ -8,11 +8,37 @@ import {
   isAuthenticated,
   isAdmin,
   needsOnboarding,
+  businessAccess,
+  isBusinessBlocked,
   resetSession,
 } from '../../../src/lib/stores/session';
 
 beforeEach(() => {
   resetSession();
+});
+
+describe('isBusinessBlocked', () => {
+  const base = { plan: 'anual' as const, expires_at: null, reason: null, is_super_admin: false };
+
+  it('es false mientras no se conoce el acceso', () => {
+    expect(get(isBusinessBlocked)).toBe(false);
+  });
+
+  it.each(['blocked', 'paused', 'expired'] as const)('es true con estado %s', (status) => {
+    businessAccess.set({ ...base, status });
+    expect(get(isBusinessBlocked)).toBe(true);
+  });
+
+  it.each(['new', 'trial', 'active'] as const)('es false con estado %s', (status) => {
+    businessAccess.set({ ...base, status });
+    expect(get(isBusinessBlocked)).toBe(false);
+  });
+
+  it('resetSession lo limpia', () => {
+    businessAccess.set({ ...base, status: 'blocked' });
+    resetSession();
+    expect(get(isBusinessBlocked)).toBe(false);
+  });
 });
 
 describe('isAuthenticated', () => {

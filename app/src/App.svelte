@@ -9,6 +9,7 @@
     currentUserRole,
     isAuthenticated,
     isAdmin,
+    isBusinessBlocked,
     needsOnboarding,
     resetSession,
   } from './lib/stores/session';
@@ -17,6 +18,7 @@
   import AuthScreen from './lib/components/auth/AuthScreen.svelte';
   import OnboardingScreen from './lib/components/auth/OnboardingScreen.svelte';
   import ForcedPasswordModal from './lib/components/auth/ForcedPasswordModal.svelte';
+  import BlockedScreen from './lib/components/auth/BlockedScreen.svelte';
   import DashboardScreen from './lib/components/dashboard/DashboardScreen.svelte';
   import AgendaScreen from './lib/components/agenda/AgendaScreen.svelte';
   import InvoicesScreen from './lib/components/invoices/InvoicesScreen.svelte';
@@ -180,6 +182,8 @@
     {/if}
     <AuthScreen {pendingInvite} />
   {/if}
+{:else if $isBusinessBlocked}
+  <BlockedScreen />
 {:else if $needsOnboarding}
   <OnboardingScreen onCompleted={handleOnboardingCompleted} />
 {:else if showForcedPassword}

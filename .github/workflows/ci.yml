@@ -76,3 +76,23 @@ jobs:
           name: app-e2e-report
           path: app/playwright-report/
           retention-days: 7
+
+  # Bot de Telegram de administración (Supabase Edge Function, Deno).
+  telegram-admin:
+    name: supabase/functions/telegram-admin (tipos, pruebas)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions/telegram-admin
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Tipos
+        run: deno check index.ts commands.ts commands_test.ts
+
+      - name: Pruebas
+        run: deno test commands_test.ts
