@@ -41,7 +41,8 @@ export const HELP = [
   '/vincular <código> — vincula este chat (el código se genera en la app: Configuración → Plan)',
   '/negocios — todos los negocios',
   '/estado <email>',
-  '/plan <email> mensual|semestral|anual',
+  '/plan <email> mensual|semestral|anual — asigna o renueva (suma tiempo al mismo plan)',
+  '/cambiar <email> mensual|semestral|anual — cambia el plan ya, conservando la fecha de vencimiento',
   '/prueba <email> mensual|semestral|anual — prueba total del plan (10/20/30 días desde el registro; los días usados se restan)',
   '/bloquear <email> [motivo]',
   '/desbloquear <email>',
@@ -256,6 +257,15 @@ export async function handleCommand(
         if (typeof b === 'string') return b;
         await call(db, 'admin_set_trial', { p_business_id: b.business_id, p_plan: plan });
         return `Prueba aplicada.\n${await statusOf(db, b.business_id)}`;
+      }
+
+      case 'cambiar': {
+        const plan = (args[1] ?? '').toLowerCase();
+        if (!(PLANS as readonly string[]).includes(plan)) return 'Uso: /cambiar <email> mensual|semestral|anual';
+        const b = await findByEmail(db, args[0]);
+        if (typeof b === 'string') return b;
+        await call(db, 'admin_change_plan', { p_business_id: b.business_id, p_plan: plan });
+        return `Plan cambiado (se conserva la fecha de vencimiento).\n${await statusOf(db, b.business_id)}`;
       }
 
       case 'plan': {
