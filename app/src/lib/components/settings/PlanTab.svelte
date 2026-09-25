@@ -4,6 +4,8 @@
   import { createTelegramLinkCode } from '../../api/businessAccess';
   import { fmtDate, fmtTime } from '../../utils/format';
   import { teamWhatsappHref } from '../../utils/whatsapp';
+  import type { BusinessPlan } from '../../types/businessAccess';
+  import type { TranslationKey } from '../../i18n';
 
   // El cliente y el equipo acuerdan el cambio de plan por WhatsApp; no hay
   // aprobación automatizada. El plan lo asigna el equipo (bot de Telegram).
@@ -24,6 +26,46 @@
     } finally {
       generating = false;
     }
+  }
+
+  // Los mismos 3 planes pagos de la landing (#planes) -- "prueba" es un
+  // estado, no un plan que se pueda elegir, así que no tiene tarjeta acá.
+  type PaidPlan = Extract<BusinessPlan, 'mensual' | 'semestral' | 'anual'>;
+  const PLAN_KEYS: PaidPlan[] = ['mensual', 'semestral', 'anual'];
+
+  const currentPlan = $derived(
+    PLAN_KEYS.includes(access?.plan as PaidPlan) ? (access!.plan as PaidPlan) : null
+  );
+
+  const PLAN_TAG_KEY: Record<PaidPlan, TranslationKey> = {
+    mensual: 'cfg.plan_tag_mensual',
+    semestral: 'cfg.plan_tag_semestral',
+    anual: 'cfg.plan_tag_anual',
+  };
+  const PLAN_PRICE_KEY: Record<PaidPlan, TranslationKey> = {
+    mensual: 'cfg.plan_price_mensual',
+    semestral: 'cfg.plan_price_semestral',
+    anual: 'cfg.plan_price_anual',
+  };
+  const PLAN_FEATURES_KEY: Record<PaidPlan, TranslationKey> = {
+    mensual: 'cfg.plan_features_mensual',
+    semestral: 'cfg.plan_features_semestral',
+    anual: 'cfg.plan_features_anual',
+  };
+  const PLAN_BADGE_KEY: Partial<Record<PaidPlan, TranslationKey>> = {
+    semestral: 'cfg.plan_badge_semestral',
+    anual: 'cfg.plan_badge_anual',
+  };
+  const PLAN_EQUIV_KEY: Partial<Record<PaidPlan, TranslationKey>> = {
+    semestral: 'cfg.plan_equiv_semestral',
+    anual: 'cfg.plan_equiv_anual',
+  };
+
+  function features(key: PaidPlan): string[] {
+    return $t(PLAN_FEATURES_KEY[key])
+      .split('|')
+      .map((feature) => feature.trim())
+      .filter(Boolean);
   }
 </script>
 
@@ -55,8 +97,121 @@
     </section>
   {:else}
     <p>{$t('cfg.plan_body')}</p>
+
+    <h3>{$t('cfg.plan_compare_title')}</h3>
+    <div class="plan-grid">
+      {#each PLAN_KEYS as key (key)}
+        <div class="card plan-card" class:plan-card-current={currentPlan === key}>
+          <div class="plan-badges">
+            {#if PLAN_BADGE_KEY[key]}
+              <span class="plan-badge">{$t(PLAN_BADGE_KEY[key]!)}</span>
+            {/if}
+            {#if currentPlan === key}
+              <span class="plan-badge plan-badge-current">{$t('cfg.plan_current_badge')}</span>
+            {/if}
+          </div>
+          <h4>{$t(`plan.${key}`)}</h4>
+          <p class="plan-tag">{$t(PLAN_TAG_KEY[key])}</p>
+          <p class="plan-price">{$t(PLAN_PRICE_KEY[key])}</p>
+          {#if PLAN_EQUIV_KEY[key]}
+            <p class="plan-equiv">{$t(PLAN_EQUIV_KEY[key]!)}</p>
+          {/if}
+          <ul class="plan-features">
+            {#each features(key) as feature (feature)}
+              <li>{feature}</li>
+            {/each}
+          </ul>
+        </div>
+      {/each}
+    </div>
+    <p class="plan-note">{$t('cfg.plan_compare_note')}</p>
+
     <a href={whatsappHref} target="_blank" rel="noopener noreferrer" role="button">
       {$t('cfg.plan_button')}
     </a>
   {/if}
 </div>
+
+<style>
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .plan-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .plan-card-current {
+    border-color: var(--accent-profit);
+  }
+
+  .plan-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    min-height: 1.4rem;
+  }
+
+  .plan-badge {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: var(--border-subtle);
+    color: var(--text-primary);
+  }
+
+  .plan-badge-current {
+    background: var(--accent-profit);
+    color: var(--on-accent);
+  }
+
+  .plan-card h4 {
+    margin: 0;
+  }
+
+  .plan-tag {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .plan-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0.15rem 0 0;
+  }
+
+  .plan-equiv {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+  }
+
+  .plan-features li::before {
+    content: '✓ ';
+    color: var(--accent-profit);
+  }
+
+  .plan-note {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+</style>
