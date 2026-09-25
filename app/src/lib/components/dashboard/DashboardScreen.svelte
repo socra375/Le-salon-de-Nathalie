@@ -321,6 +321,13 @@
     --dt-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
     --dt-sans: 'Jost', 'Segoe UI', system-ui, sans-serif;
 
+    /* RevenueChart.svelte colorea sus etiquetas con los tokens globales
+       --text-primary/--text-muted, pensados para el fondo oscuro del resto
+       de la app -- casi invisibles sobre esta tarjeta clara. Se sobrescriben
+       acá (no en RevenueChart) porque solo este tema los necesita oscuros. */
+    --text-primary: var(--dt-tinta);
+    --text-muted: var(--dt-suave);
+
     background: var(--dt-fondo);
     color: var(--dt-tinta);
     font-family: var(--dt-sans);
