@@ -1,5 +1,6 @@
 import { writable, derived } from 'svelte/store';
 import type { Tables } from '../types/database.types';
+import { LOCKED_STATUSES, type BusinessAccess } from '../types/businessAccess';
 
 /**
  * Regla de la Fase 5 (ver plan): un store representa estado compartido, no
@@ -22,9 +23,16 @@ export const needsOnboarding = derived(
   ([$isAdmin, $business]) => $isAdmin && !$business?.onboarding_completed
 );
 
+export const businessAccess = writable<BusinessAccess | null>(null);
+export const isBusinessBlocked = derived(
+  businessAccess,
+  ($access) => $access !== null && LOCKED_STATUSES.includes($access.status)
+);
+
 export function resetSession(): void {
   currentUserId.set(null);
   currentBusinessId.set(null);
   currentUserRole.set('admin');
   currentBusiness.set(null);
+  businessAccess.set(null);
 }

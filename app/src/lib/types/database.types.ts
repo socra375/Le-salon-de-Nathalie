@@ -496,6 +496,15 @@ export interface Database {
         Args: { input_code: string; input_employee_name: string };
         Returns: string;
       };
+      get_my_business_access: {
+        Args: Record<string, never>;
+        Returns: {
+          status: string;
+          plan: string | null;
+          expires_at: string | null;
+          reason: string | null;
+        }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
