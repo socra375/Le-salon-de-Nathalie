@@ -504,6 +504,7 @@ export interface Database {
           expires_at: string | null;
           reason: string | null;
           is_super_admin: boolean;
+          modules: string[];
         }[];
       };
       create_telegram_link_code: {

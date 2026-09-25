@@ -1,6 +1,6 @@
 import { supabase } from './client';
 import { unwrap, unwrapNullable } from './errors';
-import type { BusinessAccess } from '../types/businessAccess';
+import { ALL_MODULES, type BusinessAccess } from '../types/businessAccess';
 
 /**
  * Estado del plan del negocio del usuario actual (RPC get_my_business_access).
@@ -9,7 +9,7 @@ import type { BusinessAccess } from '../types/businessAccess';
  */
 export async function getMyBusinessAccess(): Promise<BusinessAccess> {
   const row = unwrapNullable(await supabase.rpc('get_my_business_access').maybeSingle());
-  return (row as BusinessAccess | null) ?? { status: 'new', plan: null, expires_at: null, reason: null, is_super_admin: false };
+  return (row as BusinessAccess | null) ?? { status: 'new', plan: null, expires_at: null, reason: null, is_super_admin: false, modules: [...ALL_MODULES] };
 }
 
 /** Código de un solo uso (10 min) para vincular Telegram. Solo súper admins. */
