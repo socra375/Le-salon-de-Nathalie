@@ -32,6 +32,7 @@ describe('enabledModules', () => {
       reason: null,
       is_super_admin: false,
       modules: ['equipo'],
+      trial_plan: null,
     });
     expect(get(enabledModules).has('facturas')).toBe(false);
     expect(get(enabledModules).has('equipo')).toBe(true);
@@ -45,6 +46,7 @@ describe('isBusinessBlocked', () => {
     reason: null,
     is_super_admin: false,
     modules: ['facturas', 'equipo', 'estadisticas'] as ModuleKey[],
+    trial_plan: null,
   };
 
   it('es false mientras no se conoce el acceso', () => {

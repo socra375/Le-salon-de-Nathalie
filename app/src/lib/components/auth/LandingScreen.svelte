@@ -162,6 +162,7 @@
             <p class="plan-price"><span class="amount">$200</span><span class="period">/año</span></p>
             <p class="plan-equiv">Incluye 1 mes gratis · $15.38/mes</p>
             <ul class="plan-features">
+              <li>30 días de prueba gratis</li>
               <li>Más de 150 clientes</li>
               <li>Todo lo del plan 6 Meses</li>
               <li>Asistente virtual <span class="soon">(próximamente)</span></li>

@@ -42,6 +42,7 @@ export const HELP = [
   '/negocios — todos los negocios',
   '/estado <email>',
   '/plan <email> mensual|semestral|anual',
+  '/prueba <email> mensual|semestral|anual — prueba total del plan (10/20/30 días desde el registro; los días usados se restan)',
   '/bloquear <email> [motivo]',
   '/desbloquear <email>',
   '/pausar <email> [motivo] — congela los días restantes',
@@ -246,6 +247,15 @@ export async function handleCommand(
         const users = del.user_ids?.length ?? 0;
         const base = `🗑️ "${del.name}" eliminado con todos sus datos. Usuarios borrados: ${users - problems.filter((p) => p.startsWith('usuario')).length}/${users}.`;
         return problems.length ? `${base}\nPendiente de borrar a mano en Supabase:\n${problems.join('\n')}` : base;
+      }
+
+      case 'prueba': {
+        const plan = (args[1] ?? '').toLowerCase();
+        if (!(PLANS as readonly string[]).includes(plan)) return 'Uso: /prueba <email> mensual|semestral|anual';
+        const b = await findByEmail(db, args[0]);
+        if (typeof b === 'string') return b;
+        await call(db, 'admin_set_trial', { p_business_id: b.business_id, p_plan: plan });
+        return `Prueba aplicada.\n${await statusOf(db, b.business_id)}`;
       }
 
       case 'plan': {
