@@ -11,6 +11,7 @@
     isAuthenticated,
     isAdmin,
     isBusinessBlocked,
+    enabledModules,
     needsOnboarding,
     resetSession,
   } from './lib/stores/session';
@@ -35,6 +36,13 @@
   let agendaAutoOpen = $state(false);
   /** Igual, para saltar directo a una pestaña de Configuración desde el checklist de primeros pasos. */
   let settingsInitialTab = $state<'services' | 'customers' | null>(null);
+
+  // Sin el módulo de estadísticas no hay Inicio: se arranca en Agenda.
+  $effect(() => {
+    if (activeSection === 'dashboard' && !$enabledModules.has('estadisticas')) activeSection = 'agenda';
+    if (activeSection === 'invoices' && !$enabledModules.has('facturas')) activeSection = 'agenda';
+    if (activeSection === 'employees' && !$enabledModules.has('equipo')) activeSection = 'agenda';
+  });
 
   function goToSection(section: Section) {
     agendaAutoOpen = false;
@@ -244,19 +252,23 @@
         </div>
       </div>
       <nav aria-label={$t('nav.dashboard')}>
-        <button type="button" class="side-link" aria-current={activeSection === 'dashboard' ? 'page' : undefined} onclick={() => goToSection('dashboard')}>
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6.5L20 11" /><path d="M6 10v9.5h12V10" /><path d="M10 19.5v-5h4v5" /></svg>
-          {$t('nav.dashboard')}
-        </button>
+        {#if $enabledModules.has('estadisticas')}
+          <button type="button" class="side-link" aria-current={activeSection === 'dashboard' ? 'page' : undefined} onclick={() => goToSection('dashboard')}>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6.5L20 11" /><path d="M6 10v9.5h12V10" /><path d="M10 19.5v-5h4v5" /></svg>
+            {$t('nav.dashboard')}
+          </button>
+        {/if}
         <button type="button" class="side-link" aria-current={activeSection === 'agenda' ? 'page' : undefined} onclick={() => goToSection('agenda')}>
           <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="3" /><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" /></svg>
           {$t('nav.agenda')}
         </button>
-        <button type="button" class="side-link" aria-current={activeSection === 'invoices' ? 'page' : undefined} onclick={() => goToSection('invoices')}>
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.6-2.4 1.6-1.2-.9-1.2.9-2.4-1.6L6 20.5z" /><path d="M9 8.5h6M9 12h6" /></svg>
-          {$t('nav.invoices')}
-        </button>
-        {#if $currentBusiness?.business_type === 'group'}
+        {#if $enabledModules.has('facturas')}
+          <button type="button" class="side-link" aria-current={activeSection === 'invoices' ? 'page' : undefined} onclick={() => goToSection('invoices')}>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.6-2.4 1.6-1.2-.9-1.2.9-2.4-1.6L6 20.5z" /><path d="M9 8.5h6M9 12h6" /></svg>
+            {$t('nav.invoices')}
+          </button>
+        {/if}
+        {#if $currentBusiness?.business_type === 'group' && $enabledModules.has('equipo')}
           <button type="button" class="side-link" aria-current={activeSection === 'employees' ? 'page' : undefined} onclick={() => goToSection('employees')}>
             <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2" /><path d="M3 19.5c.5-3.2 2.8-5 6-5s5.5 1.8 6 5" /><circle cx="17" cy="9.5" r="2.6" /><path d="M16.5 14.8c2.6.1 4.1 1.6 4.5 4.2" /></svg>
             {$t('nav.employees')}
