@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fmtDate, fmtDateTime, fmtTime, fmtDateLong, LOCALE_MAP } from '../../../src/lib/utils/format';
+import { fmtDate, fmtDateTime, fmtTime, fmtDateLong, fmtMonthYear, LOCALE_MAP } from '../../../src/lib/utils/format';
 import { LOCALES } from '../../../src/lib/i18n';
 
 describe('LOCALE_MAP', () => {
@@ -36,5 +36,11 @@ describe('fmtDate / fmtDateTime / fmtTime', () => {
     const capitalized = expected.charAt(0).toUpperCase() + expected.slice(1);
     expect(fmtDateLong(date, 'es')).toBe(capitalized);
     expect(fmtDateLong(date, 'es')[0]).toBe(capitalized[0]);
+  });
+
+  it('fmtMonthYear devuelve mes y año con mayúscula inicial', () => {
+    const expected = new Date(2026, 0, 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    const capitalized = expected.charAt(0).toUpperCase() + expected.slice(1);
+    expect(fmtMonthYear(2026, 0, 'es')).toBe(capitalized);
   });
 });

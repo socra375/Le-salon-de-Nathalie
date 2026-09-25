@@ -1,11 +1,16 @@
 <script lang="ts">
   import { t, locale } from '../../stores/locale';
+  import { currentBusiness } from '../../stores/session';
   import { payCredit } from '../../actions/customers';
-  import { summarizeCustomerHistory, pendingCreditTotal } from '../../utils/customerAccount';
-  import { apptServicesLabel } from '../../utils/appointments';
+  import { createInvoiceForAppointment } from '../../actions/invoices';
+  import { summarizeCustomerHistory, pendingCreditTotal, monthlySpendingSummary } from '../../utils/customerAccount';
+  import { apptServices, apptServicesLabel } from '../../utils/appointments';
   import { apptStatusLabel, creditStatusLabel, type AppointmentStatus, type CreditStatus } from '../../utils/labels';
-  import { fmtDate, fmtDateTime } from '../../utils/format';
+  import { fmtDate, fmtDateTime, fmtMonthYear } from '../../utils/format';
+  import { buildInvoicePdf, openInvoicePdf, loadImageAsDataURL } from '../../pdf/invoicePdf';
   import Modal from '../shared/Modal.svelte';
+  import PaymentMethodModal from '../agenda/PaymentMethodModal.svelte';
+  import type { PaymentMethodKey } from '../../utils/payments';
   import type { SpecialistOption } from '../../actions/services';
   import type { Tables } from '../../types/database.types';
 
@@ -14,15 +19,20 @@
     credits: Tables<'customer_credits'>[];
     history: Tables<'appointments'>[];
     services: Tables<'services'>[];
+    invoices: Tables<'invoices'>[];
     specialistOptions: SpecialistOption[];
     onClose: () => void;
   }
 
-  const { customer, credits, history, services, specialistOptions, onClose }: Props = $props();
+  const { customer, credits, history, services, invoices, specialistOptions, onClose }: Props = $props();
 
   const summary = $derived(summarizeCustomerHistory(history));
   const pendingTotal = $derived(pendingCreditTotal(credits));
   const pendingCredits = $derived(credits.filter((c) => c.status !== 'pagado'));
+  const monthlySummary = $derived(monthlySpendingSummary(history, services, invoices, credits));
+
+  let invoicingAppt = $state<Tables<'appointments'> | null>(null);
+  let invoiceErrorMessage = $state('');
 
   let selectedCreditId = $state('');
   let amountToPay = $state('');
@@ -59,6 +69,48 @@
       };
     } finally {
       submitting = false;
+    }
+  }
+
+  /**
+   * Igual que el "Facturar" de una cita completada sin factura en Agenda
+   * (`startRetryInvoice`) -- reutiliza la misma orquestación y el mismo
+   * dibujo de PDF, solo que el punto de entrada es el resumen mensual de
+   * la cuenta del cliente en vez de la lista del día.
+   */
+  async function handleInvoiceConfirm(paymentMethod: PaymentMethodKey) {
+    if (!invoicingAppt) return;
+    const appt = invoicingAppt;
+    invoicingAppt = null;
+    invoiceErrorMessage = '';
+
+    const business = $currentBusiness;
+
+    try {
+      const invoice = await createInvoiceForAppointment({
+        businessId: customer.business_id,
+        appt,
+        services,
+        business,
+        customerId: customer.id,
+        customerName: customer.name,
+        paymentMethod,
+        buildActivityMessage: (number) => $t('act.invoice_generated', { number }),
+      });
+
+      const logo = business?.logo_url ? await loadImageAsDataURL(business.logo_url) : null;
+      const doc = buildInvoicePdf({
+        invoice,
+        apptServices: apptServices(appt, services),
+        customer,
+        business,
+        specialistLabel: specialistLabel(appt.employee_id),
+        locale: $locale,
+        logo,
+      });
+      openInvoicePdf(doc);
+    } catch (err) {
+      invoiceErrorMessage = $t('inv.error_generate', { msg: err instanceof Error ? err.message : String(err) });
     }
   }
 </script>
@@ -117,6 +169,38 @@
     {/if}
   </div>
 
+  <div class="card">
+    <h3>{$t('cust.monthly_title')}</h3>
+    {#if monthlySummary.length === 0}
+      <p>{$t('cust.monthly_empty')}</p>
+    {:else}
+      <ul>
+        {#each monthlySummary as month (month.monthKey)}
+          <li>
+            <div>
+              <strong>{fmtMonthYear(month.year, month.month, $locale)}</strong>
+              {$t(month.visitCount === 1 ? 'cust.monthly_visit' : 'cust.monthly_visits', { n: month.visitCount })}
+              — ${month.total.toFixed(2)}
+            </div>
+            {#if month.pendingInvoice.length > 0}
+              <ul>
+                {#each month.pendingInvoice as appt (appt.id)}
+                  <li>
+                    {$t('cust.monthly_pending_label')} {fmtDate(appt.start_at, $locale)} · {apptServicesLabel(appt, services)}
+                    <button type="button" onclick={() => (invoicingAppt = appt)}>{$t('appt.btn_invoice')}</button>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    {/if}
+    {#if invoiceErrorMessage}
+      <p role="alert">{invoiceErrorMessage}</p>
+    {/if}
+  </div>
+
   <h3>{$t('cust.credits_title')}</h3>
   <div class="table-responsive">
     <table>
@@ -170,3 +254,15 @@
   {/if}
   </div>
 </Modal>
+
+{#if invoicingAppt}
+  <PaymentMethodModal
+    appt={invoicingAppt}
+    clientName={customer.name}
+    {services}
+    customers={[customer]}
+    business={$currentBusiness}
+    onConfirm={handleInvoiceConfirm}
+    onCancel={() => (invoicingAppt = null)}
+  />
+{/if}

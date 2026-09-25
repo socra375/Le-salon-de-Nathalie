@@ -11,9 +11,24 @@ vi.mock('../../../../src/lib/actions/customers', async () => {
   return { ...actual, payCredit: actionsMock.payCredit };
 });
 
+const invoicesActionsMock = vi.hoisted(() => ({ createInvoiceForAppointment: vi.fn() }));
+vi.mock('../../../../src/lib/actions/invoices', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../../../src/lib/actions/invoices')>('../../../../src/lib/actions/invoices');
+  return { ...actual, createInvoiceForAppointment: invoicesActionsMock.createInvoiceForAppointment };
+});
+
+const pdfMock = vi.hoisted(() => ({
+  buildInvoicePdf: vi.fn(),
+  openInvoicePdf: vi.fn(),
+  loadImageAsDataURL: vi.fn(),
+}));
+vi.mock('../../../../src/lib/pdf/invoicePdf', () => pdfMock);
+
 const { default: CustomerAccountModal } = await import(
   '../../../../src/lib/components/customers/CustomerAccountModal.svelte'
 );
+const { currentBusiness } = await import('../../../../src/lib/stores/session');
 
 const customer = { id: 'cust-1', business_id: 'biz-1', name: 'Ana', phone: '555-1234', notes: null, address: null, email: null, created_at: null };
 const services = [{ id: 'svc-1', business_id: 'biz-1', name: 'Corte', category: 'Cabello', duration_minutes: 30, price: 15, active: true, created_at: null }];
@@ -47,12 +62,15 @@ const pendingCredit = {
 };
 
 afterEach(() => cleanup());
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  currentBusiness.set({ id: 'biz-1', name: 'Mi Salón' } as never);
+});
 
 describe('CustomerAccountModal', () => {
   it('sin historial ni créditos, muestra "Sin registro" y no muestra el formulario de abono', () => {
     render(CustomerAccountModal, {
-      props: { customer, credits: [], history: [], services, specialistOptions, onClose: vi.fn() },
+      props: { customer, credits: [], history: [], services, invoices: [], specialistOptions, onClose: vi.fn() },
     });
 
     expect(screen.getByRole('heading', { name: 'Cuenta de Ana' })).toBeTruthy();
@@ -62,7 +80,7 @@ describe('CustomerAccountModal', () => {
 
   it('con historial, muestra el servicio y especialista más frecuentes', () => {
     render(CustomerAccountModal, {
-      props: { customer, credits: [], history: [appt], services, specialistOptions, onClose: vi.fn() },
+      props: { customer, credits: [], history: [appt], services, invoices: [], specialistOptions, onClose: vi.fn() },
     });
 
     expect(screen.getAllByText('Corte').length).toBe(2);
@@ -72,7 +90,7 @@ describe('CustomerAccountModal', () => {
   it('con un crédito pendiente, permite abonar y muestra el mensaje de éxito', async () => {
     actionsMock.payCredit.mockResolvedValue(undefined);
     render(CustomerAccountModal, {
-      props: { customer, credits: [pendingCredit], history: [], services, specialistOptions, onClose: vi.fn() },
+      props: { customer, credits: [pendingCredit], history: [], services, invoices: [], specialistOptions, onClose: vi.fn() },
     });
 
     await fireEvent.change(screen.getByLabelText('Seleccionar Crédito Pendiente'), { target: { value: 'cr-1' } });
@@ -85,7 +103,7 @@ describe('CustomerAccountModal', () => {
 
   it('con un monto inválido (cero), no llama a payCredit', async () => {
     render(CustomerAccountModal, {
-      props: { customer, credits: [pendingCredit], history: [], services, specialistOptions, onClose: vi.fn() },
+      props: { customer, credits: [pendingCredit], history: [], services, invoices: [], specialistOptions, onClose: vi.fn() },
     });
 
     // El <select>/<input> son `required` -- para probar la validación
@@ -102,7 +120,7 @@ describe('CustomerAccountModal', () => {
   it('si falla el abono, muestra el error traducido', async () => {
     actionsMock.payCredit.mockRejectedValue(new Error('conexión perdida'));
     render(CustomerAccountModal, {
-      props: { customer, credits: [pendingCredit], history: [], services, specialistOptions, onClose: vi.fn() },
+      props: { customer, credits: [pendingCredit], history: [], services, invoices: [], specialistOptions, onClose: vi.fn() },
     });
 
     await fireEvent.change(screen.getByLabelText('Seleccionar Crédito Pendiente'), { target: { value: 'cr-1' } });
@@ -115,16 +133,83 @@ describe('CustomerAccountModal', () => {
   it('el botón cerrar llama a onClose', async () => {
     const onClose = vi.fn();
     render(CustomerAccountModal, {
-      props: { customer, credits: [], history: [], services, specialistOptions, onClose },
+      props: { customer, credits: [], history: [], services, invoices: [], specialistOptions, onClose },
     });
 
     await fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('sin citas completadas, el resumen mensual muestra el aviso de vacío', () => {
+    render(CustomerAccountModal, {
+      props: { customer, credits: [], history: [], services, invoices: [], specialistOptions, onClose: vi.fn() },
+    });
+    expect(screen.getByText('Todavía no hay historial de gastos por mes.')).toBeTruthy();
+  });
+
+  it('agrupa el historial por mes y muestra el total cobrado', () => {
+    render(CustomerAccountModal, {
+      props: {
+        customer,
+        credits: [],
+        history: [{ ...appt, price: 500 }],
+        services,
+        invoices: [],
+        specialistOptions,
+        onClose: vi.fn(),
+      },
+    });
+
+    expect(screen.getByText(/Enero de 2026|enero de 2026/i)).toBeTruthy();
+    expect(screen.getByText(/\$500\.00/)).toBeTruthy();
+  });
+
+  it('una cita completada sin factura muestra el botón "Facturar" en su mes', () => {
+    render(CustomerAccountModal, {
+      props: { customer, credits: [], history: [appt], services, invoices: [], specialistOptions, onClose: vi.fn() },
+    });
+    expect(screen.getByRole('button', { name: 'Facturar' })).toBeTruthy();
+  });
+
+  it('una cita ya facturada no muestra el botón "Facturar"', () => {
+    render(CustomerAccountModal, {
+      props: {
+        customer,
+        credits: [],
+        history: [appt],
+        services,
+        invoices: [{ id: 'inv-1', appointment_id: 'a1' }] as never,
+        specialistOptions,
+        onClose: vi.fn(),
+      },
+    });
+    expect(screen.queryByRole('button', { name: 'Facturar' })).toBeNull();
+  });
+
+  it('facturar desde el resumen mensual orquesta createInvoiceForAppointment y abre el PDF', async () => {
+    invoicesActionsMock.createInvoiceForAppointment.mockResolvedValue({ id: 'inv-1', customer_id: 'cust-1' });
+    pdfMock.buildInvoicePdf.mockReturnValue({});
+
+    render(CustomerAccountModal, {
+      props: { customer, credits: [], history: [appt], services, invoices: [], specialistOptions, onClose: vi.fn() },
+    });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Facturar' }));
+    expect(screen.getByRole('dialog', { name: 'Método de Pago' })).toBeTruthy();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Confirmar y Completar' }));
+
+    await vi.waitFor(() => expect(invoicesActionsMock.createInvoiceForAppointment).toHaveBeenCalled());
+    expect(invoicesActionsMock.createInvoiceForAppointment).toHaveBeenCalledWith(
+      expect.objectContaining({ businessId: 'biz-1', customerId: 'cust-1', customerName: 'Ana' })
+    );
+    expect(pdfMock.buildInvoicePdf).toHaveBeenCalled();
+    expect(pdfMock.openInvoicePdf).toHaveBeenCalled();
+  });
+
   it('sin violaciones de accesibilidad (axe-core), con historial y un crédito pendiente', async () => {
     const { container } = render(CustomerAccountModal, {
-      props: { customer, credits: [pendingCredit], history: [appt], services, specialistOptions, onClose: vi.fn() },
+      props: { customer, credits: [pendingCredit], history: [appt], services, invoices: [], specialistOptions, onClose: vi.fn() },
     });
     await expectNoA11yViolations(container);
   });

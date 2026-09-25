@@ -33,6 +33,13 @@ vi.mock('../../../../src/lib/actions/services', async () => {
   return { ...actual, loadSpecialistOptions: servicesActionsMock.loadSpecialistOptions };
 });
 
+const invoicesActionsMock = vi.hoisted(() => ({ loadInvoices: vi.fn() }));
+vi.mock('../../../../src/lib/actions/invoices', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../../../src/lib/actions/invoices')>('../../../../src/lib/actions/invoices');
+  return { ...actual, loadInvoices: invoicesActionsMock.loadInvoices };
+});
+
 const { default: CustomersScreen } = await import('../../../../src/lib/components/customers/CustomersScreen.svelte');
 const { currentBusinessId } = await import('../../../../src/lib/stores/session');
 const { customers, customerCredits } = await import('../../../../src/lib/stores/customers');
@@ -53,6 +60,7 @@ beforeEach(() => {
   });
   customersActionsMock.loadCredits.mockResolvedValue(undefined);
   appointmentsActionsMock.loadAppointments.mockResolvedValue(undefined);
+  invoicesActionsMock.loadInvoices.mockResolvedValue(undefined);
   servicesActionsMock.loadSpecialistOptions.mockResolvedValue([]);
 });
 
@@ -63,6 +71,7 @@ describe('CustomersScreen', () => {
     await vi.waitFor(() => expect(customersActionsMock.loadCustomers).toHaveBeenCalledWith('biz-1'));
     expect(customersActionsMock.loadCredits).toHaveBeenCalledWith('biz-1');
     expect(appointmentsActionsMock.loadAppointments).toHaveBeenCalledWith('biz-1');
+    expect(invoicesActionsMock.loadInvoices).toHaveBeenCalledWith('biz-1');
     expect(servicesActionsMock.loadSpecialistOptions).toHaveBeenCalledWith(
       'biz-1',
       'Tú (Administrador/a)',
